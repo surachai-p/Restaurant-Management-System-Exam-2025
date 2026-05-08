@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-eta.vercel.app`          | ✅     |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025-d617.onrender.com`        | ✅     |
+| API Health Check   | `https://restaurant-management-system-exam-2025-d617.onrender.com` | ✅ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_Brq6LSlUHb9W@ep-damp-recipe-apqkaj03-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ✅     |
 
 ---
 
@@ -529,6 +529,7 @@ Build Command:  npm run build
 > (วางภาพที่นี่)
 ![alt text](image-9.png)
 
+![alt text](image-10.png)
 ---
 
 *Template สร้างจากข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ — PRIME-BSD Model*
