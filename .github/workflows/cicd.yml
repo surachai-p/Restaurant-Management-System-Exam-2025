@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rms_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: 'backend/package-lock.json'
+
+    - name: Install backend dependencies
+      run: cd backend && npm ci
+
+    - name: Generate Prisma client
+      run: cd backend && npx prisma generate
+
+    - name: Run backend tests
+      run: cd backend && npm test
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+
+    - name: Security audit backend
+      run: cd backend && npm audit --audit-level=high
+
+    - name: Setup Node.js for frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+
+    - name: Install frontend dependencies
+      run: cd frontend && npm ci
+
+    - name: Security audit frontend
+      run: cd frontend && npm audit --audit-level=high
+
+    - name: Run frontend build
+      run: cd frontend && npm run build
+
+    - name: Install Newman
+      run: npm install -g newman newman-reporter-htmlextra
+
+    - name: Run Newman E2E Tests
+      run: |
+        newman run tests/postman/RMS-TestSuite-v2.json \
+          -e tests/postman/env-ci.json \
+          --reporters cli,htmlextra \
+          --reporter-htmlextra-export tests/reports/newman-report.html \
+          --env-var "base_url=https://restaurant-management-system-exam-2025-d617.onrender.com/api"
+      continue-on-error: true
+
+    - name: Upload Newman Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: newman-report
+        path: tests/reports/newman-report.html
