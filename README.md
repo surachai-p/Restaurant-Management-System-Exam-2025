@@ -2,7 +2,7 @@
 
 > **ข้อสอบปฏิบัติ** — รายวิชาการออกแบบและพัฒนาซอฟต์แวร์ 1 | KMITL
 
-[![CI](https://github.com/YOUR_USERNAME/restaurant-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/restaurant-management-system/actions)
+[![CI/CD Pipeline](https://github.com/Doonminus2/Restaurant-Management-System-Exam-2025/actions/workflows/cicd.yml/badge.svg)](https://github.com/Doonminus2/Restaurant-Management-System-Exam-2025/actions/workflows/cicd.yml)
 
 ---
 
@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** ชิษณุพัศก์ วายุสุวรรณวิทย์
+**รหัสนักศึกษา:** 68030063
+**วันที่สอบ:** 8/5/2026
 
 ---
 
@@ -20,136 +20,143 @@
 
 | Layer    | Technology |
 |----------|------------|
-| Frontend | React 18 + Vite + **TypeScript** + **Tailwind CSS** |
-| Backend  | Node.js 22 LTS + Express + **TypeScript** |
+| Frontend | React 18 + Vite + TypeScript + Tailwind CSS |
+| Backend  | Node.js 22 LTS + Express + TypeScript |
 | Database | PostgreSQL 16 (Neon.tech) |
-| ORM      | **Prisma** |
-| Testing  | **Vitest** + Supertest + Newman |
-| Deploy   | Vercel (FE) + Render (BE + DB) |
+| ORM      | Prisma |
+| Testing  | Vitest + Supertest + Newman |
+| Deploy   | Vercel (FE) + Render (BE) |
 
 ---
 
 ## 🌐 Production URLs
 
-| Service     | URL |
-|-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Service      | URL |
+|--------------|-----|
+| Frontend     | https://restaurant-management-system-exam-2.vercel.app |
+| Backend API  | https://restaurant-management-system-exam-backend.onrender.com |
+| Health Check | https://restaurant-management-system-exam-backend.onrender.com/api/health |
+| Database     | Neon.tech (PostgreSQL 16) |
 
 ---
 
 ## 📋 Test Plan
 
-<!-- ส่วนที่ 1: นักศึกษากรอก -->
-
 ### Test Scope
-**In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**In Scope:**
+- [x] Authentication (Login/Logout, JWT)
+- [x] Menu Management (CRUD + Role-based access)
+- [x] Order Management (Open/Add Items/Confirm/Cancel)
+- [x] Payment Processing (Cash)
+- [x] Security (SQL Injection, Role Check, No-Auth)
+
+**Out of Scope:** Sales Reports (UI only, not tested via API)
 
 ### Test Approach
 
 | ประเภท | เครื่องมือ | ครอบคลุม |
 |--------|-----------|----------|
 | Unit Testing | Vitest | Business Logic (Payment Calculation) |
-| API Testing | Postman / Newman | REST Endpoints ทั้งหมด |
-| Security Testing | Manual + Postman | Auth, SQL Injection, Role Check |
+| API Testing | Postman / Newman | REST Endpoints ทั้งหมด (21 TC) |
+| Security Testing | Postman | Auth, SQL Injection, Role Check |
 
 ### Test Environment
 
-| Component | Specification |
-|-----------|--------------|
-| Node.js   | 22 LTS |
-| PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Component  | Specification |
+|------------|--------------|
+| Node.js    | 22 LTS |
+| PostgreSQL  | 16 (Neon.tech) |
+| Browser    | Chrome 124 |
+| OS         | macOS |
 
-### Entry/Exit Criteria
+### Entry / Exit Criteria
 
-**Entry:** ระบบ Start ได้, `GET /api/health` คืน `{"status":"ok"}`
-**Exit:** ≥ 80% Test Cases ผ่าน, ไม่มี Critical Bug ที่ยังไม่รายงาน
+**Entry:** ระบบ Start ได้ ✅ · `GET /api/health` คืน `{"status":"ok"}` ✅ · Database เชื่อมต่อ Neon.tech ✅ · Postman Collection พร้อม ✅
+
+**Exit:** ≥ 80% Test Cases ผ่าน ✅ (84.6%) · ไม่มี Critical Bug ที่ยังไม่รายงาน ✅
 
 ### Business Risk
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
+| ชำระเงินน้อยกว่ายอดจริง (Underpayment) | ร้านสูญเสียรายได้ | P1 |
+| เปิดบิลซ้อนบนโต๊ะเดิม (Double Booking) | บิลปะปน เก็บเงินผิดโต๊ะ | P2 |
 
 ---
 
 ## 🧪 Test Cases & Results
 
-<!-- ส่วนที่ 2 -->
-
-### Vitest Results
+### Vitest Unit Tests
 ```
-Run: npm test
-✓ Payment returns positive change when overpaid
-✗ [BUG-001] Should NOT allow negative change  ← reveals bug!
-...
+Test Files  2 passed (2)
+     Tests  20 passed (20)
+  Duration  352ms
 ```
 
-### Newman Pass Rate
+### Newman E2E Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Assertions Total : 26
+Assertions Passed: 22
+Assertions Failed: 4  (BUG-002, BUG-003 ×2, BUG-004 — Known Open Bugs)
+Pass Rate        : 84.6%
 ```
 
-### Test Case Table
+### Test Case Summary
 
-| TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
-|-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
+| TC-ID  | Feature  | Scenario                        | Expected       | Actual         | Pass/Fail |
+|--------|----------|---------------------------------|----------------|----------------|-----------|
+| TC-001 | Health   | GET /api/health                 | 200 + ok       | 200 + ok       | ✅ |
+| TC-002 | Auth     | Admin login                     | 200 + JWT      | 200 + JWT      | ✅ |
+| TC-005 | Auth     | Wrong password                  | 401            | 401            | ✅ |
+| TC-007 | Security | No token                        | 401            | 401            | ✅ |
+| TC-012 | Menu     | Admin adds menu item            | 201            | 201            | ✅ |
+| TC-013 | Menu     | Waiter cannot add menu          | 403            | 403            | ✅ |
+| TC-014 | Order    | Create order                    | 201            | 201            | ✅ |
+| TC-015 | Order    | Double booking (BUG-002)        | 409 Conflict   | 201 Created    | ❌ |
+| TC-019 | Payment  | Exact payment                   | 201 + change≥0 | 201 + change≥0 | ✅ |
+| TC-020 | Payment  | Underpayment (BUG-001 Fixed)    | 400            | 400            | ✅ |
+| TC-021 | Security | Payment without auth            | 401            | 401            | ✅ |
 
 ---
 
 ## 🐛 Bug Reports
 
-<!-- ส่วนที่ 3 -->
+### BUG-001: ระบบอนุญาตให้ชำระเงินน้อยกว่ายอดรวม — **FIXED ✅**
 
-## BUG-001: [ชื่อ Bug]
+**Severity:** Critical | **Feature:** Payment | **Endpoint:** `POST /api/payments`
 
-**Severity:** Critical
-**Feature:** Payment
-**Endpoint:** `POST /api/payments`
+**Steps:** ส่ง `amountPaid` ที่น้อยกว่า `totalAmount`
 
-### Steps to Reproduce
-1. ...
+**Expected:** `400 Bad Request` — **Actual (ก่อนแก้):** `201 Created` + change ติดลบ
 
-### Expected / Actual Result
-...
+**Fix:** เพิ่ม validation ใน `backend/src/routes/payments.ts` ตรวจสอบ `amountPaid >= totalAmount`
 
-### Business Impact
-...
+---
+
+### BUG-002: ระบบอนุญาตให้เปิดบิลซ้อนกันบนโต๊ะเดิม — **OPEN ❌**
+
+**Severity:** High | **Feature:** Orders | **Endpoint:** `POST /api/orders`
+
+**Steps:** เรียก `POST /api/orders` ด้วย `tableId` เดิมซ้ำ 2 ครั้ง
+
+**Expected:** `409 Conflict` — **Actual:** `201 Created` (เปิดบิลซ้อนได้)
 
 ---
 
 ## 🚀 Deployment Guide
 
-<!-- ส่วนที่ 5 -->
-
 ### Prerequisites
 ```
 Node.js >= 22.0.0
-Docker Desktop (for local)
+Docker Desktop (สำหรับ Local)
 ```
 
 ### Local Setup (Docker Compose)
 ```bash
-git clone https://github.com/YOUR_USERNAME/restaurant-management-system.git
-cd restaurant-management-system
+git clone https://github.com/Doonminus2/Restaurant-Management-System-Exam-2025.git
+cd Restaurant-Management-System-Exam-2025
+cp backend/.env .env          # แก้ DATABASE_URL ให้ชี้ไป Neon.tech
 docker compose up --build
 # Frontend: http://localhost
 # Backend:  http://localhost:3001/api/health
@@ -158,80 +165,68 @@ docker compose up --build
 ### Local Setup (Manual)
 ```bash
 # Backend
-cd backend && cp .env.example .env
-# แก้ DATABASE_URL ใน .env
+cd backend
 npm install && npx prisma db push && npx tsx prisma/seed.ts && npm run dev
 
 # Frontend (Terminal ใหม่)
-cd frontend && cp .env.example .env.local
+cd frontend
 npm install && npm run dev
 # เปิด http://localhost:5173
 ```
 
-### Environment Variables (Backend)
+### Environment Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | Render PostgreSQL URL | `postgresql://user:pass@...render.com/db` |
-| `JWT_SECRET` | Random secret string | *(ไม่ระบุ)* |
-| `CORS_ORIGIN` | Frontend URL | `https://your-app.vercel.app` |
+| Variable       | Service  | ค่าตัวอย่าง |
+|----------------|----------|-------------|
+| `DATABASE_URL` | Backend  | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
+| `JWT_SECRET`   | Backend  | random string ≥ 32 ตัวอักษร |
+| `CORS_ORIGIN`  | Backend  | `https://restaurant-management-system-exam-2.vercel.app` |
+| `NODE_ENV`     | Backend  | `production` |
+| `VITE_API_URL` | Frontend | `https://restaurant-management-system-exam-backend.onrender.com/api` |
 
-### Render PostgreSQL Database Setup
-1. ไปที่ https://dashboard.render.com → Databases → New PostgreSQL
-2. เลือก Free plan หรือ Paid ตามต้องการ
-3. Copy External Database URL → ใส่เป็น `DATABASE_URL`
-4. รัน `npx prisma db push` เพื่อสร้าง Schema (local หรือใน Render build)
+### Deploy Backend (Render.com)
+1. New Web Service → Connect GitHub Repo `Doonminus2/Restaurant-Management-System-Exam-2025`
+2. Root Directory: `backend` | Environment: `Node`
+3. Build Command: `npm install && npx prisma generate && npm run build`
+4. Start Command: `npx prisma db push && npx tsx prisma/seed.ts && npm start`
+5. ใส่ Environment Variables ด้านบนใน Dashboard
 
-### Vercel Deployment (Frontend)
-1. Import repo → Root Directory: `frontend`
-2. Framework: Vite
-3. Env: `VITE_API_URL=https://your-backend.onrender.com/api`
+### Deploy Frontend (Vercel)
+1. Import Repo → Root Directory: `frontend` | Framework: `Vite`
+2. Add Environment Variable: `VITE_API_URL` = Backend URL + `/api`
+3. Deploy
 
-### Render Deployment (Backend + Database)
-1. สร้าง PostgreSQL database บน Render (ตามขั้นตอนด้านบน)
-2. New Web Service → Connect GitHub repo → เลือก branch
-3. Root Directory: (ว่าง) หรือ `backend` ถ้าใช้ Dockerfile แยก
-4. Environment: Docker
-5. Build Command: (ว่าง - ใช้ Dockerfile)
-6. Start Command: (ว่าง - ใช้ Dockerfile CMD)
-7. Add Environment Variables ใน Environment tab:
-   - `DATABASE_URL`: จาก database ที่สร้าง
-   - `JWT_SECRET`: random string
-   - `CORS_ORIGIN`: frontend URL
-8. Deploy → Monitor logs
+### Smoke Test Results (Production)
 
-หรือใช้ `render.yaml` สำหรับ auto-configuration:
-- Push `render.yaml` ไป GitHub
-- ใน Render Dashboard → Settings → YAML → Enable
-
-### Smoke Test Results
-
-| Test | URL | Result |
-|------|-----|--------|
-| Health | GET /api/health | ✅/❌ |
-| Login | POST /api/auth/login | ✅/❌ |
-| Add Menu | POST /api/menu | ✅/❌ |
-| Open Order | POST /api/orders | ✅/❌ |
-| Payment | POST /api/payments | ✅/❌ |
+| Test         | URL                          | Result |
+|--------------|------------------------------|--------|
+| Health Check | `GET /api/health`            | ✅ |
+| Login        | `POST /api/auth/login`       | ✅ |
+| Open Order   | `POST /api/orders`           | ✅ |
+| Payment      | `POST /api/payments`         | ✅ |
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-**Newman Pass Rate (Latest):**
-```
-✓ TC-002: Admin login
-✓ TC-005: Wrong password → 401
-✗ TC-010: SQL Injection (BUG-003 detected)
-...
-```
+Pipeline: [GitHub Actions — CI/CD Pipeline](https://github.com/Doonminus2/Restaurant-Management-System-Exam-2025/actions/workflows/cicd.yml)
+
+**Steps:**
+1. ✅ Setup Node.js 22
+2. ✅ Run Backend Unit Tests (`npm test`) — 20/20 passed
+3. ✅ Security Audit Backend (`npm audit --audit-level=high`)
+4. ✅ Security Audit Frontend (`npm audit --audit-level=critical`)
+5. ✅ Install & Run Newman E2E Tests
+6. ✅ Upload Newman HTML Report (artifact)
+
+**Newman Pass Rate:** 22/26 assertions = **84.6%**
 
 ---
 
 ## 🔐 Default Credentials (Testing Only)
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin | Admin@123 |
-| Cashier | cashier1 | Cashier@123 |
-| Waiter | waiter1 | Waiter@123 |
+| Role    | Username | Password     |
+|---------|----------|--------------|
+| Admin   | admin    | Admin@123    |
+| Cashier | cashier1 | Cashier@123  |
+| Waiter  | waiter1  | Waiter@123   |

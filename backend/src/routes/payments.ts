@@ -33,7 +33,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const paid = Number(amountPaid)
 
     // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
+    if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
 
     // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
     const change = paid - totalAmount

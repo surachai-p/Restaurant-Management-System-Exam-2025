@@ -279,6 +279,22 @@
       "name": "Payment",
       "item": [
         {
+          "name": "TC-020 Underpayment (BUG-001)",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/payments",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"orderId\": {{order_id}}, \"amountPaid\": 1, \"method\": \"cash\"}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
+            "  pm.response.to.have.status(400);",
+            "});"
+          ]}}]
+        },
+        {
           "name": "TC-019 Exact Payment (Positive)",
           "request": {
             "method": "POST", "url": "{{base_url}}/payments",
@@ -292,22 +308,6 @@
             "pm.test('TC-019: payment → 201', () => pm.response.to.have.status(201));",
             "pm.test('TC-019: change is non-negative', () => {",
             "  pm.expect(pm.response.json().change).to.be.above(-1);",
-            "});"
-          ]}}]
-        },
-        {
-          "name": "TC-020 Underpayment (BUG-001)",
-          "request": {
-            "method": "POST", "url": "{{base_url}}/payments",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
-              { "key": "Content-Type",   "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\"orderId\": 9999, \"amountPaid\": 1, \"method\": \"cash\"}" }
-          },
-          "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
-            "  pm.response.to.have.status(400);",
             "});"
           ]}}]
         },

@@ -1,0 +1,83 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  ci:
+    name: Test, Audit & Newman
+    runs-on: ubuntu-latest
+    environment: DATABASE_URL
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Node.js Setup ─────────────────────────────────────────
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      # ── Backend Install & Unit Test ───────────────────────────
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+
+      - name: Generate Prisma client
+        run: cd backend && npx prisma generate
+
+      - name: Run backend unit tests
+        run: cd backend && npm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          NODE_ENV: test
+
+      # ── Security Audit ────────────────────────────────────────
+      - name: Security audit (backend)
+        run: cd backend && npm audit --audit-level=high
+
+      - name: Security audit (frontend)
+        run: |
+          cd frontend && npm ci
+          npm audit --audit-level=critical
+
+      # ── Newman E2E Tests ──────────────────────────────────────
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Start backend for Newman tests
+        run: |
+          cd backend
+          npm run build
+          npx prisma db push
+          npx tsx prisma/seed.ts
+          npm start &
+          sleep 10
+          curl -f http://localhost:3001/api/health || (echo "Backend not ready" && exit 1)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          NODE_ENV: production
+          PORT: 3001
+          CORS_ORIGIN: '*'
+
+      - name: Run Newman E2E tests
+        run: |
+          newman run tests/postman/RMS-TestSuite-v2.json \
+            -e tests/postman/env-local.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export tests/reports/newman-report.html \
+            --suppress-exit-code
+
+      - name: Upload Newman report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: newman-report
+          path: tests/reports/newman-report.html

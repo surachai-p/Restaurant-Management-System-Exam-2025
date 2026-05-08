@@ -1,0 +1,156 @@
+newman
+
+RMS-TestSuite-v2
+
+❏ Health & System
+↳ TC-001 GET /api/health (Positive)
+  GET http://localhost:3001/api/health [200 OK, 373B, 15ms]
+  ✓  TC-001: health returns 200
+  ✓  TC-001: status is ok
+  ✓  TC-001: version 2.0.0
+
+❏ Authentication
+↳ TC-002 Login Admin (Positive)
+  POST http://localhost:3001/api/auth/login [200 OK, 594B, 848ms]
+  ✓  TC-002: admin login 200
+  ✓  TC-002: returns JWT token
+
+↳ TC-003 Login Cashier
+  POST http://localhost:3001/api/auth/login [200 OK, 608B, 527ms]
+  ✓  TC-003: cashier login 200
+
+↳ TC-004 Login Waiter
+  POST http://localhost:3001/api/auth/login [200 OK, 601B, 402ms]
+  ✓  TC-004: waiter login 200
+
+↳ TC-005 Login Wrong Password (Negative)
+  POST http://localhost:3001/api/auth/login [401 Unauthorized, 342B, 509ms]
+  ✓  TC-005: wrong password → 401
+
+↳ TC-006 Login Missing Credentials (Negative)
+  POST http://localhost:3001/api/auth/login [400 Bad Request, 352B, 1ms]
+  ✓  TC-006: missing creds → 400
+
+↳ TC-007 No Token → 401 (Security)
+  GET http://localhost:3001/api/menu [401 Unauthorized, 344B, 1ms]
+  ✓  TC-007: no token → 401
+
+❏ Menu
+↳ TC-008 GET /menu (Positive)
+  GET http://localhost:3001/api/menu [200 OK, 2.72kB, 420ms]
+  ✓  TC-008: get menu 200
+  ✓  TC-008: returns array
+
+↳ TC-009 Search Menu (Positive)
+  GET ?search=Pad Thai [errored]
+     Invalid URI "http:///?search=Pad%20Thai"
+  2. TC-009: search returns results
+
+↳ TC-010 SQL Injection in Search (Security - BUG-003)
+  GET ?search=' OR '1'='1 [errored]
+     Invalid URI "http:///?search=%27%20OR%20%271%27=%271"
+  4. TC-010 [BUG-003]: SQL Injection should NOT leak all records
+
+↳ TC-011 Waiter Updates Menu Price (Security - BUG-004)
+  PUT http://localhost:3001/api/menu/4 [200 OK, 520B, 725ms]
+  5. TC-011 [BUG-004]: Waiter cannot update menu price (expect 403)
+
+↳ TC-012 Admin Adds Menu Item (Positive)
+  POST http://localhost:3001/api/menu [201 Created, 498B, 275ms]
+  ✓  TC-012: admin adds menu item → 201
+
+↳ TC-013 Waiter Cannot Add Menu Item (Negative - Role Check)
+  POST http://localhost:3001/api/menu [403 Forbidden, 344B, 3ms]
+  ✓  TC-013: waiter cannot add menu → 403
+
+❏ Orders
+↳ TC-014 Create Order (Positive)
+  POST http://localhost:3001/api/orders [201 Created, 464B, 1490ms]
+  ✓  TC-014: create order → 201
+
+↳ TC-015 Double Booking Same Table (BUG-002)
+  POST http://localhost:3001/api/orders [201 Created, 464B, 1516ms]
+  6. TC-015 [BUG-002]: Double booking → 409 Conflict
+
+↳ TC-016 Add Item to Order
+  POST http://localhost:3001/api/orders/3/items [201 Created, 642B, 7s]
+  ✓  TC-016: add item → 201
+
+↳ TC-017 Confirm Order
+  PUT http://localhost:3001/api/orders/3/confirm [200 OK, 464B, 2.1s]
+  ✓  TC-017: confirm order → 200
+
+↳ TC-018 Create Order Without TableId (Negative)
+  POST http://localhost:3001/api/orders [400 Bad Request, 338B, 1ms]
+  ✓  TC-018: missing tableId → 400
+
+❏ Payment
+↳ TC-019 Exact Payment (Positive)
+  POST http://localhost:3001/api/payments [201 Created, 558B, 3.1s]
+  ✓  TC-019: payment → 201
+  ✓  TC-019: change is non-negative
+
+↳ TC-020 Underpayment (BUG-001)
+  POST http://localhost:3001/api/payments [404 Not Found, 335B, 391ms]
+  7. TC-020 [BUG-001]: Underpayment should → 400
+
+↳ TC-021 Payment Without Auth (Security)
+  POST http://localhost:3001/api/payments [401 Unauthorized, 344B, 1ms]
+  ✓  TC-021: no auth → 401
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                21 │                2 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                21 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 0 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                26 │                5 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 19.7s                                      │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 5.08kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 956ms [min: 1ms, max: 7s, s.d.: 1568ms] │
+└────────────────────────────────────────────────────────────────┘
+
+[31m  # [39m[31m failure        [39m[31m detail                                                                [39m
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 1.  Error                                                                                 
+                     Invalid URI "http:///?search=Pad%20Thai"                              
+                     at request                                                            
+                     inside ""                                                             
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 2.  AssertionError  TC-009: search returns results                                        
+                     expected PostmanResponse{ …(5) } to have property 'code'              
+                     at assertion:0 in test-script                                         
+                     inside "Menu / TC-009 Search Menu (Positive)"                         
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 3.  Error                                                                                 
+                     Invalid URI "http:///?search=%27%20OR%20%271%27=%271"                 
+                     at request                                                            
+                     inside ""                                                             
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 4.  JSONError       TC-010 [BUG-003]: SQL Injection should NOT leak all records           
+                     "undefined" is not valid JSON                                         
+                     at assertion:0 in test-script                                         
+                     inside "Menu / TC-010 SQL Injection in Search (Security - BUG-003)"   
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 5.  AssertionError  TC-011 [BUG-004]: Waiter cannot update menu price (expect 403)        
+                     expected response to have status code 403 but got 200                 
+                     at assertion:0 in test-script                                         
+                     inside "Menu / TC-011 Waiter Updates Menu Price (Security - BUG-004)" 
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 6.  AssertionError  TC-015 [BUG-002]: Double booking → 409 Conflict                       
+                     expected response to have status code 409 but got 201                 
+                     at assertion:0 in test-script                                         
+                     inside "Orders / TC-015 Double Booking Same Table (BUG-002)"          
+[90m    [39m[90m                [39m[90m                                                                       [39m
+ 7.  AssertionError  TC-020 [BUG-001]: Underpayment should → 400                           
+                     expected response to have status code 400 but got 404                 
+                     at assertion:0 in test-script                                         
+                     inside "Payment / TC-020 Underpayment (BUG-001)"                      
