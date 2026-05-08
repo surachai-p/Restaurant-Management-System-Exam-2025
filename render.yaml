@@ -3,7 +3,7 @@ services:
     name: rms-backend
     env: docker
     dockerfilePath: backend/Dockerfile
-    dockerContext: backend
+    dockerContext: .
     envVars:
       - key: NODE_ENV
         value: production
