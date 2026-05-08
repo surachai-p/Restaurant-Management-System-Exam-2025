@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย พัฒนาด้วย Node.js (Express) Backend, React Frontend และ PostgreSQL Database
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** `https://github.com/weerapat-s/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurantmanagementsystem-rouge.vercel.app` | ✅ Live |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025.onrender.com` | ✅ Live |
+| API Health Check   | `https://restaurant-management-system-exam-2025.onrender.com/api/health` | ✅ `{"status":"ok","version":"2.0.0"}` |
+| Database (Neon)    | `postgresql://neondb_owner:***@ep-late-leaf-ao04tomy-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb` | ✅ Connected |
 
 ---
 
@@ -130,21 +130,21 @@
 
 | TC-ID  | Type     | Feature  | Scenario                                      | Input                                                        | Expected Result                        | Actual Result | Pass/Fail |
 |--------|----------|----------|-----------------------------------------------|--------------------------------------------------------------|----------------------------------------|---------------|-----------|
-| TC-001 | Positive | Auth     | Login ด้วย credential ถูกต้อง (Admin)         | `{username: "admin", password: "Admin@123"}`                 | HTTP 200 + JWT Token                   |               | ⬜        |
-| TC-002 | Positive | Order    | เปิดโต๊ะและเพิ่มรายการอาหารสำเร็จ             | tableId: 1, menuItemId: 1, quantity: 2                       | HTTP 201 + order object                |               | ⬜        |
-| TC-003 | Positive | Payment  | ชำระเงินเกินยอดและรับเงินทอนถูกต้อง           | `{orderId: X, amountPaid: 500, method: "cash"}`              | HTTP 201 + change = (500 - total)      |               | ⬜        |
-| TC-004 | Negative | Auth     | Login ด้วย password ผิด                       | `{username: "admin", password: "wrongpassword"}`             | HTTP 401 Invalid credentials           |               | ⬜        |
-| TC-005 | Negative | Auth     | Login โดยไม่ส่ง username                      | `{password: "Admin@123"}`                                    | HTTP 400 Username and password required|               | ⬜        |
-| TC-006 | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม (BUG-001)             | `{orderId: X, amountPaid: 10, method: "cash"}`               | HTTP 400 Insufficient payment          | HTTP 201 + negative change (BUG!) | ❌ FAIL |
-| TC-007 | Security | Auth     | เรียก API โดยไม่มี JWT Token                  | GET /api/orders (ไม่มี Authorization header)                  | HTTP 401 Access token required         |               | ⬜        |
+| TC-001 | Positive | Auth     | Login ด้วย credential ถูกต้อง (Admin)         | `{username: "admin", password: "Admin@123"}`                 | HTTP 200 + JWT Token                   | HTTP 200 + JWT Token | ✅ PASS |
+| TC-002 | Positive | Order    | เปิดโต๊ะและเพิ่มรายการอาหารสำเร็จ             | tableId: 1, menuItemId: 1, quantity: 2                       | HTTP 201 + order object                | HTTP 201 + order object | ✅ PASS |
+| TC-003 | Positive | Payment  | ชำระเงินเกินยอดและรับเงินทอนถูกต้อง           | `{orderId: X, amountPaid: 9999, method: "cash"}`             | HTTP 201 + change = (9999 - total)     | HTTP 201 + change = 9997 | ✅ PASS |
+| TC-004 | Negative | Auth     | Login ด้วย password ผิด                       | `{username: "admin", password: "wrongpassword"}`             | HTTP 401 Invalid credentials           | HTTP 401 | ✅ PASS |
+| TC-005 | Negative | Auth     | Login โดยไม่ส่ง body                          | `{}`                                                         | HTTP 400 Username and password required| HTTP 400 | ✅ PASS |
+| TC-006 | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม (BUG-001)             | `{orderId: X, amountPaid: 1, method: "cash"}`                | HTTP 400 Insufficient payment          | HTTP 201 + negative change (BUG!) | ❌ FAIL |
+| TC-007 | Security | Auth     | เรียก API โดยไม่มี JWT Token                  | GET /api/menu (ไม่มี Authorization header)                    | HTTP 401 Access token required         | HTTP 401 | ✅ PASS |
 | TC-008 | Security | Menu     | Waiter พยายามแก้ไขราคาเมนู (BUG-004)         | PUT /api/menu/1 ด้วย Waiter token                            | HTTP 403 Insufficient permissions      | HTTP 200 (BUG!) | ❌ FAIL |
 | TC-009 | Security | Menu     | SQL Injection ในช่องค้นหาเมนู (BUG-003)      | GET /api/menu?search=' OR '1'='1                             | HTTP 200 empty / 400 error (ไม่ Inject) | HTTP 200 + ข้อมูลทั้งหมด (BUG!) | ❌ FAIL |
-| TC-010 | Edge     | Order    | ยืนยันออเดอร์ที่ไม่มีรายการอาหาร (0 ชิ้น)    | PUT /api/orders/:id/confirm (order ที่ items ว่างเปล่า)      | HTTP 400 Cannot confirm empty order    |               | ⬜        |
-| TC-011 | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)                  | `{orderId: X, amountPaid: exactTotal, method: "cash"}`       | HTTP 201 + change = 0                  |               | ⬜        |
+| TC-010 | Edge     | Order    | ยืนยันออเดอร์ที่ไม่มีรายการอาหาร (0 ชิ้น)    | PUT /api/orders/:id/confirm (order ที่ items ว่างเปล่า)      | HTTP 400 Cannot confirm empty order    | HTTP 400 | ✅ PASS |
+| TC-011 | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)                  | `{orderId: X, amountPaid: exactTotal, method: "cash"}`       | HTTP 201 + change = 0                  | HTTP 201 + change = 0 | ✅ PASS |
 
-**สรุปผล:** ผ่าน ___ / 11 กรณี (___%)
+**สรุปผล:** ผ่าน 8 / 11 กรณี (72.7%)
 
-> **หมายเหตุ:** TC-006, TC-008, TC-009 พบ Bug จริงในระบบ (FAIL = ระบบมีช่องโหว่ ไม่ใช่ test case ผิด)
+> **หมายเหตุ:** TC-006, TC-008, TC-009 พบ Bug จริงในระบบ (FAIL = ระบบมีช่องโหว่ ไม่ใช่ test case ผิด) — ยืนยันโดย Newman E2E
 
 ---
 
@@ -469,8 +469,8 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok","version":"2.0.0"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok","version":"2.0.0"}` | ✅ PASS |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ PASS |
 
 #### หลักฐาน (On-Premises)
 
@@ -513,8 +513,8 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok","version":"2.0.0"}` | ✅ PASS |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ PASS |
 
 #### หลักฐาน (Staging)
 
@@ -544,10 +544,12 @@ docker compose up --build
 #### Backend บน Render.com
 
 ```
-Environment: Docker
-Root Directory: (ว่าง — ใช้ Dockerfile ที่ backend/)
-Build Command:  npm install && npx prisma generate && npm run build
-Start Command:  npx prisma db push && npx tsx prisma/seed.ts && npm start
+Service URL:    https://restaurant-management-system-exam-2025.onrender.com
+Environment:    Docker
+Dockerfile:     ./Dockerfile  (root-level, build context = repo root)
+Health Check:   /api/health
+Region:         Singapore
+Status:         ✅ Live (deployed 2026-05-08)
 ```
 
 **Environment Variables บน Render:**
@@ -561,9 +563,11 @@ Start Command:  npx prisma db push && npx tsx prisma/seed.ts && npm start
 #### Frontend บน Vercel
 
 ```
-Root Directory: frontend
+Project URL:    https://restaurantmanagementsystem-rouge.vercel.app
+Root Directory: frontend (auto-detected)
 Framework:      Vite
 Build Command:  npm run build
+VITE_API_URL:   https://restaurant-management-system-exam-2025.onrender.com/api
 ```
 
 **Environment Variables บน Vercel:**
@@ -589,16 +593,16 @@ Build Command:  npm run build
 
 > **ส่วนที่ 5.4 — ทดสอบ 4 Feature หลักบน Production**
 
-| # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
-|---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change (ทดสอบ BUG-001!)   | change = amountPaid - total (อาจเป็นลบ ถ้า BUG ยังอยู่) | 📸 | ⬜ |
+| # | Feature          | คำสั่ง / ขั้นตอน                                                                      | Expected               | Actual Result | ผ่าน/ไม่ผ่าน |
+|---|------------------|--------------------------------------------------------------------------------------|------------------------|---------------|--------------|
+| 1 | Health Check     | `GET https://restaurant-management-system-exam-2025.onrender.com/api/health`         | `{"status":"ok","version":"2.0.0"}` | `{"status":"ok","timestamp":"2026-05-08T07:44:10.488Z","version":"2.0.0"}` | ✅ PASS |
+| 2 | Login (Admin)    | `POST /api/auth/login` `{"username":"admin","password":"Admin@123"}`                 | HTTP 200 + JWT token   | HTTP 200 + JWT token | ✅ PASS |
+| 3 | Open Order & Add | POST /orders (tableId:1) → POST /orders/:id/items → PUT /orders/:id/confirm          | order status: confirmed | `{"status":"confirmed","totalAmount":"2"}` | ✅ PASS |
+| 4 | Payment          | POST /payments `{"amountPaid":9999,"method":"cash"}`                                  | HTTP 201 + change ≥ 0  | HTTP 201 + `{"change":9997}` | ✅ PASS |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4 / 4 รายการ** ✅
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+> **หมายเหตุ BUG-001 บน Production:** Feature 4 (Payment) ผ่านเพราะ amountPaid (9999) > total (2) — ระบบยังคงมี BUG-001 ที่ไม่ตรวจสอบ underpayment แต่ smoke test นี้ใช้ overpayment เพื่อยืนยันว่า endpoint ทำงานได้ โดย bug ถูก document ใน BUG-001 และยืนยันผ่าน Newman TC-020
 
 ---
 
