@@ -44,8 +44,8 @@
             "pm.test('TC-002: returns JWT token', () => {",
             "  const b = pm.response.json();",
             "  pm.expect(b.token).to.be.a('string').and.not.empty;",
-            "  pm.collectionVariables.set('admin_token', b.token);",
-            "  pm.collectionVariables.set('token', b.token);",
+            "  pm.environment.set('admin_token', b.token);",
+            "  pm.environment.set('token', b.token);",
             "});"
           ]}}]
         },
@@ -58,7 +58,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-003: cashier login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
+            "pm.environment.set('cashier_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -70,7 +70,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-004: waiter login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('waiter_token', pm.response.json().token);"
+            "pm.environment.set('waiter_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -117,7 +117,7 @@
             "pm.test('TC-008: get menu 200', () => pm.response.to.have.status(200));",
             "pm.test('TC-008: returns array', () => pm.expect(pm.response.json()).to.be.an('array'));",
             "const items = pm.response.json();",
-            "if (items.length > 0) pm.collectionVariables.set('menu_item_id', items[0].id);"
+            "if (items.length > 0) pm.environment.set('menu_item_id', items[0].id);"
           ]}}]
         },
         {
@@ -214,7 +214,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-014: create order → 201', () => pm.response.to.have.status(201));",
-            "pm.collectionVariables.set('order_id', pm.response.json().id);"
+            "pm.environment.set('order_id', pm.response.json().id);"
           ]}}]
         },
         {
