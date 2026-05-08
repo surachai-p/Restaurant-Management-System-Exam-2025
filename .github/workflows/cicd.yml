@@ -10,6 +10,7 @@ jobs:
   ci:
     name: Test, Audit & Newman
     runs-on: ubuntu-latest
+    environment: DATABASE_URL
 
     steps:
       - name: Checkout code
