@@ -14,7 +14,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
       interval: 15s

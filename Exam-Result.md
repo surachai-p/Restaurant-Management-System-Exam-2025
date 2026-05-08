@@ -492,35 +492,50 @@ npm run dev
 
 - [x] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
 - [x] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [x] เพิ่ม Health Check สำหรับ backend service
-- [x] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [x] เพิ่ม Health Check สำหรับ backend service (wget + `start_period: 30s`)
+- [x] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน (`condition: service_healthy`)
+
+**สิ่งที่เพิ่ม/แก้ไขเมื่อเทียบกับ `dc.yxx` (ต้นฉบับที่ไม่สมบูรณ์):**
+| รายการ | ต้นฉบับ (`dc.yxx`) | ที่แก้ไขแล้ว |
+|--------|-------------------|-------------|
+| `CORS_ORIGIN` default | `http://localhost:5173` | `http://localhost` (nginx port 80) |
+| Health Check `start_period` | ขาดหาย | เพิ่ม `start_period: 30s` |
+| `VITE_API_URL` | `/api` (build arg) | `/api` (nginx proxy → backend:3001) |
 
 #### คำสั่งรัน Staging
 
 ```bash
-# สร้างไฟล์ .env ที่ root ก่อน
+# สร้างไฟล์ .env ที่ root
 cat > .env << EOF
-DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/rms?sslmode=require
+DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
 JWT_SECRET=your-super-secret-key-at-least-32-chars
 CORS_ORIGIN=http://localhost
 EOF
 
-# รัน Multi-container
+# Build และรัน Multi-container
 docker compose up --build
 ```
 
+#### ผลลัพธ์ `docker compose ps`
+
+```
+NAME           IMAGE                                             COMMAND                 SERVICE    CREATED         STATUS                    PORTS
+rms-backend    restaurant-management-system-exam-2025-backend    "docker-entrypoint.s…"  backend    49 seconds ago  Up 49 seconds (healthy)   127.0.0.1:3001->3001/tcp
+rms-frontend   restaurant-management-system-exam-2025-frontend   "/docker-entrypoint.…"  frontend   ~1 minute ago   Up 33 seconds             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+```
+
+**ทุก Container สถานะ: running ✅ | backend: healthy ✅**
+
 #### ผลการทดสอบ (Smoke Test — Staging)
 
-| ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
-|-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok","version":"2.0.0"}` | ✅ PASS |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ PASS |
+| # | ทดสอบ | URL / คำสั่ง | ผลลัพธ์ที่คาดหวัง | Actual Result | ผ่าน/ไม่ผ่าน |
+|---|-------|-------------|-------------------|---------------|--------------|
+| 1 | Backend Health | `GET http://localhost:3001/api/health` | `{"status":"ok","version":"2.0.0"}` | `{"status":"ok","timestamp":"2026-05-08T08:43:50.301Z","version":"2.0.0"}` | ✅ PASS |
+| 2 | Login (Admin) | `POST http://localhost:3001/api/auth/login` `{"username":"admin","password":"Admin@123"}` | HTTP 200 + JWT token | HTTP 200 + JWT token | ✅ PASS |
+| 3 | Frontend | `GET http://localhost:80` | HTTP 200 — หน้า Login แสดงผล | HTTP 200 | ✅ PASS |
+| 4 | API via Nginx Proxy | `GET http://localhost/api/health` | ผ่าน nginx proxy → backend | `{"status":"ok"}` | ✅ PASS |
 
-#### หลักฐาน (Staging)
-
-> 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
->
-> (วางภาพที่นี่)
+**Staging Smoke Test ผ่าน: 4 / 4 รายการ** ✅
 
 ---
 
