@@ -9,6 +9,7 @@ import menuRoutes    from './routes/menu'
 import orderRoutes   from './routes/orders'
 import paymentRoutes from './routes/payments'
 import reportRoutes  from './routes/reports'
+import publicRoutes  from './routes/public'
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use('/api/menu',     menuRoutes)
 app.use('/api/orders',   orderRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/reports',  reportRoutes)
+app.use('/api/public',   publicRoutes)
 
 app.get('/', (_req, res) =>
   res.json({ name: 'Restaurant Management System API', version: '2.0.0', status: 'ok' })

@@ -39,6 +39,13 @@ enum PaymentMethod {
   qr
 }
 
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+  seated
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique @db.VarChar(50)
@@ -89,9 +96,10 @@ model Order {
   tableId     Int
   waiterId    Int?
   status      OrderStatus @default(open)
-  totalAmount Decimal     @default(0) @db.Decimal(10, 2)
-  note        String?
-  createdAt   DateTime    @default(now())
+  totalAmount  Decimal     @default(0) @db.Decimal(10, 2)
+  note         String?
+  customerName String?     @db.VarChar(100)
+  createdAt    DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   table   RestaurantTable @relation(fields: [tableId], references: [id])
@@ -114,6 +122,20 @@ model OrderItem {
   menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@map("order_items")
+}
+
+model Reservation {
+  id           Int               @id @default(autoincrement())
+  token        String            @unique
+  customerName String            @db.VarChar(100)
+  phone        String            @db.VarChar(20)
+  partySize    Int               @default(2)
+  reservedAt   DateTime
+  note         String?
+  status       ReservationStatus @default(pending)
+  createdAt    DateTime          @default(now())
+
+  @@map("reservations")
 }
 
 model Payment {
