@@ -296,7 +296,7 @@
           ]}}]
         },
         {
-          "name": "TC-020 Underpayment (BUG-001)",
+          "name": "TC-020 [BUG-001]: Underpayment should → 400",
           "request": {
             "method": "POST", "url": "{{base_url}}/payments",
             "header": [

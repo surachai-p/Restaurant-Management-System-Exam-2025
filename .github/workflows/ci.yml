@@ -39,6 +39,11 @@ jobs:
     - name: Generate Prisma client
       run: cd backend && npx prisma generate
 
+    - name: Push Prisma Schema & Seed
+      run: cd backend && npx prisma db push && npx tsx prisma/seed.ts
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+
     - name: Run backend tests
       run: cd backend && npm test
       env:
@@ -56,3 +61,26 @@ jobs:
 
     - name: Run frontend build
       run: cd frontend && npm run build
+
+    - name: Backend Security Audit
+      run: cd backend && npm audit --audit-level=high
+
+    - name: Frontend Security Audit
+      run: cd frontend && npm audit --audit-level=high
+
+    - name: Install Newman & wait-on
+      run: npm install -g newman wait-on
+
+    - name: Run Newman Tests
+      run: |
+        cd backend
+        npm run dev &
+        npx wait-on http://localhost:3001/api/health
+        cd ..
+        newman run tests/postman/RMS-68030135-TestSuite.json \
+          --environment tests/postman/env-ci.json \
+          --reporters cli
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        JWT_SECRET: test-secret
+        CORS_ORIGIN: http://localhost:5173
