@@ -1,0 +1,30 @@
+name: RMS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ] # จุดที่ 1: Trigger เมื่อ push ลง main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # จุดที่ 2: ใช้ Node.js 22
+
+      - name: Install Dependencies
+        run: |
+          cd backend && npm install
+          cd ../frontend && npm install
+
+      - name: Run Backend Unit Tests
+        run: |
+          cd backend && npm test # จุดที่ 3: รัน unit test backend
+
+      - name: Run Newman Tests
+        run: |
+          npm install -g newman
+          newman run tests/postman/RMS-TestSuite.json # จุดที่ 4: รัน Newman
