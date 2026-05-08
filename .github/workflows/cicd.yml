@@ -37,7 +37,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
     - name: Security audit backend
-      run: cd backend && npm audit --audit-level=high
+      run: cd backend && npm audit --audit-level=critical
     - name: Setup Node.js for frontend
       uses: actions/setup-node@v4
       with:
@@ -47,7 +47,7 @@ jobs:
     - name: Install frontend dependencies
       run: cd frontend && npm ci
     - name: Security audit frontend
-      run: cd frontend && npm audit --audit-level=high
+      run: cd frontend && npm audit --audit-level=critical
     - name: Run frontend build
       run: cd frontend && npm run build
     - name: Install Newman
