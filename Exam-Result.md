@@ -193,34 +193,28 @@
 ```
 Collection: RMS-TestSuite-v2
 Run Date:   2026-05-08
-Environment: env-local.json (http://localhost:3001/api)
+Environment: env-ci.json (http://localhost:3001/api)
 
 ┌─────────────────────────┬────────────────────┬───────────────────┐
 │                         │           executed │            failed │
 ├─────────────────────────┼────────────────────┼───────────────────┤
 │              iterations │                  1 │                 0 │
-│                requests │                 21 │                 0 │
+│                requests │                 24 │                 0 │
 │            test-scripts │                 21 │                 0 │
-│      prerequest-scripts │                  0 │                 0 │
-│              assertions │                 26 │                 4 │
+│      prerequest-scripts │                  1 │                 0 │
+│              assertions │                 26 │                 0 │
 ├─────────────────────────┴────────────────────┴───────────────────┤
-│ total run duration: 4.4s                                         │
-│ total data received: 7.72kB (approx)                             │
-│ average response time: 140ms                                     │
+│ total run duration: 5.4s                                         │
+│ total data received: 6.45kB (approx)                             │
+│ average response time: 155ms                                     │
 └──────────────────────────────────────────────────────────────────┘
-
-Failures (ยืนยัน Bug จริงในระบบ):
-  1. TC-010 [BUG-003]: SQL Injection leaked 11 records (expected 0)
-  2. TC-011 [BUG-004]: Waiter updated price (got 200, expected 403)
-  3. TC-015 [BUG-002]: Double booking allowed (got 201, expected 409)
-  4. TC-020 [BUG-001]: Underpayment not rejected (expected 400)
 ```
 
-**Newman Pass Rate: 22 / 26 assertions (84.6%)** ✅ ผ่านเกณฑ์ ≥ 80%  
-**Requests: 21 / 21 (100%)** — ทุก request ส่งสำเร็จ ไม่มี error  
+**Newman Pass Rate: 26 / 26 assertions (100%)** ✅  
+**Requests: 24 / 24 (100%)** — รวม 3 setup requests ใน TC-020 pre-request script  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> หมายเหตุ: 4 assertions ที่ fail ล้วนเป็น Bug ที่มีอยู่จริงในระบบ (BUG-001 ถึง BUG-004) ไม่ใช่ test case ที่เขียนผิด
+> **หมายเหตุ TC-020 Fix:** แก้ไข Newman collection ให้ TC-020 ใช้ pre-request script สร้าง Order ใหม่ (table 3) → Add Item → Confirm ก่อนทดสอบ underpayment (`amountPaid: 0`) แทนการใช้ `orderId: 9999` hardcoded ที่ไม่มีอยู่จริงใน CI fresh DB
 
 ---
 
@@ -708,16 +702,60 @@ Status:         ✅ Live (auto-deploy จาก GitHub main branch)
 
 **Triggers:** push/PR ไปที่ `main` หรือ `master`
 
-### Newman Pass Rate (จาก Local Run)
+### Newman Pass Rate (หลังแก้ไขทุก Bug + TC-020 pre-request fix)
 
 | Metric              | ค่า         |
 |---------------------|-------------|
-| Total Requests      | 21          |
+| Total Requests      | 24 (21 + 3 setup) |
 | Total Assertions    | 26          |
-| Assertions Passed   | 22          |
-| Assertions Failed   | 4 (ยืนยัน Bug ที่มีอยู่จริง) |
-| **Pass Rate**       | **84.6%** ✅ |
-| Run Duration        | 4.4s        |
-| Avg Response Time   | 140ms       |
+| Assertions Passed   | **26**      |
+| Assertions Failed   | **0**       |
+| **Pass Rate**       | **100%** ✅ |
+| Run Duration        | 5.4s        |
+| Avg Response Time   | 155ms       |
 
-> Newman Pass Rate 84.6% ผ่านเกณฑ์ ≥ 80% — พร้อม Deploy บน Production ✅
+> Newman Pass Rate 100% — ทุก Bug (BUG-001 ถึง BUG-005) ได้รับการแก้ไขและยืนยันแล้ว ✅
+
+---
+
+## Automated Testing System
+
+> **ระบบทดสอบอัตโนมัติ**
+
+### คำสั่งรัน Test ทั้งหมดด้วยคำสั่งเดียว
+
+```bash
+# รัน Unit Tests (Vitest) + E2E Tests (Newman) ต่อเนื่องกัน
+npm run test:all
+```
+
+### โครงสร้าง root `package.json`
+
+```json
+{
+  "scripts": {
+    "test:unit": "npm --prefix backend test",
+    "test:e2e": "newman run tests/postman/RMS-TestSuite-v2.json --environment tests/postman/env-ci.json --reporters cli,htmlextra --reporter-htmlextra-export tests/reports/newman-report.html",
+    "test:all": "npm run test:unit && npm run test:e2e"
+  }
+}
+```
+
+### ผลการรัน `npm run test:all` (Local)
+
+| Test Suite | Tool    | Passed | Failed | Pass Rate |
+|------------|---------|--------|--------|-----------|
+| Unit Tests | Vitest  | 20     | 0      | **100%**  |
+| E2E Tests  | Newman  | 26     | 0      | **100%**  |
+
+### Newman Collection Fix (TC-020)
+
+**ปัญหาเดิม:** TC-020 ใช้ `"orderId": 9999` hardcoded → ใน CI fresh DB, order นี้ไม่มีอยู่ → 404 ไม่ใช่ 400 → fail
+
+**การแก้ไข:** เพิ่ม pre-request script ใน TC-020 ที่ใช้ `pm.sendRequest()` สร้าง Order ใหม่:
+1. `POST /orders` (tableId: 3) → ได้ `underpay_order_id`
+2. `POST /orders/:id/items` → เพิ่มรายการอาหาร
+3. `PUT /orders/:id/confirm` → ยืนยันออเดอร์
+4. ส่ง payment ด้วย `amountPaid: 0` → BUG-001 fix คืน HTTP 400 ✅
+
+**ผลลัพธ์:** TC-020 ทำงานถูกต้องทั้งใน local และ CI (fresh DB)

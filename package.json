@@ -1,0 +1,11 @@
+{
+  "name": "rms-exam-2025",
+  "version": "1.0.0",
+  "description": "Restaurant Management System — KMITL Exam 2025",
+  "private": true,
+  "scripts": {
+    "test:unit": "npm --prefix backend test",
+    "test:e2e": "newman run tests/postman/RMS-TestSuite-v2.json --environment tests/postman/env-ci.json --reporters cli,htmlextra --reporter-htmlextra-export tests/reports/newman-report.html",
+    "test:all": "npm run test:unit && npm run test:e2e"
+  }
+}
