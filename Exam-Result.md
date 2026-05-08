@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: นายธนาเทพ ธีรปกรณ์
+> รหัสนักศึกษา: 68030120
+> วันที่สอบ: 8/5/2569
 
 ---
 
@@ -138,7 +138,7 @@
 | TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
 | <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 19 / 20 กรณี (90%)
 
 ---
 
@@ -156,13 +156,13 @@ Run Date:   YYYY-MM-DD HH:MM
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               21 │
+│            test-scripts │               21 │
+│      prerequest-scripts │               00 │
+│              assertions │               26 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
+│ total run duration:     991ms              │
+│ total data received:    000B               │
 │ average response time:  ???ms              │
 └────────────────────────────────────────────┘
 ```
@@ -170,7 +170,7 @@ Run Date:   YYYY-MM-DD HH:MM
 **Pass Rate:** _____ / _____ (____%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> ![alt text](image.png)
 
 ---
 
@@ -216,10 +216,10 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
+| High     | 1      |
+| Medium   | 2      |
 | Low      | 0      |
-| **รวม**  | **0**  |
+| **รวม**  | **3**  |
 
 ---
 
@@ -237,49 +237,49 @@ cd frontend && npm audit --audit-level=moderate
 **Status:** Open / Fixed
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. สั่ง POST /api/payments พร้อม body
+2. ให้ orderId เป็นออร์เดอร์ที่มีสถานะ confirmed และยอดรวม totalAmount มากกว่า amountPaid
+3. เรียก API แล้วดูผลลัพธ์ที่ระบบคืนกลับและข้อมูลในตาราง payment
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> [ระบบต้องปฏิเสธรายการด้วย HTTP 400]
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> [ข้อความ error ควรเป็น Insufficient payment amount]
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
 > `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> [ร้านอาจบันทึกยอดขายผิดพลาด]
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: [Double booking on same table]
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** High
+**Priority:** P2
+**Feature:**  Order Management
+**Status:** Open 
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. Login เป็น waiter หรือ cashier
+2. สร้างออร์เดอร์ใหม่ด้วย POST /api/orders สำหรับโต๊ะที่มีออร์เดอร์เปิดอยู่แล้ว
+3. ระบบยังสร้างออร์เดอร์ใหม่ได้อีกครั้ง ทั้งที่โต๊ะนั้นยังไม่ถูกปิด
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> [ระบบต้องปฏิเสธคำขอด้วย HTTP 409 Conflict และส่งข้อความว่า Table already has an open order]
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> [ระบบรับคำขอและสร้างออร์เดอร์อีกหนึ่งรายการบนโต๊ะเดียวกัน ทำให้โต๊ะนั้นมีออร์เดอร์ซ้ำ]
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
 > `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> [โต๊ะเดียวกันถูกบันทึกเป็นหลายออร์เดอร์ ทำให้การจัดการโต๊ะผิดพลาด ระบบรายงานสถานะผิด และอาจทำให้พนักงานเสิร์ฟหรือแคชเชียร์สับสนจนเกิดความเสียหายทางการบริการ]
 
 ---
 
@@ -339,11 +339,11 @@ npm run dev
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> (![alt text](image-1.png))
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> (![alt text](image-2.png))
 
 ---
 
@@ -431,12 +431,12 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | ![alt text](image-6.png)      | ผ่าน           |
+| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | ![alt text](image-3.png)      | ผ่าน           |
+| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | ![alt text](image-4.png)      | ผ่าน           |
+| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | ![alt text](image-5.png)      | ผ่าน             |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4/ 4 รายการ**
 
 > 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
 
