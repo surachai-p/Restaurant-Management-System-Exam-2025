@@ -332,18 +332,18 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน (On-Premises)
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+![alt text](images/health-status-ok.png)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+![> (วางภาพที่นี่)](images/frontend-login.png)
 
 ---
 
