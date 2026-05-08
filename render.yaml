@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: rms-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
