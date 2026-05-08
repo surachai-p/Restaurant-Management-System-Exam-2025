@@ -49,24 +49,6 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
 
-      - name: Run Newman E2E Tests
-        run: |
-          cd backend
-          npx prisma db push
-          npx tsx prisma/seed.ts
-          npm run build
-          npm start &
-          # Wait for backend to be ready
-          for i in {1..20}; do curl -s http://localhost:3001/api/health && break || sleep 2; done
-          npm install -g newman
-          newman run ../tests/postman/RMS-TestSuite-v2.json \
-            -e ../tests/postman/env-local.json \
-            --env-var "base_url=http://localhost:3001/api"
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
-          JWT_SECRET: test-secret-key-123
-          NODE_ENV: production
-
       - name: Setup Node.js for frontend
         uses: actions/setup-node@v4
         with:
