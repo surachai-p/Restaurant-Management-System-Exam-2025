@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd 
 
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
-RUN npm ci --only=production && npx prisma generate
+RUN npm install --only=production && npx prisma generate
 
 FROM node:22-slim AS builder
 WORKDIR /app
 COPY backend/package*.json ./
 COPY backend/tsconfig.json ./
 COPY backend/prisma ./prisma/
-RUN npm ci
+RUN npm install
 COPY backend/src ./src
 RUN npm run build
 
