@@ -80,6 +80,7 @@ jobs:
         newman run tests/postman/RMS-68030135-TestSuite.json \
           --environment tests/postman/env-ci.json \
           --reporters cli
+        
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
         JWT_SECRET: test-secret
