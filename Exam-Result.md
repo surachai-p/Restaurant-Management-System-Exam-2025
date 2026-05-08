@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: นางสาววรัทยา รอดเมล์  
+> รหัสนักศึกษา: 68030258 
+> วันที่สอบ: 8 พฤษภาคม 2569
 
 ---
 
@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** `https://github.com/68030258/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -82,13 +82,13 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
-| Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| OS             | Windows 11 |
+| Node.js        | v24.14.0                             |
+| npm            | 11.9.0               |
+| Docker         | version 29.2.1              |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | chrome 148.0.7778.96            |
+| Newman         | 6.2.2               |
 
 ---
 
