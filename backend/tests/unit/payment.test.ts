@@ -3,6 +3,10 @@ import { describe, it, expect } from 'vitest'
 
 // ── Business logic helpers (mirrors payment route logic) ────────────────────
 function calculateChange(totalAmount: number, amountPaid: number): number {
+  // แก้ไข BUG-001: ถ้าจ่ายเงินน้อยกว่าราคาอาหาร ให้คืนค่าเป็น 0 หรือแจ้ง Error
+  if (amountPaid < totalAmount) {
+    return 0; 
+  }
   return amountPaid - totalAmount
 }
 
