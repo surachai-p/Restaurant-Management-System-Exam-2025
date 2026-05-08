@@ -61,10 +61,10 @@ jobs:
           newman run ../tests/postman/RMS-TestSuite-v2.json \
             -e ../tests/postman/env-local.json \
             --env-var "baseUrl=http://localhost:3001/api"
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
-        JWT_SECRET: test-secret-key-123
-        NODE_ENV: production
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+          JWT_SECRET: test-secret-key-123
+          NODE_ENV: production
 
       - name: Setup Node.js for frontend
         uses: actions/setup-node@v4
