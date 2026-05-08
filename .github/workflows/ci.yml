@@ -44,6 +44,31 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
 
+    # ✅ เพิ่ม npm audit
+    - name: Security audit
+      run: cd backend && npm audit --audit-level=high
+
+    # ✅ เพิ่ม Newman
+    - name: Install Newman
+      run: npm install -g newman newman-reporter-htmlextra
+
+    - name: Run Newman E2E Tests
+      run: |
+        mkdir -p tests/reports
+        newman run tests/RMS-68030120-TestSuite.json \
+          --reporters cli,htmlextra \
+          --reporter-htmlextra-export tests/reports/newman-report.html
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+
+    # ✅ Upload Newman Report
+    - name: Upload Newman Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: newman-report
+        path: tests/reports/newman-report.html
+
     - name: Setup Node.js for frontend
       uses: actions/setup-node@v4
       with:
