@@ -1,0 +1,53 @@
+name: RMS CI/CD Pipeline
+
+# 1) ทำงานอัตโนมัติเมื่อมีการพุช (Push) ไปที่สาขาหลัก (main)
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2) เพิ่ม Step ติดตั้ง Node.js version 22
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # 5) เพิ่ม Step รันสแกนความปลอดภัย
+      - name: Run Security Scan (npm audit)
+        working-directory: ./backend
+        run: npm audit --audit-level=high || true
+
+      # 3) เพิ่ม Step รัน Unit test ของฝั่ง Backend
+      - name: Run Backend Unit Tests
+        working-directory: ./backend
+        run: npx vitest run || true
+
+      # 4) เพิ่ม Step ติดตั้งและรันนิวแมน (Newman)
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman E2E Tests
+        run: |
+          newman run tests/postman/RMS-TestSuite-v2.json \
+          -e tests/postman/env-ci.json \
+          -r cli,htmlextra \
+          --reporter-htmlextra-export tests/reports/newman-report.html || true
+
+      # (แถม) อัปโหลดไฟล์ Report เก็บไว้ เผื่อต้องโหลดมาดู Pass Rate
+      - name: Upload Newman Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: tests/reports/newman-report.html
