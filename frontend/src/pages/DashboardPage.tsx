@@ -5,7 +5,13 @@ import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import type { RestaurantTable, Order, DailyReport } from '../types'
 
-const fmt = (n: string | number) => Number(n).toFixed(2)
+const fmt = (n: string | number) => Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2 })
+
+const tableStatusStyle: Record<string, { bg: string; dot: string; text: string }> = {
+  available: { bg: 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100', dot: 'bg-emerald-500', text: 'text-emerald-700' },
+  occupied:  { bg: 'bg-orange-50 border-orange-200 hover:bg-orange-100', dot: 'bg-orange-500', text: 'text-orange-700' },
+  reserved:  { bg: 'bg-purple-50 border-purple-200 hover:bg-purple-100', dot: 'bg-purple-500', text: 'text-purple-700' },
+}
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -25,95 +31,109 @@ export default function DashboardPage() {
     }).finally(() => setLoading(false))
   }, [user])
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Loading…</div>
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 
   const occupied  = tables.filter(t => t.status === 'occupied').length
   const available = tables.filter(t => t.status === 'available').length
 
-  const tableColor: Record<string, string> = {
-    available: 'bg-green-50 border-green-200 text-green-700',
-    occupied:  'bg-orange-50 border-orange-200 text-orange-700',
-    reserved:  'bg-purple-50 border-purple-200 text-purple-700',
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <span className="text-sm text-gray-500">Welcome, {user?.name}</span>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <p className="text-sm text-stone-500 font-medium">{new Date().toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <h1 className="text-3xl font-black text-stone-900 tracking-tight mt-0.5">สวัสดี, {user?.name?.split(' ')[0]} 👋</h1>
       </div>
 
-      {/* Stats */}
+      {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Tables', value: tables.length, color: 'text-gray-900' },
-          { label: 'Occupied', value: occupied, color: 'text-orange-600' },
-          { label: 'Available', value: available, color: 'text-green-600' },
-          { label: 'Open Orders', value: openOrders.length, color: 'text-blue-600' },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="card text-center">
-            <div className={`text-3xl font-bold ${color}`}>{value}</div>
-            <div className="text-xs text-gray-500 mt-1">{label}</div>
+          { label: 'โต๊ะทั้งหมด', value: tables.length, icon: '🪑', color: 'text-stone-700', bg: 'bg-stone-50' },
+          { label: 'โต๊ะว่าง', value: available, icon: '✅', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'โต๊ะไม่ว่าง', value: occupied, icon: '🔴', color: 'text-orange-600', bg: 'bg-orange-50' },
+          { label: 'ออเดอร์เปิด', value: openOrders.length, icon: '📋', color: 'text-amber-600', bg: 'bg-amber-50' },
+        ].map(s => (
+          <div key={s.label} className={`rounded-2xl border border-stone-100 p-5 ${s.bg}`}>
+            <div className="text-2xl mb-2">{s.icon}</div>
+            <div className={`text-3xl font-black ${s.color}`}>{s.value}</div>
+            <div className="text-xs text-stone-500 font-medium mt-1">{s.label}</div>
           </div>
         ))}
       </div>
 
+      {/* Revenue (admin/cashier only) */}
       {daily && (
         <div className="grid grid-cols-2 gap-4">
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-blue-600">฿{fmt(daily.totalRevenue)}</div>
-            <div className="text-xs text-gray-500 mt-1">Today's Revenue</div>
+          <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg shadow-amber-500/25">
+            <p className="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">รายได้วันนี้</p>
+            <p className="text-4xl font-black">฿{fmt(daily.totalRevenue)}</p>
           </div>
-          <div className="card text-center">
-            <div className="text-3xl font-bold text-blue-600">{daily.totalOrders}</div>
-            <div className="text-xs text-gray-500 mt-1">Today's Orders Paid</div>
+          <div className="bg-gradient-to-br from-stone-700 to-stone-900 rounded-2xl p-6 text-white shadow-lg">
+            <p className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-1">ออเดอร์ชำระแล้ว</p>
+            <p className="text-4xl font-black">{daily.totalOrders}</p>
           </div>
         </div>
       )}
 
-      {/* Table Map */}
+      {/* Table map */}
       <div className="card">
-        <h2 className="text-lg font-semibold mb-4">Table Status</h2>
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
-          {tables.map(t => (
-            <div key={t.id}
-              className={`border-2 rounded-xl p-3 text-center ${tableColor[t.status] ?? ''}`}>
-              <div className="text-lg font-bold">#{t.tableNumber}</div>
-              <div className="text-xs mt-1 capitalize">{t.status}</div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold text-stone-900">แผนผังโต๊ะ</h2>
+          <div className="flex items-center gap-4 text-xs text-stone-500">
+            {[{ dot: 'bg-emerald-500', label: 'ว่าง' }, { dot: 'bg-orange-500', label: 'ไม่ว่าง' }, { dot: 'bg-purple-500', label: 'จอง' }].map(l => (
+              <span key={l.label} className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${l.dot}`} />
+                {l.label}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
+          {tables.map(t => {
+            const s = tableStatusStyle[t.status] ?? tableStatusStyle.available
+            return (
+              <div key={t.id} className={`border-2 rounded-xl p-2.5 text-center cursor-default transition-colors ${s.bg}`}>
+                <div className={`w-2 h-2 rounded-full mx-auto mb-1 ${s.dot}`} />
+                <div className={`text-sm font-bold ${s.text}`}>{t.tableNumber}</div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Open Orders */}
+      {/* Open orders */}
       {openOrders.length > 0 && (
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Open Orders</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  {['Order#', 'Table', 'Items', 'Total', 'Status', ''].map(h => (
-                    <th key={h} className="py-2 px-3 text-left text-xs text-gray-500 uppercase font-semibold">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {openOrders.map(o => (
-                  <tr key={o.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2.5 px-3 font-semibold">#{o.id}</td>
-                    <td className="py-2.5 px-3">Table {o.table?.tableNumber ?? o.tableId}</td>
-                    <td className="py-2.5 px-3">{o.items?.length ?? 0} items</td>
-                    <td className="py-2.5 px-3 font-semibold">฿{fmt(o.totalAmount)}</td>
-                    <td className="py-2.5 px-3"><span className={`badge-${o.status}`}>{o.status}</span></td>
-                    <td className="py-2.5 px-3">
-                      <Link to={`/orders/${o.id}`} className="btn-primary btn-sm">View</Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h2 className="text-lg font-bold text-stone-900 mb-4">ออเดอร์ที่เปิดอยู่</h2>
+          <div className="divide-y divide-stone-50">
+            {openOrders.map(o => (
+              <div key={o.id} className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm">
+                    {o.table?.tableNumber ?? o.tableId}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-stone-800">ออเดอร์ #{o.id}</p>
+                    <p className="text-xs text-stone-500">{o.items?.length ?? 0} รายการ · {new Date(o.createdAt).toLocaleTimeString('th-TH')}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-stone-800">฿{fmt(o.totalAmount)}</span>
+                  <Link to={`/orders/${o.id}`} className="btn-primary btn-sm">ดูออเดอร์</Link>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+      )}
+
+      {openOrders.length === 0 && (
+        <div className="card text-center py-12">
+          <div className="text-4xl mb-3">🎉</div>
+          <p className="text-stone-500 font-medium">ไม่มีออเดอร์ที่เปิดอยู่</p>
         </div>
       )}
     </div>
