@@ -2,7 +2,7 @@
 
 > **ข้อสอบปฏิบัติ** — รายวิชาการออกแบบและพัฒนาซอฟต์แวร์ 1 | KMITL
 
-[![CI](https://github.com/YOUR_USERNAME/restaurant-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/restaurant-management-system/actions)
+[![CI](https://github.com/AgnesTachyon-feet/restaurant-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/AgnesTachyon-feet/restaurant-management-system/actions)
 
 ---
 
@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** _อรัญชัย คำเพ็ญ_
+**รหัสนักศึกษา:** _68030316_
+**วันที่สอบ:** _8/5/2026_
 
 ---
 
