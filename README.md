@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** _นายธนาเทพ ธีรปกรณ์_
+**รหัสนักศึกษา:** _68030120_
+**วันที่สอบ:** _8/5/2569_
 
 ---
 
@@ -67,8 +67,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   | _Version 147.0.7727.138_ |
+| OS        | _window 11_ |
 
 ### Entry/Exit Criteria
 
@@ -98,20 +98,20 @@ Run: npm test
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Total: 21  |  Passed: 19  |  Failed: 1  |  Pass Rate: 85.71%%
 ```
 
 ### Test Case Table
 
 | TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
 |-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
+| TC-002 | Auth | Admin login | 200 + JWT | 200 + JWT | Pass |
+| TC-005 | Auth | Wrong password | 401 | 401 | Pass |
+| TC-007 | Security | No token | 401 | Pass | Pass |
+| TC-010 | Security | SQL Injection | Empty/400 | 200 + SQL injection possible | Fail |
+| TC-011 | Security | Waiter update price | 403 | 200(price changed) | Fail |
+| TC-015 | Order | Double booking | 409 | 201(duplicate order allowed) | Fail |
+| TC-020 | Payment | Underpayment | 400 | 201/negative chage allowed | Fail |
 
 ---
 
@@ -119,20 +119,30 @@ Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
 
 <!-- ส่วนที่ 3 -->
 
-## BUG-001: [ชื่อ Bug]
+## BUG-001: [ระบบอนุญาตให้บันทึกยอดเงินทอนติดลบ (Underpayment Rejection Failure)]
 
 **Severity:** Critical
 **Feature:** Payment
 **Endpoint:** `POST /api/payments`
 
 ### Steps to Reproduce
-1. ...
+1. เรียกใช้งาน Endpoint POST /api/payments
+
+2. ส่งยอดชำระเงิน (Amount Paid) ที่ น้อยกว่า ราคาสินค้า (Total Price)
+
+3. ตรวจสอบค่าที่ระบบคำนวณในตัวแปร change (เงินทอน)
 
 ### Expected / Actual Result
-...
+- Expected Result: ระบบต้องทำการ Validation และปฏิเสธการทำรายการ (Return HTTP 400 Bad Request) โดยยอดเงินทอนห้ามติดลบ ($$\ge 0$$)
+
+- Actual Result: ระบบคำนวณเงินทอนออกมาเป็นค่าลบ (เช่น -50) และปล่อยให้ดำเนินการต่อโดยไม่มีการตรวจสอบความถูกต้อง
 
 ### Business Impact
-...
+* ความเสียหายทางการเงิน: ธุรกิจสูญเสียรายได้เนื่องจากลูกค้าจ่ายเงินไม่ครบแต่ระบบยอมรับรายการ
+
+* ข้อมูลผิดพลาด: ยอดเงินในระบบบัญชีและ Database จะผิดเพี้ยน (มีค่าติดลบในส่วนที่ควรจะเป็นบวก)
+
+* ความน่าเชื่อถือ: หากเกิดในระบบ Production จะส่งผลต่อความเชื่อมั่นของลูกค้าและเจ้าของกิจการอย่างมาก
 
 ---
 
@@ -172,8 +182,8 @@ npm install && npm run dev
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `DATABASE_URL` | Render PostgreSQL URL | `postgresql://user:pass@...render.com/db` |
-| `JWT_SECRET` | Random secret string | *(ไม่ระบุ)* |
+| `DATABASE_URL` | Render PostgreSQL URL | `postgresql://neondb_owner:npg_mz1Ch4XejOEs@ep-patient-brook-aorih7ba-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
+| `JWT_SECRET` | Random secret string | *7497907e6c2281cbb8da1c7f317cd72adcd15ca33b69e2b49d4a2c41a75cc275* |
 | `CORS_ORIGIN` | Frontend URL | `https://your-app.vercel.app` |
 
 ### Render PostgreSQL Database Setup
