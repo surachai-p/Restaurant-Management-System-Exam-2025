@@ -32,10 +32,17 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
+    // ✅ FIX BUG-001: Validate that payment is sufficient
+    if (paid < totalAmount) {
+      res.status(400).json({
+        error: 'Insufficient payment amount',
+        totalAmount,
+        amountPaid: paid,
+        shortfall: totalAmount - paid
+      });
+      return
+    }
 
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
     const change = paid - totalAmount
 
     const [payment] = await prisma.$transaction([

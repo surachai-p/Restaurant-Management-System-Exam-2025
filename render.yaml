@@ -1,9 +1,9 @@
 services:
-  - type: pserv
+  - type: web
     name: rms-backend
     env: docker
-    buildCommand: docker build -t rms-backend ./backend
-    dockerfilePath: ./backend/Dockerfile
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
     envVars:
       - key: NODE_ENV
         value: production

@@ -39,11 +39,6 @@ export default function ReportsPage() {
           ))}
           <button className="btn-primary" onClick={load}>Generate</button>
         </div>
-        {start && (
-          <p className="mt-2 text-xs text-amber-600">
-            ⚠️ BUG-005: Orders from {start} 00:00:00 may be excluded (Op.gt instead of Op.gte).
-          </p>
-        )}
       </div>
 
       {error && <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}

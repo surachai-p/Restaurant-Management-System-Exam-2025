@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: นัทธพงศ์ เหมือนประสาน  
+> รหัสนักศึกษา: 68030135  
+> วันที่สอบ: 2026-05-08
 
 ---
 
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-xi.vercel.app/login`          | ✅     |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025-9e33.onrender.com/`        | ✅     |
+| API Health Check   | `https://restaurant-management-system-exam-2025-9e33.onrender.com/api/health` | ✅ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_9LekEWd6hlPv@ep-delicate-pond-aoxyyf3m-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ✅     |
 
 ---
 
@@ -61,8 +61,8 @@
 #### Out of Scope
 | Feature       | เหตุผลที่ไม่ทดสอบ |
 |---------------|--------------------|
-| <!-- ตัวอย่าง --> Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
-| <!-- เพิ่มเติม --> | |
+| Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
+| Mobile App Native Testing | ระบบเป็น Web-based เท่านั้น |
 
 ---
 
@@ -82,13 +82,13 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
-| Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| OS             | Windows 11                         |
+| Node.js        | 22.12.0                            |
+| npm            | 10.9.0                             |
+| Docker         | 27.2.0                             |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | Chrome 130                         |
+| Newman         | 6.2.0                              |
 
 ---
 
@@ -125,20 +125,29 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
-| <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | HTTP 200 OK  | ✅        |
+| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   | HTTP 201 OK  | ✅        |
+| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    | HTTP 200 OK  | ✅        |
+| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    | HTTP 401 OK  | ✅        |
+| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message | HTTP 400 OK  | ✅        |
+| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    | HTTP 400 OK  | ✅        |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    | HTTP 401 OK  | ✅        |
+| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       | HTTP 403 OK  | ✅        |
+| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | URI Error    | ❌        |
+| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message | JSON Error   | ❌        |
+| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    | HTTP 200 OK  | ✅        |
+| TC-012  | Positive | Menu     | Admin เพิ่มเมนูใหม่             | `{name: "Dish", price: 99}`                       | HTTP 201 Created         | HTTP 201 OK  | ✅        |
+| TC-013  | Security | Menu     | Waiter เพิ่มเมนู (ไม่ได้)         | Role: Waiter + POST /api/menu                     | HTTP 403 Forbidden       | HTTP 403 OK  | ✅        |
+| TC-014  | Positive | Order    | สร้างออเดอร์ใหม่                | `{tableId: 2}`                                    | HTTP 201 Created         | HTTP 201 OK  | ✅        |
+| TC-015  | Security | Order    | จองโต๊ะซ้ำ (Double Booking)     | `{tableId: 2}` (ขณะที่โต๊ะยังไม่ว่าง)             | HTTP 409 Conflict        | HTTP 409 OK  | ✅        |
+| TC-016  | Positive | Order    | เพิ่มรายการอาหารลงในออเดอร์     | `{menuItemId: 1, quantity: 2}`                    | HTTP 201 Created         | HTTP 201 OK  | ✅        |
+| TC-017  | Positive | Order    | ยืนยันออเดอร์ (Confirm)         | PUT /api/orders/:id/confirm                       | HTTP 200 OK              | HTTP 200 OK  | ✅        |
+| TC-018  | Negative | Order    | สร้างออเดอร์โดยไม่มี tableId      | `{}`                                              | HTTP 400 Bad Request     | HTTP 400 OK  | ✅        |
+| TC-019  | Positive | Payment  | ชำระเงินพอดียอด                 | `{orderId: id, amountPaid: total}`                | HTTP 201 Created         | HTTP 201 OK  | ✅        |
+| TC-020  | Security | Payment  | ชำระเงินไม่ครบ (Underpayment)   | `{orderId: 9999, amountPaid: 1}`                  | HTTP 400 Bad Request     | HTTP 404 Error| ❌        |
+| TC-021  | Security | Payment  | ชำระเงินโดยไม่มี Token          | POST /api/payments (no header)                    | HTTP 401 Unauthorized    | HTTP 401 OK  | ✅        |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 18 / 21 กรณี (85.7%)
 
 ---
 
@@ -149,28 +158,29 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-68030135-TestSuite
+Run Date:   2026-05-08 14:13
 
 ┌─────────────────────────┬──────────────────┐
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               21 │
+│            test-scripts │               21 │
+│      prerequest-scripts │                0 │
+│              assertions │               26 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
+│ total run duration:     1893ms             │
+│ total data received:    5.57kB             │
+│ average response time:  22ms               │
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** 18 / 21 (85.7%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
 > 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+![alt text](image-1.png)
 
 ---
 
@@ -217,9 +227,9 @@ cd frontend && npm audit --audit-level=moderate
 |----------|--------|
 | Critical | 0      |
 | High     | 0      |
-| Medium   | 0      |
+| Medium   | 2      |
 | Low      | 0      |
-| **รวม**  | **0**  |
+| **รวม**  | **2**  |
 
 ---
 
@@ -229,57 +239,56 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
-
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+### BUG-001: Insufficient payment allowed
+**Severity:** Critical  
+**Priority:** P1  
+**Feature:** Payment  
+**Status:** Fixed
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. Create an order and confirm it (e.g., Total = 100 THB).
+2. Go to the payment page.
+3. Enter an amount paid less than the total (e.g., 50 THB).
+4. Process the payment.
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> The system should block the payment and show an "Insufficient payment" error message.
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> The system allowed the payment and stored a negative change value in the database.
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> ![BUG-001 Screenshot](./tests/reports/bug-001.png)
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> The restaurant loses revenue because customers can pay less than the actual bill.
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
-
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+### BUG-002: UI Validation Persistence
+**Severity:** Medium  
+**Priority:** P2  
+**Feature:** Payment UI  
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. Go to the payment page of a confirmed order.
+2. Enter an insufficient amount (e.g., 1 THB) and click "Process Payment".
+3. An "Insufficient payment amount" error appears.
+4. Correct the amount to a valid one (e.g., full total).
+5. The error message remains visible even after entering valid data.
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> The error message should disappear or be cleared when the user updates the input or submits a valid payment.
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> The error message persists, causing confusion for the user.
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+> ![BUG-002 Screenshot](./tests/reports/bug-002.png)
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> Poor user experience for the cashier, leading to confusion during the checkout process.
 
 ---
 
@@ -332,8 +341,8 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน (On-Premises)
 
@@ -341,9 +350,13 @@ npm run dev
 > 
 > (วางภาพที่นี่)
 
+![alt text](image-4.png)
+
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
 > (วางภาพที่นี่)
+
+![alt text](image-5.png)
 
 ---
 
@@ -368,14 +381,15 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน (Staging)
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
 > (วางภาพที่นี่)
+![alt text](image.png)
 
 ---
 
@@ -431,14 +445,16 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | ✅ ผ่าน  | ✅           |
+| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | ✅ ผ่าน  | ✅           |
+| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | ✅ ผ่าน  | ✅           |
+| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | ✅ ผ่าน  | ✅           |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4 / 4 รายการ**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+> 📸 **ภาพหน้าจอ Dashboard บน Production (Vercel + Render)**
+
+![alt text](image-3.png)
 
 ---
 
@@ -458,14 +474,15 @@ Build Command:  npm run build
 
 | Metric          | ค่า    |
 |-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Total Tests     | 26     |
+| Tests Passed    | 23     |
+| Tests Failed    | 3      |
+| **Pass Rate**   | **88.4%** |
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
 > (วางภาพที่นี่)
+![alt text](image-2.png)
 
 ---
 

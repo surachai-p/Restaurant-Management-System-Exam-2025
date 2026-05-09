@@ -4,17 +4,17 @@ WORKDIR /app
 # Install netcat and openssl for database readiness check and Prisma
 RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd openssl wget && rm -rf /var/lib/apt/lists/*
 
-COPY package*.json ./
-COPY prisma ./prisma/
-RUN npm ci --only=production && npx prisma generate
+COPY backend/package*.json ./
+COPY backend/prisma ./prisma/
+RUN npm install --only=production && npx prisma generate
 
 FROM node:22-slim AS builder
 WORKDIR /app
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY prisma ./prisma/
-RUN npm ci
-COPY src ./src
+COPY backend/package*.json ./
+COPY backend/tsconfig.json ./
+COPY backend/prisma ./prisma/
+RUN npm install
+COPY backend/src ./src
 RUN npm run build
 
 FROM node:22-slim AS runner
