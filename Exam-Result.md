@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-xi.vercel.app/login`          | ✅     |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025-9e33.onrender.com/`        | ✅     |
+| API Health Check   | `https://restaurant-management-system-exam-2025-9e33.onrender.com/api/health` | ✅ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_9LekEWd6hlPv@ep-delicate-pond-aoxyyf3m-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ✅     |
 
 ---
 
