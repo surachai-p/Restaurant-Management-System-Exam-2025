@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: จิตติพัฒน์ ลำดวน
+> รหัสนักศึกษา: 68030039 
+> วันที่สอบ: 08/05/2569
 
 ---
 
@@ -338,11 +338,11 @@ npm run dev
 #### หลักฐาน (On-Premises)
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
-> 
+> ![alt text](<pic/Screenshot 2026-05-08 152820.png>)
 > (วางภาพที่นี่)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
->
+>![alt text](image.png)
 > (วางภาพที่นี่)
 
 ---
@@ -374,7 +374,7 @@ docker compose up --build
 #### หลักฐาน (Staging)
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
->
+>![alt text](pic/image.png)
 > (วางภาพที่นี่)
 
 ---
@@ -431,7 +431,7 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |Restaurant-Management-System-Exam-2025/pic/4.png
 | 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
 | 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
 | 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
@@ -464,7 +464,7 @@ Build Command:  npm run build
 | **Pass Rate**   | **??%** |
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
->
+>![alt text](pic/3.png)
 > (วางภาพที่นี่)
 
 ---
