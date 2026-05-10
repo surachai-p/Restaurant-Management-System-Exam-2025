@@ -35,8 +35,8 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-kappa.vercel.app/login`| ⬜     |
+| Backend (Render)   | `https://restaurant-management-system-exam.onrender.com`| ⬜     |
 | API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
 | Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
 
