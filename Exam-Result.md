@@ -63,7 +63,7 @@
 |---------------|--------------------|
 | Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
 | Mobile Native Features | ระบบพัฒนาเป็น Web Application เท่านั้น |
-| Third-party Payment Gateway | ใช้การจำลองสถานะการชำระเงินในระบบ |
+| Third-party Payment Gateway | ใช้การจำลองสถานะการชำระเงินในระบบ |a
 
 ---
 
