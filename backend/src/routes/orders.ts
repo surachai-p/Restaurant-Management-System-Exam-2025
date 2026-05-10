@@ -66,9 +66,12 @@ router.post('/', authenticate, async (req, res) => {
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
 
-    // ⚠️ BUG-002: Missing duplicate check — allows two orders on same table
-    // Fix: const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
-    //      if (existing) { res.status(409).json({ error: 'Table already has an open order' }); return }
+    // ✅ FIX BUG-002: Prevent opening an order on a table that already has an 'open' order
+    const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
+    if (existing) {
+      res.status(409).json({ error: 'Table already has an open order' })
+      return
+    }
 
     const [order] = await prisma.$transaction([
       prisma.order.create({
