@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: rms-backend
+    ports:
+      - "3001:3001"
+    environment:
+      # ใช้ค่าจากที่คุณส่งมาล่าสุด
+      DATABASE_URL: "postgresql://neondb_owner:npg_ySzpsgaV6HB8@ep-lively-cake-ao333oty-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+      NODE_ENV: "development"
+      PORT: 3001
+      JWT_SECRET: "rms-dev-secret-key-change-in-production"
+      # ปรับเป็น http://localhost เพราะใน Docker เราแมพ Frontend ไว้ที่พอร์ต 80
+      CORS_ORIGIN: "http://localhost"
+
+  frontend:
+    build: ./frontend
+    container_name: rms-frontend
+    ports:
+      - "80:80"
+    environment:
+      # ให้ Frontend ยิงหา Backend ผ่านพอร์ต 3001 ของเครื่อง
+      VITE_API_URL: "http://localhost:3001"
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: rms-network
