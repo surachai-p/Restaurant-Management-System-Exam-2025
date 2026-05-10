@@ -475,7 +475,7 @@ Build Command:  npm run build
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
-> ![alt]
+> ![alt]()
 
 ---
 
