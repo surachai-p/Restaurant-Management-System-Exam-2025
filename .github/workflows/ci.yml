@@ -66,4 +66,4 @@ jobs:
     - name: Run Newman Tests
       run: |
         newman run tests/postman/RMS-TestSuite-v2.json \
-        --env-var "baseUrl=https://restaurant-management-system-exam-2025-g5hh.onrender.com/api"
+        --env-var "base_url=https://restaurant-management-system-exam-2025-g5hh.onrender.com/api"
