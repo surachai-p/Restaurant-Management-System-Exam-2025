@@ -71,7 +71,7 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
 
 // PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
 // Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
