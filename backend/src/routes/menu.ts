@@ -16,10 +16,16 @@ router.get('/', authenticate, async (req, res) => {
     if (search) {
       // ⚠️ BUG-003: Parameterized query NOT used — SQL Injection vulnerability
       // Fix would be: prisma.$queryRaw`SELECT * FROM menu_items WHERE name ILIKE ${'%' + search + '%'}`
-      const results = await prisma.$queryRawUnsafe(
-        `SELECT * FROM menu_items WHERE (name ILIKE '%${search}%' OR description ILIKE '%${search}%') AND "isAvailable" = true`
-      )
-      res.json(results); return
+      const searchPattern = `%${search}%`;
+      
+      const results = await prisma.$queryRaw`
+        SELECT * FROM menu_items 
+        WHERE (name ILIKE '%${searchPattern}%' OR description ILIKE '%${searchPattern}%') 
+        AND "isAvailable" = true
+      `;
+
+      res.json(results); 
+      return
     }
 
     const items = await prisma.menuItem.findMany({
