@@ -18,7 +18,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     }
 
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { id: Number(orderId) },
       include: { items: true },
     })
     if (!order) { res.status(404).json({ error: 'Order not found' }); return }
