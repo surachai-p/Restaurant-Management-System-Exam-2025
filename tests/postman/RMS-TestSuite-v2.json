@@ -124,7 +124,7 @@
           "name": "TC-009 Search Menu (Positive)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=Pad+Thai", "query": [{ "key": "search", "value": "Pad Thai" }] },
+            "url": "{{base_url}}/menu?search=Pad+Thai",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -138,7 +138,7 @@
           "name": "TC-010 SQL Injection in Search (Security - BUG-003)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271", "query": [{ "key": "search", "value": "' OR '1'='1" }] },
+            "url": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
