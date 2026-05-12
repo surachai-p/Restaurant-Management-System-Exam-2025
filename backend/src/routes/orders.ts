@@ -81,7 +81,7 @@ router.post('/', authenticate, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: (err as Error).message })
   }
-})
+}) 
 
 // POST /api/orders/:id/items
 router.post('/:id/items', authenticate, async (req, res) => {

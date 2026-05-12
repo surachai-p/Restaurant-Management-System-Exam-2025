@@ -42,7 +42,7 @@ router.get('/', authenticate, async (req, res) => {
 })
 
 // GET /api/menu/:id
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
