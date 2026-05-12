@@ -10,25 +10,33 @@ const router = Router()
 // Negative change is stored and returned when customer underpays
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
+    // 1. รับค่าพร้อมกำหนด Type ให้ชัดเจนเหมือนเดิม
     const { amountPaid, method } = req.body as { 
-    amountPaid?: number; 
-    method?: 'cash' | 'card' | 'qr' 
+      amountPaid?: number; 
+      method?: 'cash' | 'card' | 'qr' 
     };
 
-// ดักไว้ทั้งสองชื่อ (เผื่อ Newman ส่ง order_id มา)
-    const orderId = req.body.orderId || req.body.order_id;
+    // 2. ดักเรื่องชื่อตัวแปร ( orderId หรือ order_id )
+    const rawOrderId = req.body.orderId || req.body.order_id;
 
-    if (!orderId || amountPaid === undefined) {
-      res.status(400).json({ error: 'orderId and amountPaid required' }); 
+    if (!rawOrderId || amountPaid === undefined) {
+      res.status(400).json({ error: 'orderId and amountPaid required' });
       return;
     }
 
+    // 3. บังคับเป็น Number เพื่อแก้บั๊ก 404
+    const orderId = Number(rawOrderId);
+
     const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) }, // บังคับเป็น Number เพื่อกัน 404
+      where: { id: orderId }, 
       include: { items: true },
     });
-    
-    if (!order) { res.status(404).json({ error: 'Order not found' }); return }
+
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
     if (order.status !== 'confirmed') {
       res.status(400).json({ error: 'Order must be confirmed before payment' }); return
     }
