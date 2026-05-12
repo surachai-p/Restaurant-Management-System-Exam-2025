@@ -20,7 +20,7 @@ router.get('/', authenticate, async (req, res) => {
       
       const results = await prisma.$queryRaw`
         SELECT * FROM menu_items 
-        WHERE (name ILIKE '%${searchPattern}%' OR description ILIKE '%${searchPattern}%') 
+        WHERE (name ILIKE '%${searchPattern}' OR description ILIKE '%${searchPattern}') 
         AND "isAvailable" = true
       `;
 
