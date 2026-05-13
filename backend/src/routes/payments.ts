@@ -10,70 +10,87 @@ const router = Router()
 // ✓ Validation: amountPaid must be >= totalAmount to prevent negative change
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
-    // 1. รับค่าพร้อมกำหนด Type ให้ชัดเจนเหมือนเดิม
+    // 1. ดักทั้ง orderId และ order_id เพื่อแก้ปัญหา 404 (จาก Newman)
+    const rawOrderId = req.body.orderId || req.body.order_id;
     const { amountPaid, method } = req.body as { 
       amountPaid?: number; 
       method?: 'cash' | 'card' | 'qr' 
     };
 
-    // 2. ดักเรื่องชื่อตัวแปร ( orderId หรือ order_id )
-    const rawOrderId = req.body.orderId || req.body.order_id;
-
+    // 2. ตรวจสอบเบื้องต้นว่าส่งค่าที่จำเป็นมาครบไหม
     if (!rawOrderId || amountPaid === undefined) {
       res.status(400).json({ error: 'orderId and amountPaid required' });
       return;
     }
 
-    // 3. บังคับเป็น Number เพื่อแก้บั๊ก 404
-    const orderId = Number(rawOrderId);
-
-    if (isNaN(orderId)) {
-      res.status(400).json({ error: 'orderId must be a valid number' });
-      return;
-    }
-
+    // 3. ค้นหาออเดอร์โดยบังคับเป็น Number เพื่อความแม่นยำ
     const order = await prisma.order.findUnique({
-      where: { id: orderId }, 
+      where: { id: Number(rawOrderId) }, 
       include: { items: true },
     });
 
+    // --- ส่วนตรวจสอบความถูกต้อง (Business Logic) ---
     if (!order) {
       res.status(404).json({ error: 'Order not found' });
       return;
     }
 
+    // เช็คสถานะ (ป้องกันการจ่ายซ้ำหรือออเดอร์ที่ยังไม่เสร็จ)
     if (order.status !== 'confirmed') {
-      res.status(400).json({ error: 'Order must be confirmed before payment' }); return
+      res.status(400).json({ error: 'Order must be confirmed before payment' });
+      return;
     }
+
+    // เช็คว่ามีรายการอาหารไหม
     if (!order.items.length) {
-      res.status(400).json({ error: 'Order has no items' }); return
+      res.status(400).json({ error: 'Order has no items' });
+      return;
     }
 
-    const totalAmount = Number(order.totalAmount)
-    const paid = Number(amountPaid)
+    // --- ส่วนตรวจสอบยอดเงิน (BUG-001 Fix) ---
+    const totalAmount = Number(order.totalAmount);
+    const paid = Number(amountPaid);
 
-    // ⚠️ BUG-001: Missing underpayment validation
     if (paid < totalAmount) { 
       res.status(400).json({ error: 'Insufficient payment amount' }); 
-      return 
+      return; 
     }
 
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
-    const change = paid - totalAmount
-
+    // 4. บันทึกการจ่ายเงิน (ตรวจสอบให้ตรงกับ schema.prisma)
+    const change = paid - totalAmount;
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
-        data: { orderId, cashierId: req.user!.id, totalAmount, amountPaid: paid, change, method: method ?? 'cash' },
-      }),
-      prisma.order.update({ where: { id: orderId }, data: { status: 'paid' } }),
-      prisma.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } }),
-    ])
+      data: {
+        orderId: order.id,         // จากตัวแปร orderId
+        cashierId: req.user!.id,  // จาก middleware auth
+        totalAmount: totalAmount, // ยอดรวมที่ดึงจาก order
+        amountPaid: paid,         // ยอดเงินที่รับมาจริง
+        change: change,           // เงินทอนที่คำนวณไว้
+        method: method ?? 'cash', // วิธีการจ่ายเงิน
+      }
+    }),
 
-    res.status(201).json({ payment, change, message: 'Payment processed successfully' })
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
+      prisma.order.update({ 
+        where: { id: order.id }, 
+        data: { status: 'paid' } 
+      }),
+
+      prisma.restaurantTable.update({ 
+        where: { id: order.tableId }, 
+        data: { status: 'available' } 
+      }),
+    ])
+    
+    res.status(201).json({ 
+      message: 'Payment successful', 
+      change: paid - totalAmount 
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-})
+});
 
 // GET /api/payments/:orderId
 router.get('/:orderId', authenticate, async (req, res) => {
