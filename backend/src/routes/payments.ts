@@ -17,20 +17,30 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
       method?: 'cash' | 'card' | 'qr' 
     };
 
-    // 2. ตรวจสอบเบื้องต้นว่าส่งค่าที่จำเป็นมาครบไหม
-    if (!rawOrderId || amountPaid === undefined) {
-      res.status(400).json({ error: 'orderId and amountPaid required' });
+    // 2. Validate amountPaid FIRST (Copilot suggestion - stricter check)
+    if (amountPaid === undefined || amountPaid === null) {
+      res.status(400).json({ error: 'Payment amount is required' });
       return;
     }
 
-    // 2.5 ตรวจสอบว่า orderId เป็นตัวเลขที่ถูกต้อง
+    if (typeof amountPaid !== 'number' || amountPaid <= 0) {
+      res.status(400).json({ error: 'Payment amount must be a positive number' });
+      return;
+    }
+
+    // 3. Validate orderId
+    if (!rawOrderId) {
+      res.status(400).json({ error: 'orderId is required' });
+      return;
+    }
+
     const orderId = Number(rawOrderId);
     if (!Number.isInteger(orderId) || orderId <= 0) {
       res.status(400).json({ error: 'Invalid orderId' });
       return;
     }
 
-    // 3. ค้นหาออเดอร์โดยบังคับเป็น Number เพื่อความแม่นยำ
+    // 4. ค้นหาออเดอร์ (AFTER validating inputs)
     const order = await prisma.order.findUnique({
       where: { id: orderId }, 
       include: { items: true },
@@ -56,26 +66,25 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 
     // --- ส่วนตรวจสอบยอดเงิน (BUG-001 Fix) ---
     const totalAmount = Number(order.totalAmount);
-    const paid = Number(amountPaid);
 
-    if (paid < totalAmount) { 
+    if (amountPaid < totalAmount) { 
       res.status(400).json({ 
         error: 'Payment amount is less than order total',
         required: totalAmount,
-        provided: paid
+        provided: amountPaid
       }); 
       return; 
     }
 
-    // 4. บันทึกการจ่ายเงิน (ตรวจสอบให้ตรงกับ schema.prisma)
-    const change = paid - totalAmount;  // ← ยอดทอนถูกต้อง
+    // 5. บันทึกการจ่ายเงิน (ตรวจสอบให้ตรงกับ schema.prisma)
+    const change = amountPaid - totalAmount;  // ← ยอดทอนถูกต้อง
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
       data: {
         orderId: order.id,         // จากตัวแปร orderId
         cashierId: req.user!.id,  // จาก middleware auth
         totalAmount: totalAmount, // ยอดรวมที่ดึงจาก order
-        amountPaid: paid,         // ยอดเงินที่รับมาจริง
+        amountPaid: amountPaid,   // ยอดเงินที่รับมาจริง
         change: change,           // เงินทอนที่คำนวณไว้
         method: method ?? 'cash', // วิธีการจ่ายเงิน
       }
@@ -95,7 +104,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     res.status(200).json({ 
       success: true,
       message: 'Payment successful', 
-      change: paid - totalAmount 
+      change: amountPaid - totalAmount 
     });
 
   } catch (error) {
