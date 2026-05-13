@@ -59,7 +59,11 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const paid = Number(amountPaid);
 
     if (paid < totalAmount) { 
-      res.status(400).json({ error: 'Insufficient payment amount' }); 
+      res.status(400).json({ 
+        error: 'Payment amount is less than order total',
+        required: totalAmount,
+        provided: paid
+      }); 
       return; 
     }
 
@@ -88,7 +92,8 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
       }),
     ])
     
-    res.status(201).json({ 
+    res.status(200).json({ 
+      success: true,
       message: 'Payment successful', 
       change: paid - totalAmount 
     });
