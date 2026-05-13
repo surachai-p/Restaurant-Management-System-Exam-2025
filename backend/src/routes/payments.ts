@@ -7,7 +7,7 @@ const router = Router()
 
 // POST /api/payments
 // ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
+// ✓ Validation: amountPaid must be >= totalAmount to prevent negative change
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     // 1. รับค่าพร้อมกำหนด Type ให้ชัดเจนเหมือนเดิม
@@ -26,6 +26,11 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 
     // 3. บังคับเป็น Number เพื่อแก้บั๊ก 404
     const orderId = Number(rawOrderId);
+
+    if (isNaN(orderId)) {
+      res.status(400).json({ error: 'orderId must be a valid number' });
+      return;
+    }
 
     const order = await prisma.order.findUnique({
       where: { id: orderId }, 
