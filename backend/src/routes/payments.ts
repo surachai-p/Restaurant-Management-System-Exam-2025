@@ -23,9 +23,16 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
       return;
     }
 
+    // 2.5 ตรวจสอบว่า orderId เป็นตัวเลขที่ถูกต้อง
+    const orderId = Number(rawOrderId);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      res.status(400).json({ error: 'Invalid orderId' });
+      return;
+    }
+
     // 3. ค้นหาออเดอร์โดยบังคับเป็น Number เพื่อความแม่นยำ
     const order = await prisma.order.findUnique({
-      where: { id: Number(rawOrderId) }, 
+      where: { id: orderId }, 
       include: { items: true },
     });
 
@@ -57,7 +64,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     }
 
     // 4. บันทึกการจ่ายเงิน (ตรวจสอบให้ตรงกับ schema.prisma)
-    const change = paid - totalAmount;
+    const change = paid - totalAmount;  // ← ยอดทอนถูกต้อง
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
       data: {
@@ -95,8 +102,15 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 // GET /api/payments/:orderId
 router.get('/:orderId', authenticate, async (req, res) => {
   try {
+    // Validate orderId format
+    const orderId = Number(req.params.orderId);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      res.status(400).json({ error: 'Invalid orderId' });
+      return;
+    }
+
     const payment = await prisma.payment.findUnique({
-      where: { orderId: Number(req.params.orderId) },
+      where: { orderId: orderId },
     })
     if (!payment) { res.status(404).json({ error: 'Payment not found' }); return }
     res.json(payment)
