@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** `https://github.com/Vachiraphol/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2025-ico4rbk5u.vercel.app`          | ⬜     |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025-g5hh.onrender.com`        | ⬜     |
+| API Health Check   | `https://restaurant-management-system-exam-2025-g5hh.onrender.com/api/health` | ⬜ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_ySzpsgaV6HB8@ep-lively-cake-ao333oty-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ⬜     |
 
 ---
 
@@ -82,13 +82,13 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
+| OS             | Windows 11 Home Single Language |
 | Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| npm            | 11.9.0   |
+| Docker         | 29.2.1, build a5c7197 |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | Google Chrome 148.0.7778.97 (64-bit) |
+| Newman         | 6.2.2 |
 
 ---
 
@@ -468,14 +468,14 @@ Build Command:  npm run build
 
 | Metric          | ค่า    |
 |-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Total Tests     | 26     |
+| Tests Passed    | 26     |
+| Tests Failed    | 0     |
+| **Pass Rate**   | **100%** |
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
-> ![alt]()
+> ![alt](/image/github-pipeline.png)
 
 ---
 
