@@ -101,7 +101,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
       }),
     ])
     
-    res.status(200).json({ 
+    res.status(201).json({ 
       success: true,
       message: 'Payment successful', 
       change: amountPaid - totalAmount 
