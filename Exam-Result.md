@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: วชิระพล สิริอิสสระนันท์
+> รหัสนักศึกษา: 68030250  
+> วันที่สอบ: 8 พฤษภาคม 2569
 
 ---
 
@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** `https://github.com/Vachiraphol/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2025-ico4rbk5u.vercel.app`          | ⬜     |
+| Backend (Render)   | `https://restaurant-management-system-exam-2025-g5hh.onrender.com`        | ⬜     |
+| API Health Check   | `https://restaurant-management-system-exam-2025-g5hh.onrender.com/api/health` | ⬜ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_ySzpsgaV6HB8@ep-lively-cake-ao333oty-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ⬜     |
 
 ---
 
@@ -82,23 +82,23 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
+| OS             | Windows 11 Home Single Language |
 | Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| npm            | 11.9.0   |
+| Docker         | 29.2.1, build a5c7197 |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | Google Chrome 148.0.7778.97 (64-bit) |
+| Newman         | 6.2.2 |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [x] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [x] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 - Newman Pass Rate ≥ **80%** ถือว่าพร้อมติดตั้ง
@@ -125,20 +125,20 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |HTTP 200 OK - ได้รับ JWT Token สำหรับใช้ในการยืนยันตัวตน (Authentication)| ✅        |
+| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   | เพิ่มเมนูได้สำเร็จ HTTP 201 และข้าวผัดเข้าไปอยู่ในเมนู มี ID = 11 | ✅        |
+| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    | ชำระเงินสำเร็จและได้รับเงินทอน HTTP 200 | ✅        |
+| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |  ไม่สามารถเข้าสู้ระบบได้ และมีข้อความแจ้งเตือน  | ✅        |
+| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |เกิด numeric field overflow และระบบแสดง Error Message ของ Prisma ออกมาที่หน้าจอ (Raw Error Leak)| ❌        |
+| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |ระบบยอมรับการชำระเงินที่น้อยกว่ายอดรวม (Underpayment) และแสดงสถานะ Successful โดยคำนวณเงินทอนติดลบ (฿-215.00) แทนที่จะปฏิเสธรายการ| ❌        |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    | ไม่สามารถทำได้ ขึ้น 401 (Unauthorized) | ✅        |
+| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       | ไม่สามารถทำได้ ขึ้น HTTP 403 Forbidden | ✅        |
+| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | ไม่ผ่าน Login เข้าสู่ระบบไม่ได้ | ✅        |
+| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |ปุ่มยืนยันออเดอร์ถูก Disable (กดไม่ได้) หรือระบบมีการดัก Error ตั้งแต่หน้า Frontend ทำให้ไม่สามารถบันทึกออเดอร์ว่างเปล่าได้| ✅        |
+| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |ชำระเงินสำเร็จ เงินทอน 0 บาท| ✅        |
 | <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 9 / 11 กรณี (81%)
 
 ---
 
@@ -156,21 +156,21 @@ Run Date:   YYYY-MM-DD HH:MM
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               21 │
+│            test-scripts │               21 │
+│      prerequest-scripts │               0 │
+│              assertions │               26 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
+│ total run duration:     6.4s              │
+│ total data received:    1.47kB               │
+│ average response time:  271ms              │
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** 11 / 26 (42.3%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> ![newman-reports](/image/newman-reports.png)
 
 ---
 
@@ -197,7 +197,7 @@ cd backend && npm audit --audit-level=moderate
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
 |---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
+| - | - | - | - | - | ✅ Pass (Secure) |
 
 **แก้ไขด้วย:**
 ```bash
@@ -216,10 +216,10 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
+| High     | 1      |
+| Medium   | 2      |
 | Low      | 0      |
-| **รวม**  | **0**  |
+| **รวม**  | **3**  |
 
 ---
 
@@ -229,57 +229,60 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: ระบบเกิด Runtime Error (Numeric Overflow) เมื่อระบุจำนวนสินค้ามากเกินไป
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:** High
+**Priority:** P1
+**Feature:** Order (การจัดการออเดอร์) 
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. เข้าสู่ระบบด้วยสิทธิ์ Admin หรือ Cashier
+2. เลือกโต๊ะที่เปิดอยู่ หรือทำการเปิดโต๊ะใหม่
+3. ในส่วน Add Item ให้เลือกเมนูอาหารใดก็ได้
+4. ระบุจำนวน (Quantity) เป็นค่าที่สูงมาก เช่น 999999999
+5. กดปุ่ม "Add to Order"
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบควรมีการตรวจสอบ (Validation) และแจ้งเตือนว่า "จำนวนสินค้าเกินขีดจำกัด" หรือ "ค่าไม่ถูกต้อง" และไม่ควรยอมให้ส่ง Request ไปยังฐานข้อมูล
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบพยายามประมวลผลและเกิดข้อผิดพลาดจากฐานข้อมูล (PostgresError code: 22003) แสดงข้อความ "numeric field overflow" บนหน้าจอ UI ทำให้หน้าเว็บค้างและผู้ใช้ทั่วไปเห็นรายละเอียดของ Code ภายใน
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> ![BUG-001 Screenshot](/image/BUG-001.png)
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> ทำให้พนักงานไม่สามารถทำออเดอร์ต่อได้ทันที (System Instability) และเป็นการเปิดเผยโครงสร้างฐานข้อมูล (Information Disclosure) ซึ่งเป็นช่องโหว่ด้านความปลอดภัย
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: ระบบยอมรับการชำระเงินที่น้อยกว่ายอดรวม (Underpayment)
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** Critical
+**Priority:** P1 
+**Feature:** Payment
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. ดำเนินการสั่งอาหารจนมียอดรวม (Total Amount) มากกว่า 0 บาท (เช่น ฿225.00)
+2. ไปที่หน้าชำระเงิน (Payment)
+3. ในช่อง Amount Paid ให้ระบุจำนวนเงินที่ น้อยกว่า ยอดรวม (เช่น ฿10.00)
+4. กดปุ่มยืนยันการชำระเงิน
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบต้องปฏิเสธการชำระเงิน ตอบกลับด้วย HTTP 400 Bad Request และแสดงข้อความแจ้งเตือนว่า "ยอดเงินไม่เพียงพอ"
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบแสดงสถานะ "Payment Successful!" และอนุญาตให้จบรายการได้ตามปกติ โดยคำนวณเงินทอนติดลบ (Change: ฿-215.00) และบันทึกลงฐานข้อมูลว่าชำระเงินเรียบร้อยแล้ว
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+> ![BUG-002 Screenshot](/image/BUG-002.png)
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> ร้ายแรงมากต่อธุรกิจ เนื่องจากร้านอาหารจะเสียรายได้โดยตรง และอาจเกิดการทุจริตจากการระบุยอดชำระเงินไม่ตรงตามจริง
 
 ---
 
@@ -339,11 +342,11 @@ npm run dev
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> ![backend-health-check-pic](/image/backend-health-check.png)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> ![frontend-login-success](/image/frontend-login-success.png)
 
 ---
 
@@ -375,8 +378,7 @@ docker compose up --build
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
-> (วางภาพที่นี่)
-
+> ![docker-compose-ps](/image/docker-compose-ps.png)
 ---
 
 ### Neon.tech Database Setup
@@ -436,9 +438,17 @@ Build Command:  npm run build
 | 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
 | 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4 / 4 รายการ**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+>**Health Check**
+![Health Check](/image/health-check.png) <br>
+**Login**
+![Login](/image/Login.png) <br>
+**Open Order & Add**
+![Open Order & Add](/image/order.png) <br>
+**Payment**
+![Payment](/image/payment.png)
+
 
 ---
 
@@ -458,14 +468,14 @@ Build Command:  npm run build
 
 | Metric          | ค่า    |
 |-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Total Tests     | 26     |
+| Tests Passed    | 26     |
+| Tests Failed    | 0     |
+| **Pass Rate**   | **100%** |
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
-> (วางภาพที่นี่)
+> ![alt](/image/github-pipeline.png)
 
 ---
 

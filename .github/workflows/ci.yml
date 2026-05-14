@@ -56,3 +56,14 @@ jobs:
 
     - name: Run frontend build
       run: cd frontend && npm run build
+
+    - name: Run security audit
+      run: cd backend && npm audit --audit-level=high
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Run Newman Tests
+      run: |
+        newman run tests/postman/RMS-TestSuite-v2.json \
+        --env-var "base_url=https://restaurant-management-system-exam-2025-g5hh.onrender.com/api"
