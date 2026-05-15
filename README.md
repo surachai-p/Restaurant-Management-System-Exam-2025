@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** นางสาววรัทยา รอดเมล์
+**รหัสนักศึกษา:** 68030258
+**วันที่สอบ:** 8 พฤษภาคม 2569
 
 ---
 
@@ -33,25 +33,22 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Frontend    | http://localhost:5173 |
+| Backend API | http://localhost:3001| 
+| Health Check| http://localhost:3001/api/health |
 
 ---
 
 ## 📋 Test Plan
 
-<!-- ส่วนที่ 1: นักศึกษากรอก -->
-
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
+- [X] Authentication (Login/Logout, JWT)
+- [X ] Menu Management (CRUD + Role-based access)
+- [X ] Order Management (Open/Add Items/Confirm/Cancel)
+- [X ] Payment Processing (Cash/Card/QR)
+- [X ] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
 
 ### Test Approach
 
@@ -67,8 +64,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   | chrome 148.0.7778.96 |
+| OS        | Windows 11 |
 
 ### Entry/Exit Criteria
 
@@ -79,14 +76,13 @@
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
+| ระบบอนุญาตให้สั่งสินค้าที่ไม่มีในสต็อก | ทำให้ร้านค้าเสียโอกาสในการขาย และข้อมูลสต็อกสินค้าไม่ถูกต้อง ลูกค้าสามารถสั่งของที่ไม่มีอยู่จริงได้โดยไม่ต้องจ่ายเงิน | P1 |
+| ระบบการค้นหาไม่รองรับอักขระพิเศษ | ลูกค้าอาจจะเจอหน้าจอ Error ขาวๆ หรือระบบล่มเพียงแค่พิมพ์ตัวอักษรผิด | P2 |
 
 ---
 
 ## 🧪 Test Cases & Results
 
-<!-- ส่วนที่ 2 -->
 
 ### Vitest Results
 ```
@@ -98,41 +94,59 @@ Run: npm test
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Total: 21  |  Passed: 15  |  Failed: 26  |  Pass Rate: 42%
 ```
 
-### Test Case Table
-
-| TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
-|-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
-
----
 
 ## 🐛 Bug Reports
 
-<!-- ส่วนที่ 3 -->
+### BUG-001: ระบบอนุญาตให้สั่งสินค้าที่ไม่มีในสต็อก
 
-## BUG-001: [ชื่อ Bug]
+**Severity:** High 
+**Priority:** P1 
+**Feature:** Stock Management
+**Status:** Open
 
-**Severity:** Critical
-**Feature:** Payment
-**Endpoint:** `POST /api/payments`
+#### Steps to Reproduce
+1. เปิดโปรแกรม Postman
+2. ใช้ Method POST ไปที่ URL http://localhost:3001/api/orders
+3. ใส่ Body เป็น JSON โดยระบุ menuId ที่ไม่มีอยู่จริง หรือใส่ quantity จำนวนมากๆ
+4. กด Send
 
-### Steps to Reproduce
-1. ...
+#### Expected Result
+> ระบบต้องตอบกลับด้วย HTTP 400 Bad Request และแจ้งเตือนว่า "สินค้าหมด" หรือ "ไม่พบรหัสสินค้า"
 
-### Expected / Actual Result
-...
+#### Actual Result
+> ระบบตอบกลับเป็น HTTP 201 Created และสร้างออเดอร์สำเร็จ โดยมียอด totalAmount เป็น "0"
+ 
 
-### Business Impact
-...
+#### Business Impact
+> ทำให้ร้านค้าเสียโอกาสในการขาย และข้อมูลสต็อกสินค้าไม่ถูกต้อง ลูกค้าสามารถสั่งของที่ไม่มีอยู่จริงได้โดยไม่ต้องจ่ายเงิน
+
+---
+
+### BUG-002: ระบบการค้นหาไม่รองรับอักขระพิเศษ
+
+**Severity:** Medium 
+**Priority:** P2  
+**Feature:** Menu / Search  
+**Status:** Open
+
+#### Steps to Reproduce
+1. เปิด Postman ไปที่เมนูค้นหา (GET /api/menu/search?name=...)
+2. ใส่ค่าค้นหาเป็นอักขระพิเศษ เช่น % หรือ ' หรืออักขระพิเศษอื่นๆ
+3. กด Send
+
+#### Expected Result
+> ระบบควรตอบกลับเป็นรายการว่าง (Empty Array) หรือแจ้งเตือนว่าไม่พบข้อมูล
+
+#### Actual Result
+> ระบบตอบกลับเป็น 500 Internal Server Error หรือ JSON Error 
+
+#### Business Impact
+> ลูกค้าอาจจะเจอหน้าจอ Error ขาวๆ หรือระบบล่มเพียงแค่พิมพ์ตัวอักษรผิด
+
+---
 
 ---
 
@@ -172,59 +186,9 @@ npm install && npm run dev
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `DATABASE_URL` | Render PostgreSQL URL | `postgresql://user:pass@...render.com/db` |
-| `JWT_SECRET` | Random secret string | *(ไม่ระบุ)* |
-| `CORS_ORIGIN` | Frontend URL | `https://your-app.vercel.app` |
+| `JWT_SECRET` | Random secret string | *4aa7f1d75a2148aa8c6654b008595b9f4cad9e3454df042a89612d21e8275255* |
+| `CORS_ORIGIN` | Frontend URL | ``http://localhost:5173/` |
 
-### Render PostgreSQL Database Setup
-1. ไปที่ https://dashboard.render.com → Databases → New PostgreSQL
-2. เลือก Free plan หรือ Paid ตามต้องการ
-3. Copy External Database URL → ใส่เป็น `DATABASE_URL`
-4. รัน `npx prisma db push` เพื่อสร้าง Schema (local หรือใน Render build)
-
-### Vercel Deployment (Frontend)
-1. Import repo → Root Directory: `frontend`
-2. Framework: Vite
-3. Env: `VITE_API_URL=https://your-backend.onrender.com/api`
-
-### Render Deployment (Backend + Database)
-1. สร้าง PostgreSQL database บน Render (ตามขั้นตอนด้านบน)
-2. New Web Service → Connect GitHub repo → เลือก branch
-3. Root Directory: (ว่าง) หรือ `backend` ถ้าใช้ Dockerfile แยก
-4. Environment: Docker
-5. Build Command: (ว่าง - ใช้ Dockerfile)
-6. Start Command: (ว่าง - ใช้ Dockerfile CMD)
-7. Add Environment Variables ใน Environment tab:
-   - `DATABASE_URL`: จาก database ที่สร้าง
-   - `JWT_SECRET`: random string
-   - `CORS_ORIGIN`: frontend URL
-8. Deploy → Monitor logs
-
-หรือใช้ `render.yaml` สำหรับ auto-configuration:
-- Push `render.yaml` ไป GitHub
-- ใน Render Dashboard → Settings → YAML → Enable
-
-### Smoke Test Results
-
-| Test | URL | Result |
-|------|-----|--------|
-| Health | GET /api/health | ✅/❌ |
-| Login | POST /api/auth/login | ✅/❌ |
-| Add Menu | POST /api/menu | ✅/❌ |
-| Open Order | POST /api/orders | ✅/❌ |
-| Payment | POST /api/payments | ✅/❌ |
-
----
-
-## 🔄 CI/CD Pipeline
-
-**Newman Pass Rate (Latest):**
-```
-✓ TC-002: Admin login
-✓ TC-005: Wrong password → 401
-✗ TC-010: SQL Injection (BUG-003 detected)
-...
-```
 
 ---
 
