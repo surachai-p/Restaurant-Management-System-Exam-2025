@@ -428,15 +428,17 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ✅           |
+| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ✅           |
+| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ✅           |
+| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ✅           |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4 / 4 รายการ**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
-
+![imgl/14.png](imgl/14.png)
+![alt text](imgl/15.png)
+![alt text](imgl/16.png)
+![alt text](imgl/17.png)
 ---
 
 ## CI/CD Pipeline + Newman Pass Rate
