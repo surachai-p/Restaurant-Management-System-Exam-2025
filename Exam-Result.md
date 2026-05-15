@@ -419,9 +419,9 @@ Build Command:  npm run build
 |---------------|-----------|------------------------------------------------|
 | `DATABASE_URL` | Backend  | `postgresql://neondb_owner:npg_PmivSpza7R0f@ep-silent-tooth-appvi72g-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
 | `JWT_SECRET`   | Backend  | 4aa7f1d75a2148aa8c6654b008595b9f4cad9e3454df042a89612d21e8275255       |
-| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://[app].vercel.app` |
-| `NODE_ENV`     | Backend  | `production`                                    |
-| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://[api].onrender.com` |
+| `CORS_ORIGIN`  | Backend  | `http://localhost:5173/` |
+| `NODE_ENV`     | Backend  | `Restaurant`                                    |
+| `VITE_API_URL` | Frontend | `https://restaurant-management-system-exam-2025-bmit.onrender.com` |
 
 ---
 
@@ -431,7 +431,7 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | ![alt text](image-3.png)      | Pass           |
 | 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
 | 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
 | 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
