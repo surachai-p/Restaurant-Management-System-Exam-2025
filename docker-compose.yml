@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: rms-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/restaurant_db
+      - JWT_SECRET=your_super_secret_key
+      - CORS_ORIGIN=http://localhost
+      - VITE_API_URL=http://localhost:3001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: rms-frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    container_name: rms-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=restaurant_db
