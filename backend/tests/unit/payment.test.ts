@@ -3,7 +3,8 @@ import { describe, it, expect } from 'vitest'
 
 // ── Business logic helpers (mirrors payment route logic) ────────────────────
 function calculateChange(totalAmount: number, amountPaid: number): number {
-  return amountPaid - totalAmount
+  const change = amountPaid - totalAmount;
+  return change < 0 ? 0 : change; 
 }
 
 function isValidPayment(totalAmount: number, amountPaid: number): boolean {

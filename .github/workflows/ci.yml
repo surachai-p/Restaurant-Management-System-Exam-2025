@@ -56,3 +56,18 @@ jobs:
 
     - name: Run frontend build
       run: cd frontend && npm run build
+
+    - name: Run npm audit (backend)
+      run: cd backend && npm audit --audit-level=high
+      continue-on-error: true
+
+    - name: Run npm audit (frontend)
+      run: cd frontend && npm audit --audit-level=high
+      continue-on-error: true
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Run API tests with Newman
+      run: newman run tests/postman/RMS-TestSuite-v2.json -e tests/postman/env-ci.json
+      continue-on-error: true

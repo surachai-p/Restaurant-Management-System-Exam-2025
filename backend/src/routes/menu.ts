@@ -14,11 +14,16 @@ router.get('/', authenticate, async (req, res) => {
     const { search, category } = req.query as { search?: string; category?: string }
 
     if (search) {
-      // ⚠️ BUG-003: Parameterized query NOT used — SQL Injection vulnerability
-      // Fix would be: prisma.$queryRaw`SELECT * FROM menu_items WHERE name ILIKE ${'%' + search + '%'}`
-      const results = await prisma.$queryRawUnsafe(
-        `SELECT * FROM menu_items WHERE (name ILIKE '%${search}%' OR description ILIKE '%${search}%') AND "isAvailable" = true`
-      )
+      const results = await prisma.menuItem.findMany({
+        where: {
+          isAvailable: true,
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+      })
       res.json(results); return
     }
 
@@ -63,9 +68,8 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   }
 })
 
-// PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
-// Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+// PUT /api/menu/:id — admin only
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }

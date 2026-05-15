@@ -1,0 +1,47 @@
+services:
+  # Backend API (Node.js + Express + TypeScript)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rms-backend
+    env_file: 
+      - ./backend/.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3001}
+      JWT_SECRET: ${JWT_SECRET:-rms-secret-key-2024-change-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    ports:
+      - "3001:3001"
+    # ปรับ Healthcheck ให้ใจดีขึ้น เผื่อเวลาให้ Backend สตาร์ทตัว
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rms-network
+    restart: unless-stopped
+
+  # Frontend (React + Vite + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rms-frontend
+    # แก้ตรงนี้: ให้รอแค่ให้ Backend "เริ่มรัน" ก็พอ ไม่ต้องรอ Healthcheck
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+    ports:
+      - "80:80"
+    networks:
+      - rms-network
+    restart: unless-stopped
+
+networks:
+  rms-network:
+    driver: bridge
