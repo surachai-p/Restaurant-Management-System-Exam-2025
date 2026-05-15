@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  # ส่วนของฐานข้อมูล (เอา # ออกให้หมดเพื่อให้รัน Database ในเครื่องได้)
+  db:
+    image: postgres:16-alpine
+    container_name: rms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rms_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rms-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      # แก้ไข DATABASE_URL ให้ชี้มาที่ container db ในเครื่องเรา
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/rms_db?schema=public
+      JWT_SECRET: rms-dev-secret-change-in-prod
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:

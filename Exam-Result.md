@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: นายวัฒนพงศ์ พรหมภิราม 
+> รหัสนักศึกษา: 68030265  
+> วันที่สอบ: 08/05/2569
 
 ---
 
@@ -82,22 +82,22 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
-| Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| OS             | Windows 11 
+| Node.js        | 24.14.0                             |
+| npm            | 11.9.0               |
+| Docker         | 29.2.1               |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | Chrome           |
+| Newman         | 6.2.2              |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [x] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
 - [ ] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
@@ -113,8 +113,8 @@
 |---|------------------------|--------------------------|----------------|
 | 1 | Payment (ชำระเงิน)      | ร้านไม่สามารถรับเงินได้ ลูกค้ารอนาน เสียรายได้โดยตรง | Critical |
 | 2 | Order (รับออเดอร์)      | ออเดอร์ไม่ถึงครัว อาหารไม่ถูกจัดเตรียม ลูกค้าไม่พอใจ | High |
-| <!-- เพิ่มอย่างน้อย 2 รายการ --> | | | |
-
+|3	Menu Management	ข้อมูลราคาผิดพลาดหรือสินค้าหมดแต่ยังสั่งได้ ทำให้ขาดทุนหรือบริการสะดุด	High
+4	Sales Reports	รายงานยอดขายไม่ตรงกับความเป็นจริง ส่งผลต่อการวางแผนสต็อกและบัญชีผิดพลาด	Medium
 ---
 
 ## Test Cases & Results
@@ -125,20 +125,20 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | สามารถเข้าและใช้งานได้ | pass        |
+| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   | -7ho 201 + ข้อมูลที่จะเพิ่ม | pass        |
+| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |รับและชำระเงินถูกต้อง | pass        |
+| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |ไม่สามารถเข้าใช้งานได้ | pass      |
+| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message | ดูจำนวนสินค้าไม่ได้ | fail        |
+| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |ยอดเงินติดลบ | pass        |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    | ขี้นว่า 401 Unauthorized แล้วและมีข้อความขึ้นว่า "error": "Access token required" | pass        |
+| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       | หน้าเว็บขึ้น 403 Forbidden และมีข้อความขึ้นว่า "error": "Insufficient permission"  | pass        |
+| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | หน้าเว็บขึ้น 401 Unauthorizedและมีข้อความ error": "Invalid credentials | pass        |
+| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message | 400 Bad Request + "error": "tabeld required" | pass        |
+| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    | เงินทอนถูกต้อง | pass        |
 | <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 10 / 11 กรณี (90.9%)
 
 ---
 
@@ -149,25 +149,25 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-[68030265]-TestSuite
+Run Date:   2569-05-15 19:57
 
 ┌─────────────────────────┬──────────────────┐
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               21 │
+│            test-scripts │               21 │
+│      prerequest-scripts │                0 │
+│              assertions │               26 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
+│ total run duration:     6.2ms              │
+│ total data received:    1.47kB             │
+│ average response time:  263ms              │
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** 69 / 17 (75.36%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
 > 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
@@ -229,57 +229,56 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: [ข้อมูลยังแสดงผลอยู่ทั้งที่ JWT Token หมดอายุไปแล้ว]
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:**  Medium  
+**Priority:** P2
+**Feature:** Development Server (Build Tools) 
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. ใช้ Command Line เข้าไปที่โฟลเดอร์ frontend
+2. รันคำสั่ง npm audit --audit-level=moderate
+3. ตรวจสอบรายงานในส่วนของแพ็กเกจ esbuild
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> แพ็กเกจ esbuild ควรเป็นเวอร์ชันที่ปลอดภัย และไม่ยอมให้เว็บไซต์ภายนอกส่งคำขอเข้ามาอ่านข้อมูลใน Development Server ได้
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> พบช่องโหว่ใน esbuild <=0.24.2 ซึ่งยินยอมให้เว็บไซต์ใดๆ ส่งคำขอ (Requests) มายังเครื่องเซิร์ฟเวอร์ที่ใช้พัฒนา และสามารถอ่านข้อมูลการตอบกลับ (Response) ได้
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
 > `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> ข้อมูลซอร์สโค้ดหรือข้อมูลจำลองในระหว่างการพัฒนาอาจรั่วไหลไปยังเว็บไซต์ไม่พึงประสงค์ได้ หากผู้พัฒนาเปิดหน้าเว็บอื่นทิ้งไว้ในขณะที่รันโปรเจกต์
 
 ---
 
 ### BUG-002: [ชื่อ Bug สั้น ๆ]
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** Medium
+**Priority:** P2
+**Feature:** Frontend Framework Tooling (Vite)
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. รันคำสั่ง npm audit ในโปรเจกต์
+2. ตรวจสอบความเชื่อมโยง (Dependency Tree) ของแพ็กเกจ vite
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> แพ็กเกจ vite ซึ่งเป็นเครื่องมือหลักในการรัน Frontend ควรจะใช้ส่วนประกอบที่ปลอดภัยทั้งหมด
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> แพ็กเกจ vite <=6.4.1 มีการเรียกใช้งาน (Depends on) esbuild เวอร์ชันที่มีช่องโหว่ ทำให้ตัว vite เองได้รับผลกระทบด้านความปลอดภัยไปด้วยโดยปริยาย
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
 > `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> เนื่องจาก vite คือเครื่องมือหลักที่ใช้รันระบบร้านอาหารในฝั่ง Frontend หากตัวเครื่องมือมีช่องโหว่ อาจทำให้สภาพแวดล้อมการทำงานทั้งหมดไม่ปลอดภัย และเสี่ยงต่อการถูกโจมตีผ่านเบราว์เซอร์
 
 ---
 
@@ -339,11 +338,11 @@ npm run dev
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> ![alt text](image.png)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> ![alt text](image-1.png)
 
 ---
 
@@ -375,7 +374,7 @@ docker compose up --build
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
-> (วางภาพที่นี่)
+> ![alt text](image-2.png)
 
 ---
 
