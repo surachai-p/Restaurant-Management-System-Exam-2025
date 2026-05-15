@@ -125,20 +125,20 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | ทำงานถูกต้อง              | Pass        |
+| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   | จะขึ้น 201 + ข้อมูลรายละเอียดข้อมูลที่เพิ่มมา             | Pass      |
+| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    | สามารถชำระเงินและทอนเงินได้              | Pass        |
+| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    | 401 Unauthorized            | Pass        |
+| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message | ไม่สามารถเพิ่มสต็อกสินค้าได้              | Fail        |
+| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    | เมื่อชำระเงินน้อยกว่ายอดรวมจะขึ้น ติดลบ และมีข้อความ HTTP 400               | Pass        |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |  เมื่อกดSent หน้าเว็บขึ้น 401 Unauthorized และมีข้อความขึ้นว่า "error": "Access token required"       | Pass        |
+| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       | หน้าเว็บขึ้น 403 Forbidden และมีข้อความขึ้นว่า "error": "Insufficient permissions"              | Pass        |
+| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | หน้าเว็บขึ้น 401 Unauthorized และมีข้อความขึ้นว่า "error": "Invalid credentials"             | Pass        |
+| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message | 400 Bad Request + "error": "tableId required"              | Pass        |
+| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    | ผลการทดสอบถูกต้อง            | Pass        |
 | <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 10 / 11 กรณี (91%)
 
 ---
 
@@ -149,28 +149,28 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-[68030258]-TestSuite
+Run Date:   2026-05-15 14:13
 
 ┌─────────────────────────┬──────────────────┐
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               21 │
+│            test-scripts │               21 │
+│      prerequest-scripts │                0 │
+│              assertions │               26 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
+│ total run duration:     7s                 │
+│ total data received:    1.47kB             │
+│ average response time:  305ms              │
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** 15 / 26 (%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> ![alt text](image.png)
 
 ---
 
@@ -197,7 +197,7 @@ cd backend && npm audit --audit-level=moderate
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
 |---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
+| - | - | - | - | - | - |
 
 **แก้ไขด้วย:**
 ```bash
@@ -216,8 +216,8 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
+| High     | 1      |
+| Medium   | 2      |
 | Low      | 0      |
 | **รวม**  | **0**  |
 
@@ -229,57 +229,57 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: ระบบอนุญาตให้สั่งสินค้าที่ไม่มีในสต็อก
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:** High 
+**Priority:** P1 
+**Feature:** Stock Management
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. เปิดโปรแกรม Postman
+2. ใช้ Method POST ไปที่ URL http://localhost:3001/api/orders
+3. ใส่ Body เป็น JSON โดยระบุ menuId ที่ไม่มีอยู่จริง หรือใส่ quantity จำนวนมากๆ
+4. กด Send
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบต้องตอบกลับด้วย HTTP 400 Bad Request และแจ้งเตือนว่า "สินค้าหมด" หรือ "ไม่พบรหัสสินค้า"
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบตอบกลับเป็น HTTP 201 Created และสร้างออเดอร์สำเร็จ โดยมียอด totalAmount เป็น "0"
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> 
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> ทำให้ร้านค้าเสียโอกาสในการขาย และข้อมูลสต็อกสินค้าไม่ถูกต้อง ลูกค้าสามารถสั่งของที่ไม่มีอยู่จริงได้โดยไม่ต้องจ่ายเงิน
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: ระบบการค้นหาไม่รองรับอักขระพิเศษ
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** Medium 
+**Priority:** P2  
+**Feature:** Menu / Search  
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. เปิด Postman ไปที่เมนูค้นหา (GET /api/menu/search?name=...)
+2. ใส่ค่าค้นหาเป็นอักขระพิเศษ เช่น % หรือ ' หรืออักขระพิเศษอื่นๆ
+3. กด Send
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบควรตอบกลับเป็นรายการว่าง (Empty Array) หรือแจ้งเตือนว่าไม่พบข้อมูล
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบตอบกลับเป็น 500 Internal Server Error หรือ JSON Error
 
 #### Evidence
 > 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> ลูกค้าอาจจะเจอหน้าจอ Error ขาวๆ หรือระบบล่มเพียงแค่พิมพ์ตัวอักษรผิด
 
 ---
 
@@ -332,18 +332,18 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | Pass |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | Pass |
 
 #### หลักฐาน (On-Premises)
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> ![alt text](image-1.png)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> ![alt text](image-2.png)
 
 ---
 
@@ -368,8 +368,8 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | Pass |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | Fail |
 
 #### หลักฐาน (Staging)
 
@@ -388,7 +388,7 @@ docker compose up --build
 2. คัดลอก Connection String (format: `postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require`)
 3. ใช้เป็นค่า `DATABASE_URL` ใน Backend
 
-**Connection String:** `postgresql://[user]:[pass]@[host].neon.tech/[db]?sslmode=require`
+**Connection String:** `postgresql://neondb_owner:npg_PmivSpza7R0f@ep-silent-tooth-appvi72g-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
 
 ---
 
@@ -417,8 +417,8 @@ Build Command:  npm run build
 
 | Variable      | Service   | ค่าตัวอย่าง / คำอธิบาย                         |
 |---------------|-----------|------------------------------------------------|
-| `DATABASE_URL` | Backend  | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
-| `JWT_SECRET`   | Backend  | random string ที่ปลอดภัย (≥ 32 ตัวอักษร)       |
+| `DATABASE_URL` | Backend  | `postgresql://neondb_owner:npg_PmivSpza7R0f@ep-silent-tooth-appvi72g-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
+| `JWT_SECRET`   | Backend  | 4aa7f1d75a2148aa8c6654b008595b9f4cad9e3454df042a89612d21e8275255       |
 | `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://[app].vercel.app` |
 | `NODE_ENV`     | Backend  | `production`                                    |
 | `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://[api].onrender.com` |
