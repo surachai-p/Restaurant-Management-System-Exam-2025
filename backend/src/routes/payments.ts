@@ -34,9 +34,6 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    if (paid < totalAmount) {
-      res.status(400).json({ error: 'Insufficient payment amount' }); return
-    }
 
     const change = paid - totalAmount
 
