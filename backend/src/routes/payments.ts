@@ -31,12 +31,13 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
+    
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' });
+      return
+    }
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
-
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
-    const change = paid - totalAmount
+      const change = paid - totalAmount
 
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
@@ -63,6 +64,7 @@ router.get('/:orderId', authenticate, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: (err as Error).message })
   }
+  
 })
 
 export default router
