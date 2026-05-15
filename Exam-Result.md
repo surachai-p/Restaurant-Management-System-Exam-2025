@@ -338,11 +338,11 @@ npm run dev
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> ![alt text](image.png)
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> ![alt text](image-1.png)
 
 ---
 
@@ -374,7 +374,7 @@ docker compose up --build
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
-> (วางภาพที่นี่)
+> ![alt text](image-2.png)
 
 ---
 
