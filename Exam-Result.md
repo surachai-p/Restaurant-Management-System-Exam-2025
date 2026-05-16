@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-kappa.vercel.app/login`| ⬜     |
-| Backend (Render)   | `https://restaurant-management-system-exam.onrender.com`| ⬜     |
-| API Health Check   | `https://.onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://neondb_owner:npg_ThBGzHdy8a4X@ep-proud-band-ao1lj52x-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ⬜     |
+| Frontend (Vercel)  | `https://restaurant-management-system-exam-2-kappa.vercel.app/login`| ✅     |
+| Backend (Render)   | `https://restaurant-management-system-exam.onrender.com`| ✅     |
+| API Health Check   | `https://.onrender.com/api/health` | ✅ |
+| Database (Neon)    | `postgresql://neondb_owner:npg_ThBGzHdy8a4X@ep-proud-band-ao1lj52x-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`      | ✅     |
 
 ---
 
