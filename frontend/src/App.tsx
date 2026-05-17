@@ -9,6 +9,10 @@ import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import PaymentPage from './pages/PaymentPage'
 import ReportsPage from './pages/ReportsPage'
+import CustomerLanding from './pages/customer/CustomerLanding'
+import CustomerReserve from './pages/customer/CustomerReserve'
+import CustomerOrder from './pages/customer/CustomerOrder'
+import CustomerTrack from './pages/customer/CustomerTrack'
 import type { Role } from './types'
 
 function PrivateRoute({ children, roles }: { children: React.ReactNode; roles?: Role[] }) {
@@ -22,9 +26,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-100 flex">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="flex-1 ml-64 min-h-screen">
+        <div className="max-w-6xl mx-auto px-8 py-8">{children}</div>
+      </main>
     </div>
   )
 }
@@ -47,6 +53,10 @@ export default function App() {
               </PrivateRoute>
             </Layout>
           } />
+          <Route path="/customer" element={<CustomerLanding />} />
+          <Route path="/customer/reserve" element={<CustomerReserve />} />
+          <Route path="/customer/order" element={<CustomerOrder />} />
+          <Route path="/customer/track" element={<CustomerTrack />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

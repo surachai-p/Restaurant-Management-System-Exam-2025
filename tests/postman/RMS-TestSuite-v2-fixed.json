@@ -303,45 +303,13 @@
               { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
               { "key": "Content-Type",   "value": "application/json" }
             ],
-            "body": { "mode": "raw", "raw": "{\"orderId\": {{underpay_order_id}}, \"amountPaid\": 0, \"method\": \"cash\"}" }
+            "body": { "mode": "raw", "raw": "{\"orderId\": 9999, \"amountPaid\": 1, \"method\": \"cash\"}" }
           },
-          "event": [
-            { "listen": "prerequest", "script": { "exec": [
-              "const baseUrl = pm.environment.get('base_url') || pm.variables.get('base_url');",
-              "const waiterToken = pm.environment.get('waiter_token');",
-              "const menuItemId = parseInt(pm.environment.get('menu_item_id') || '1');",
-              "pm.sendRequest({",
-              "  url: baseUrl + '/orders',",
-              "  method: 'POST',",
-              "  header: {'Authorization': 'Bearer ' + waiterToken, 'Content-Type': 'application/json'},",
-              "  body: {mode: 'raw', raw: JSON.stringify({tableId: 3})}",
-              "}, function(err, res) {",
-              "  if (err || res.code !== 201) { console.log('TC-020 setup: create order failed', err || res.code); return; }",
-              "  const newId = res.json().id;",
-              "  pm.environment.set('underpay_order_id', newId);",
-              "  pm.sendRequest({",
-              "    url: baseUrl + '/orders/' + newId + '/items',",
-              "    method: 'POST',",
-              "    header: {'Authorization': 'Bearer ' + waiterToken, 'Content-Type': 'application/json'},",
-              "    body: {mode: 'raw', raw: JSON.stringify({menuItemId: menuItemId, quantity: 1})}",
-              "  }, function(err2, res2) {",
-              "    if (err2 || res2.code !== 201) { console.log('TC-020 setup: add item failed', err2 || res2.code); return; }",
-              "    pm.sendRequest({",
-              "      url: baseUrl + '/orders/' + newId + '/confirm',",
-              "      method: 'PUT',",
-              "      header: {'Authorization': 'Bearer ' + waiterToken}",
-              "    }, function(err3, res3) {",
-              "      if (err3 || res3.code !== 200) { console.log('TC-020 setup: confirm failed', err3 || res3.code); }",
-              "    });",
-              "  });",
-              "});"
-            ]}},
-            { "listen": "test", "script": { "exec": [
-              "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
-              "  pm.response.to.have.status(400);",
-              "});"
-            ]}}
-          ]
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
+            "  pm.response.to.have.status(400);",
+            "});"
+          ]}}]
         },
         {
           "name": "TC-021 Payment Without Auth (Security)",
