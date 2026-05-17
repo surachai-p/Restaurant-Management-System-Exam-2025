@@ -60,8 +60,16 @@ router.get('/:id', authenticate, async (req, res) => {
 // ⚠️ BUG-002 [Double Booking]: No check for existing open order on same table
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { tableId, note } = req.body as { tableId?: number; note?: string }
+    const { tableId, note, items } = req.body as { tableId?: number; note?: string; items?: any[] } // เพิ่ม items
     if (!tableId) { res.status(400).json({ error: 'tableId required' }); return }
+    
+    // เพิ่มการตรวจสอบสำหรับ TC-010
+    if (items && items.length === 0) { 
+      res.status(400).json({ error: 'Order must have items' }); 
+      return 
+    }
+
+    
 
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
@@ -96,7 +104,8 @@ router.post('/:id/items', authenticate, async (req, res) => {
 
     if (!order) { res.status(404).json({ error: 'Order not found' }); return }
     if (order.status !== 'open') { res.status(400).json({ error: 'Order is not open' }); return }
-    if (!menuItem?.isAvailable) { res.status(404).json({ error: 'Menu item unavailable' }); return }
+    // แก้เป็น
+    if (!menuItem?.isAvailable) { res.status(400).json({ error: 'Menu item unavailable' }); return }
 
     const qty = Number(quantity) || 1
     const unitPrice = Number(menuItem.price)
@@ -175,3 +184,4 @@ router.put('/:id/cancel', authenticate, requireRole('admin', 'cashier'), async (
 })
 
 export default router
+

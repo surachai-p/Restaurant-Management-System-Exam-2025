@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: rms-backend
+    env: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_NlPZEGagc43e@ep-gentle-paper-aozrr5gg-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - key: JWT_SECRET
+        value: rms-secret-key-12345
+      - key: CORS_ORIGIN
+        value: "*"
+    healthCheckPath: /api/health

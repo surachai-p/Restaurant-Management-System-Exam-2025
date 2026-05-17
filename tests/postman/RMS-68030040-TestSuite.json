@@ -1,0 +1,123 @@
+{
+  "info": {
+    "name": "RMS-68030040-TestSuite-11-Cases",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// ดึง Token ของ Cashier อัตโนมัติเพื่อใช้ใน TC-008",
+          "pm.sendRequest({ url: pm.variables.get('base_url') + '/auth/login', method: 'POST', header: 'Content-Type:application/json', body: { mode: 'raw', raw: JSON.stringify({username:'cashier1',password:'Cashier@123'}) } }, function (err, res) { if (res) pm.variables.set('cashier_token', res.json().token); });"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001/api" },
+    { "key": "admin_token", "value": "" },
+    { "key": "cashier_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "TC-001 Positive Auth: Login ด้วย credential ถูกต้อง",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/auth/login",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"Admin@123\"}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": [
+        "pm.test('TC-001: HTTP 200 + JWT Token', () => { pm.response.to.have.status(200); pm.variables.set('admin_token', pm.response.json().token); });"
+      ]}}]
+    },
+    {
+      "name": "TC-002 Positive Menu: เพิ่มเมนูใหม่สำเร็จ",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/menu",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"name\": \"ข้าวผัด\", \"price\": 60, \"stock\": 100}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-002: Expected 201 Created', () => pm.response.to.have.status(201));"]}}]
+    },
+    {
+      "name": "TC-003 Positive Payment: ชำระเงินและรับเงินทอนถูกต้อง",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/payments",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"orderId\": 1, \"amount\": 200}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-003: Expected 200/201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"]}}]
+    },
+    {
+      "name": "TC-004 Negative Auth: Login ด้วย password ผิด",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/auth/login",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-004: Expected 401 Unauthorized', () => pm.response.to.have.status(401));"]}}]
+    },
+    {
+      "name": "TC-005 Negative Order: เพิ่มสินค้าที่หมดสต็อก",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/orders/1/items",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"menuId\": 99, \"quantity\": 999}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-005: Expected 400 Bad Request', () => pm.response.to.have.status(400));"]}}]
+    },
+    {
+      "name": "TC-006 Negative Payment: ชำระเงินน้อยกว่ายอดรวม (หา BUG!)",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/payments",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"orderId\": 1, \"amount\": 10}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-006: Expected 400 Insufficient', () => pm.response.to.have.status(400));"]}}]
+    },
+    {
+      "name": "TC-007 Security Auth: เรียก API โดยไม่มี JWT Token",
+      "request": {
+        "method": "GET", "url": "{{base_url}}/orders"
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-007: Expected 401 Unauthorized', () => pm.response.to.have.status(401));"]}}]
+    },
+    {
+      "name": "TC-008 Security Order: Cashier เข้าถึง Admin endpoint",
+      "request": {
+        "method": "DELETE", "url": "{{base_url}}/menu/1",
+        "header": [{"key": "Authorization", "value": "Bearer {{cashier_token}}"}]
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-008: Expected 403 Forbidden', () => pm.response.to.have.status(403));"]}}]
+    },
+    {
+      "name": "TC-009 Security Auth: SQL Injection ใน Login field",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/auth/login",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"username\":\"' OR 1=1 --\",\"password\":\"x\"}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-009: Expected 400/401', () => pm.expect(pm.response.code).to.be.oneOf([400, 401]));"]}}]
+    },
+    {
+      "name": "TC-010 Edge Order: ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น)",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/orders",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"tableId\": 1, \"items\": []}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-010: Expected 400 Bad Request', () => pm.response.to.have.status(400));"]}}]
+    },
+    {
+      "name": "TC-011 Edge Payment: ชำระเงินพอดียอด (change = 0)",
+      "request": {
+        "method": "POST", "url": "{{base_url}}/payments",
+        "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}, {"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"orderId\": 1, \"amount\": 100}"}
+      },
+      "event": [{"listen": "test", "script": {"exec": ["pm.test('TC-011: Expected 200/201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"]}}]
+    }
+  ]
+}

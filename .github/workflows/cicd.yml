@@ -1,0 +1,35 @@
+name: RMS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ] # 1. เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก
+
+jobs:
+  test-and-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22 # 2. เพิ่ม actions/setup-node สำหรับ Node.js version 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run Backend Unit Test # 3. เพิ่ม step รัน Unit Test ของ Backend
+        working-directory: ./backend
+        run: npm test
+
+      - name: Run Security Audit # 5. เพิ่ม step npm audit --audit-level=high
+        working-directory: ./backend
+        run: npm audit --audit-level=high
+
+      - name: Install and Run Newman # 4. เพิ่ม step ติดตั้งและรัน Newman
+        run: |
+          npm install -g newman
+          newman run tests/postman/RMS-68030040-TestSuite.json -e tests/postman/env-ci.json
