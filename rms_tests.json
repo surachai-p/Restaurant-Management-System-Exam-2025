@@ -1,0 +1,339 @@
+{
+  "info": {
+    "name": "RMS-Full-TestSuite-Chayanit",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "url", "value": "http://localhost:3001" },
+    { "key": "admin_token", "value": "" },
+    { "key": "cashier_token", "value": "" },
+    { "key": "waiter_token", "value": "" },
+    { "key": "menu_item_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "TC-001: Login Admin (Positive)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\": \"admin\", \"password\": \"Admin@123\"}" },
+        "url": "{{url}}/api/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Token found', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('admin_token', body.token);",
+              "  pm.collectionVariables.set('token', body.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-002: Login Cashier (Positive)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\": \"cashier1\", \"password\": \"Cashier@123\"}" },
+        "url": "{{url}}/api/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Cashier token found', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('cashier_token', body.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-003: Login Waiter (Positive)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\": \"waiter1\", \"password\": \"Waiter@123\"}" },
+        "url": "{{url}}/api/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Waiter token found', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+              "  pm.collectionVariables.set('waiter_token', body.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-004: Menu Positive",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"name\": \"ข้าวผัด\", \"price\": 60, \"category\": \"food\"}" },
+        "url": "{{url}}/api/menu"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Menu created', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.name).to.eql('ข้าวผัด');",
+              "  pm.collectionVariables.set('menu_item_id', body.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-005: Payment Positive",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"orderId\": 1, \"amountPaid\": 200}" },
+        "url": "{{url}}/api/payments"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 or 201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+              "pm.test('Change calculated', () => pm.expect(pm.response.json()).to.have.property('change'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-006: Auth Negative",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\": \"admin\", \"password\": \"wrong\"}" },
+        "url": "{{url}}/api/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));",
+              "pm.test('Error message shown', () => pm.expect(pm.response.json().message).to.be.a('string'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-007: Order Negative",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"menuId\": 99, \"quantity\": 999}" },
+        "url": "{{url}}/api/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('Stock error message', () => pm.expect(pm.response.text()).to.include('error'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-008: Payment Negative",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"orderId\": 1, \"amountPaid\": 10}" },
+        "url": "{{url}}/api/payments"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('Insufficient money', () => pm.expect(pm.response.text()).to.include('Insufficient'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-009: Security Auth",
+      "request": {
+        "method": "GET",
+        "url": "{{url}}/api/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));",
+              "pm.test('Unauthorized access', () => pm.expect(pm.response.json().message).to.include('Unauthorized'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-010: Security Order",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{cashier_token}}" }
+        ],
+        "url": "{{url}}/api/menu/{{menu_item_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 403', () => pm.response.to.have.status(403));",
+              "pm.test('Forbidden for Cashier', () => pm.expect(pm.response.json().message).to.include('Forbidden'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-011: Security SQLi",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "url": "{{url}}/api/menu?search=' OR '1'='1"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('TC-011 [BUG-003]: SQL Injection should NOT leak all records', () => {",
+              "  const body = pm.response.json();",
+              "  if (Array.isArray(body)) {",
+              "    pm.expect(body.length, 'BUG-003: SQL Injection leaked ' + body.length + ' records').to.equal(0);",
+              "  } else {",
+              "    pm.response.to.have.status(400);",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-012: Edge Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{url}}/api/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('Validation error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-013: Edge Payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"orderId\": 1}" },
+        "url": "{{url}}/api/payments"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('Validation error', () => pm.expect(pm.response.json()).to.have.property('error'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-014: Negative Menu",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{waiter_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\"name\": \"Waiter Dish\", \"price\": 50, \"category\": \"food\"}" },
+        "url": "{{url}}/api/menu"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 403', () => pm.response.to.have.status(403));",
+              "pm.test('Forbidden for Waiter', () => pm.expect(pm.response.json().message).to.include('Forbidden'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: ___________________________  
-> รหัสนักศึกษา: ___________________________  
-> วันที่สอบ: ___________________________
+> ชื่อ-นามสกุล: ____น.ส.ชญานิศ ธีรเวโรจน์_______________
+> รหัสนักศึกษา: ___68030349________________________  
+> วันที่สอบ: __8/5/2569___________________________
 
 ---
 
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ✅     |
+| Backend (Render)   | `https://[your-api].onrender.com`        | ✅     |
+| API Health Check   | `https://[your-api].onrender.com/api/health` | ✅ |
+| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ✅     |
 
 ---
 
@@ -62,7 +62,8 @@
 | Feature       | เหตุผลที่ไม่ทดสอบ |
 |---------------|--------------------|
 | <!-- ตัวอย่าง --> Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
-| <!-- เพิ่มเติม --> | |
+| <!-- เพิ่มเติม --> Hardware Integration | ไม่ได้ทดสอบการเชื่อมต่ออุปกรณ์จริง |
+| <!-- เพิ่มเติม --> Third-party Payment Gateway | ไม่ทดสอบการตัดบัตรเครดิตผ่านผู้ให้บริการภายนอก |
 
 ---
 
@@ -82,13 +83,13 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
+| OS             | Windows 11<!-- เช่น Windows 11 / Ubuntu 22.04 --> |
 | Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
+| npm            | 11.6.2<!-- ระบุเวอร์ชัน -->               |
+| Docker         | 29.2.1<!-- ระบุเวอร์ชัน -->               |
 | PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| Browser        | Chrome 148 <!-- เช่น Chrome 124 -->            |
+| Newman         | 6.2.2<!-- ระบุเวอร์ชัน -->               |
 
 ---
 
@@ -113,7 +114,8 @@
 |---|------------------------|--------------------------|----------------|
 | 1 | Payment (ชำระเงิน)      | ร้านไม่สามารถรับเงินได้ ลูกค้ารอนาน เสียรายได้โดยตรง | Critical |
 | 2 | Order (รับออเดอร์)      | ออเดอร์ไม่ถึงครัว อาหารไม่ถูกจัดเตรียม ลูกค้าไม่พอใจ | High |
-| <!-- เพิ่มอย่างน้อย 2 รายการ --> | | | |
+| <!-- เพิ่มอย่างน้อย 2 รายการ --> 3 | Auth & Role Access | หากพนักงานเข้าถึง Report ยอดขายได้ อาจนำไปสู่การแก้ไขข้อมูลการเงินหรือการทุจริต | High |
+| <!-- เพิ่มอย่างน้อย 2 รายการ --> 4 | Menu Stock | ข้อมูลสต็อกวัตถุดิบไม่ตรงร้านจะไม่สามารถขายสินค้าที่พร้อมให้บริการได้ | Medium |
 
 ---
 
@@ -125,7 +127,7 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ✅        |
 | TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
 | TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
 | TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
@@ -136,9 +138,10 @@
 | TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
 | TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
 | TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
-| <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
+| <!-- เพิ่มกรณีทดสอบ --> TC-012 | Positive | Report | เรียกดูรายงานยอดขายรายวัน | GET /api/reports/daily | HTTP 200 + ข้อมูลสรุป | | ⬜ |
+| <!-- เพิ่มกรณีทดสอบ --> TC-013 | Negative | Menu | แก้ไขราคาเมนูเป็นค่าติดลบ | `{id: 1, price: -50}` | HTTP 400 Bad Request | | ⬜ |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน _13_ / _13_ กรณี (_100_%)
 
 ---
 
@@ -149,8 +152,8 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-[น.ส.ชญานิศ ธีรเวโรจน์]-TestSuite
+Run Date:   2025-05-10 HH:MM
 
 ┌─────────────────────────┬──────────────────┐
 │                         │         executed │
@@ -167,10 +170,10 @@ Run Date:   YYYY-MM-DD HH:MM
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** __23__ / __26__ (__88__%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่!!![alt text](image-3.png)
 
 ---
 
@@ -197,7 +200,7 @@ cd backend && npm audit --audit-level=moderate
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
 |---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
+| None | - | - | - | - | Passed |
 
 **แก้ไขด้วย:**
 ```bash
@@ -216,10 +219,10 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
+| High     | 1      |
+| Medium   | 2      |
 | Low      | 0      |
-| **รวม**  | **0**  |
+| **รวม**  | **3**  |
 
 ---
 
@@ -229,57 +232,84 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: Missing JWT Authorization in protected requests
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:** High  
+**Priority:** P1  
+**Feature:** API Security / Test Suite Validation  
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. รัน `newman run rms_tests.json --global-var "url=http://localhost:3001"` ใน Terminal
+2. สังเกต `TC-002: Menu Positive` และ `TC-003: Payment Positive`
+3. เว็บเซิร์ฟเวอร์ตอบกลับ `401 Unauthorized` แม้ว่า endpoint ควรทำงานได้เมื่อมี token
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> Protected endpoints ต้องได้รับ token ก่อน และกรณี positive test ควรตอบ `201` หรือ `200` ตามที่กำหนด
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> `POST /api/menu` และ `POST /api/payments` กลับ `401 Unauthorized` เนื่องจาก request ไม่มี header `Authorization: Bearer <token>`
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> - Terminal output แสดง `401 Unauthorized` ใน `TC-002` และ `TC-003`
+> - `rms_tests.json` ไม่มีการเก็บหรือส่ง token จากการ login
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> การขาด token ในชุดทดสอบทำให้การทดสอบฟีเจอร์สำคัญ เช่น การเพิ่มเมนูและการชำระเงิน ไม่สามารถตรวจสอบได้ และเกิด false negative ใน QA
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: Test suite does not use reusable auth / environment variables
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** Medium  
+**Priority:** P2  
+**Feature:** Test Automation / Configuration  
+**Status:** Open
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. เปิดไฟล์ `rms_tests.json`
+2. ตรวจสอบ request URL และ credential flow
+3. พบว่า endpoint ถูกเขียนเป็นค่า absolute `http://localhost:3001/api/...` และไม่มีการตั้งค่าตัวแปร `base_url`
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> Collection ควรใช้ตัวแปร `{{base_url}}` และส่ง `Authorization` header จาก token ที่ได้จาก TC-001 หรือ TC-002
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> Request ทั้งชุดใช้ URL ตายตัว และไม่มีการ propagate token จาก login ทำให้ต้องแก้ไฟล์หลายจุดหากเปลี่ยน host/port หรือเพิ่ม request ใหม่
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+> - `rms_tests.json` มี `url`: `http://localhost:3001/api/...` ตรงๆ
+> - ไม่มี script ใน TC-001 ที่เก็บ token ไปใช้ใน request ถัดไป
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> ลดความสามารถในการนำชุดทดสอบไปใช้งานซ้ำ และเพิ่มเวลาทดสอบเมื่อต้องเปลี่ยนพอร์ตหรือกรณีใช้งานจริงบนเครื่องคนอื่น
+
+---
+
+### BUG-003: Negative test cases fail for wrong reason (missing auth)
+
+**Severity:** Medium  
+**Priority:** P2  
+**Feature:** Negative Testing / Security Validation  
+**Status:** Open
+
+#### Steps to Reproduce
+1. รัน `TC-005: Order Negative` หรือ `TC-006: Payment Negative`
+2. คาดว่าจะได้สถานะ `400 Bad Request`
+3. แต่ผลลัพธ์กลับเป็น `401 Unauthorized`
+
+#### Expected Result
+> Negative test ต้องแยกเหตุผลการล้มเหลวให้ชัดเจน: `400 Bad Request` สำหรับข้อมูลไม่ถูกต้อง และ `401 Unauthorized` สำหรับ token ขาด
+
+#### Actual Result
+> การไม่มี token ทำให้ negative test ทั้งชุดล้ม due to auth ก่อนเข้าสู่ validation logic
+
+#### Evidence
+> - Terminal output ของ TC-005 / TC-006 แสดง `401 Unauthorized`
+> - request body ถูกส่งแต่ไม่ได้ส่ง header `Authorization`
+
+#### Business Impact
+> เกิด false negative ในการทดสอบเชิงลบ ทำให้ทีมไม่สามารถแยกได้ว่าปัญหาเกิดจาก input validation หรือการตรวจสอบสิทธิ์
 
 ---
 
@@ -332,18 +362,18 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน (On-Premises)
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
 > 
-> (วางภาพที่นี่)
+> (![alt text](image-5.png))
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
 >
-> (วางภาพที่นี่)
+> (![alt text](image-4.png))
 
 ---
 
@@ -368,14 +398,14 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ❌ |
 
 #### หลักฐาน (Staging)
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
-> (วางภาพที่นี่)
+> (![alt text](image-7.png))
 
 ---
 
@@ -431,14 +461,14 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸![alt text](image-8.png)      | ✅           |
+| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸![alt text](image-9.png)      | ✅           |
+| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸![alt text](image-10.png)      | ✅           |
+| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸![alt text](image-11.png)      | ✅           |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: _4_ / 4 รายการ**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)![alt text](image-8.png)![alt text](image-9.png)![alt text](image-10.png)![alt text](image-11.png)
 
 ---
 

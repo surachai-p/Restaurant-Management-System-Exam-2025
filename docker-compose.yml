@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: rms-db
+    environment:
+      POSTGRES_USER: rms_user
+      POSTGRES_PASSWORD: rms_password
+      POSTGRES_DB: rms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "rms_user", "-d", "rms_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rms-network
+
+  # Backend Service
+  backend:
+    build: ./backend
+    container_name: rms-backend
+    environment:
+      # Database Configuration
+      - DATABASE_URL=postgresql://rms_user:rms_password@db:5432/rms_db?schema=public
+      # Security
+      - JWT_SECRET=your_super_secret_key_change_this_in_production_minimum_32_chars
+      - NODE_ENV=production
+      # API Configuration
+      - CORS_ORIGIN=http://localhost
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - rms-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://backend:3001
+    container_name: rms-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - rms-network
+
+volumes:
+  postgres_data:
+
+networks:
+  rms-network:

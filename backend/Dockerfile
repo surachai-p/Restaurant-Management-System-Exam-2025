@@ -6,26 +6,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd 
 
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci --only=production && npx prisma generate
+RUN npm install && npx prisma generate
 
 FROM node:22-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma ./prisma/
-RUN npm ci
+RUN npm install
 COPY src ./src
 RUN npm run build
 
 FROM node:22-slim AS runner
 WORKDIR /app
 
-# Runtime OpenSSL and wget required by Prisma and health check
-RUN apt-get update && apt-get install -y --no-install-recommends openssl wget && rm -rf /var/lib/apt/lists/*
+# Runtime OpenSSL, wget, and netcat required for database readiness checks
+RUN apt-get update && apt-get install -y --no-install-recommends openssl wget netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma db push && npx tsx prisma/seed.ts && node dist/app.js"]
+CMD ["sh", "-c", "until nc -z db 5432; do echo 'Waiting for database...'; sleep 1; done; npx prisma db push && npx tsx prisma/seed.ts && node dist/app.js"]
