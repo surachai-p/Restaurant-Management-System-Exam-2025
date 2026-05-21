@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Restaurant Management System — Backend API (TypeScript + Prisma)",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=25.8.0"
   },
   "scripts": {
     "dev": "tsx watch src/app.ts",
@@ -35,7 +35,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^22.19.19",
+    "@types/node": "^25.8.0",
     "@types/supertest": "^6.0.2",
     "@vitest/coverage-v8": "^1.6.0",
     "newman": "^6.1.3",
