@@ -73,7 +73,7 @@ jobs:
         npx wait-on tcp:3001 --timeout 60000
         
         # รัน Newman โดยชี้ Path ไปที่ไฟล์ JSON (ตรวจสอบตัวพิมพ์เล็ก-ใหญ่ให้ตรงกับ Folder จริงนะคั้บ)
-        npx newman run /tests/postman/RMS-TestSuite-v2.json --reporters cli
+         npx newman run $GITHUB_WORKSPACE/tests/postman/RMS-TestSuite-v2.json --reporters cli
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
         JWT_SECRET: "rms-dev-secret-key-change-in-production"
