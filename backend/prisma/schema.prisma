@@ -83,7 +83,7 @@ model RestaurantTable {
 
   @@map("tables")
 }
-
+ 
 model Order {
   id          Int         @id @default(autoincrement())
   tableId     Int

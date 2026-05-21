@@ -17,10 +17,20 @@ declare global {
   }
 }
 
+// ✅ คืน 401 เสมอถ้าไม่มี token หรือ token ไม่ถูกต้อง
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers['authorization']
-  const token = authHeader?.split(' ')[1]
-  if (!token) { res.status(401).json({ error: 'Access token required' }); return }
+  if (!authHeader) {
+    res.status(401).json({ error: 'Access token required' })
+    return
+  }
+
+  const token = authHeader.split(' ')[1]
+  if (!token) {
+    res.status(401).json({ error: 'Invalid token format' })
+    return
+  }
+
   try {
     req.user = jwt.verify(token, JWT_SECRET) as JwtPayload
     next()
@@ -29,11 +39,16 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
   }
 }
 
+// ✅ requireRole จะเช็ค role หลังจาก authenticate ผ่านแล้ว
 export const requireRole = (...roles: Array<'admin' | 'cashier' | 'waiter'>) =>
   (req: Request, res: Response, next: NextFunction): void => {
-    if (!req.user) { res.status(401).json({ error: 'Not authenticated' }); return }
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' })
+      return
+    }
     if (!roles.includes(req.user.role)) {
-      res.status(403).json({ error: 'Insufficient permissions' }); return
+      res.status(403).json({ error: 'Insufficient permissions' })
+      return
     }
     next()
   }

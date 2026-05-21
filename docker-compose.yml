@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16
+    container_name: db-1
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=rms_db
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001" # กำหนด Port Mapping backend 
+    environment:
+      # แก้ localhost เป็น db เพื่ออ้างอิงถึง service db ใน docker network
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/rms_db?schema=public
+      - JWT_SECRET=rms-dev-secret-key-change-in-production
+      - CORS_ORIGIN=http://localhost # เพิ่มตัวแปร CORS_ORIGIN
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80" # กำหนด Port Mapping frontend เป็น 80
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      backend:
+        condition: service_healthy # กำหนดให้รอ backend ผ่าน healthcheck ก่อนจึงจะเริ่มทำงาน

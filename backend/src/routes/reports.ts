@@ -1,22 +1,21 @@
 // src/routes/reports.ts
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
 
 const router = Router()
 
 // GET /api/reports/sales?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
-// ⚠️ BUG-005 [Date Filter]: Uses strictly-greater-than (gt) for startDate
-// Orders exactly at midnight of startDate are excluded from results
-router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+// ✅ แก้ไข BUG-005 [Date Filter]: เปลี่ยนมาใช้ gte (>=) เพื่อไม่ให้ข้อมูลของเวลาเที่ยงคืนตรงตกหล่น
+router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response): Promise<void> => {
   try {
     const { startDate, endDate } = req.query as { startDate?: string; endDate?: string }
 
-    const dateFilter: { gt?: Date; lte?: Date } = {}
+    const dateFilter: { gte?: Date; lte?: Date } = {}
 
     if (startDate) {
-      // ⚠️ BUG-005: Should be 'gte' (>=) not 'gt' (>) — off-by-one error
-      dateFilter.gt = new Date(startDate)   // WRONG: should be gte
+      // ✅ แก้ไข BUG-005: ใช้ gte (Greater Than or Equals) 
+      dateFilter.gte = new Date(startDate) 
     }
     if (endDate) {
       const end = new Date(endDate)
@@ -25,7 +24,7 @@ router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, 
     }
 
     const payments = await prisma.payment.findMany({
-      where: Object.keys(dateFilter).length ? { createdAt: dateFilter as any } : {},
+      where: Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : {},
       include: {
         order: {
           include: {
@@ -58,7 +57,7 @@ router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, 
 })
 
 // GET /api/reports/daily
-router.get('/daily', authenticate, requireRole('admin', 'cashier'), async (_req, res) => {
+router.get('/daily', authenticate, requireRole('admin', 'cashier'), async (_req: Request, res: Response): Promise<void> => {
   try {
     const today = new Date(); today.setHours(0, 0, 0, 0)
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1)

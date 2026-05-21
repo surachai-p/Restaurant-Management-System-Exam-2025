@@ -1,0 +1,94 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services: 
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: rms_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Security Audit
+        working-directory: ./backend
+        run: npm audit --audit-level=high || true 
+
+      - name: Generate Prisma client
+        working-directory: ./backend
+        run: npx prisma generate
+
+      - name: Setup Database
+        working-directory: ./backend
+        run: npx prisma db push --force-reset && npx prisma db seed
+        env:
+          DATABASE_URL: "postgresql://postgres:password@localhost:5432/rms_db"
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm run test
+        env:
+          DATABASE_URL: "postgresql://postgres:password@localhost:5432/rms_db"
+
+      # --- 🚀 ส่วนของ NEWMAN (E2E API Testing) ---
+      - name: Start Server and Run Newman
+        working-directory: ./backend
+        run: |
+          # 1. ติดตั้ง wait-on
+          npm install wait-on
+    
+          # 2. ตรวจสอบไฟล์ก่อนรัน (แก้ path ให้ตรงกับตำแหน่งจริง)
+          echo "Checking file location..."
+          ls -R $GITHUB_WORKSPACE/tests/postman/
+    
+          # 3. รัน Server ใน Background
+          npm run dev > server.log 2>&1 & 
+    
+          # 4. รอจนกว่า Port 3001 จะพร้อมใช้งาน
+          npx wait-on tcp:3001 --timeout 60000
+    
+          # 5. รัน Newman โดยใช้ Absolute Path ที่ถูกต้อง
+          npx newman run $GITHUB_WORKSPACE/tests/postman/RMS-TestSuite-v2.json --reporters cli
+        env:
+          DATABASE_URL: "postgresql://postgres:password@localhost:5432/rms_db"
+          JWT_SECRET: "rms-dev-secret-key-change-in-production"
+          PORT: 3001
+
+
+      # ส่วนของ Frontend
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Run frontend build
+        working-directory: ./frontend
+        run: npm run build

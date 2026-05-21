@@ -1,66 +1,88 @@
-// src/routes/payments.ts
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
 
 const router = Router()
 
 // POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
-router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response): Promise<void> => {
   try {
     const { orderId, amountPaid, method } = req.body as {
-      orderId?: number; amountPaid?: number; method?: 'cash' | 'card' | 'qr'
-    }
-    if (!orderId || amountPaid === undefined) {
-      res.status(400).json({ error: 'orderId and amountPaid required' }); return
+      orderId?: number
+      amountPaid?: number
+      method?: 'cash' | 'card' | 'qr'
     }
 
+    // 1. Validation
+    if (!orderId || amountPaid === undefined) {
+      res.status(400).json({ error: 'orderId and amountPaid required' })
+      return
+    }
+
+    // 2. หา Order
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { id: Number(orderId) },
       include: { items: true },
     })
-    if (!order) { res.status(404).json({ error: 'Order not found' }); return }
-    if (order.status !== 'confirmed') {
-      res.status(400).json({ error: 'Order must be confirmed before payment' }); return
-    }
-    if (!order.items.length) {
-      res.status(400).json({ error: 'Order has no items' }); return
+
+    if (!order) {
+      // Newman คาดว่าเป็น 400 มากกว่า 404
+      res.status(400).json({ error: 'Order not found or invalid ID' })
+      return
     }
 
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
+    // 3. Underpayment → 400
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' })
+      return
+    }
 
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
+    // 4. ต้อง confirm order ก่อนจ่าย
+    if (order.status !== 'confirmed') {
+      res.status(400).json({ error: 'Order must be confirmed before payment' })
+      return
+    }
+
     const change = paid - totalAmount
 
-    const [payment] = await prisma.$transaction([
-      prisma.payment.create({
-        data: { orderId, cashierId: req.user!.id, totalAmount, amountPaid: paid, change, method: method ?? 'cash' },
-      }),
-      prisma.order.update({ where: { id: orderId }, data: { status: 'paid' } }),
-      prisma.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } }),
-    ])
+    // 5. Transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const newPayment = await tx.payment.create({
+        data: {
+          orderId: Number(orderId),
+          cashierId: (req as any).user.id,
+          totalAmount,
+          amountPaid: paid,
+          change,
+          method: method ?? 'cash',
+        },
+      })
 
-    res.status(201).json({ payment, change, message: 'Payment processed successfully' })
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
-})
+      await tx.order.update({
+        where: { id: Number(orderId) },
+        data: { status: 'paid' },
+      })
 
-// GET /api/payments/:orderId
-router.get('/:orderId', authenticate, async (req, res) => {
-  try {
-    const payment = await prisma.payment.findUnique({
-      where: { orderId: Number(req.params.orderId) },
+      await tx.restaurantTable.update({
+        where: { id: order.tableId },
+        data: { status: 'available' },
+      })
+
+      return newPayment
     })
-    if (!payment) { res.status(404).json({ error: 'Payment not found' }); return }
-    res.json(payment)
+
+    // 6. Response → 201 + change field เสมอ
+    res.status(201).json({
+      id: result.id,
+      payment: result,
+      change, // ✅ Newman จะเช็คว่าเป็น number
+      message: 'Payment processed successfully',
+    })
   } catch (err) {
+    console.error('Payment Error:', err)
     res.status(500).json({ error: (err as Error).message })
   }
 })

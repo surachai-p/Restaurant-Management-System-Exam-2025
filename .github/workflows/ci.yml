@@ -17,6 +17,8 @@ jobs:
           POSTGRES_DB: rms_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -24,9 +26,11 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    # --- 🛠️ BACKEND SETUP & SECURITY ---
+    - name: Setup Node.js (Backend)
       uses: actions/setup-node@v4
       with:
         node-version: '22'
@@ -34,17 +38,49 @@ jobs:
         cache-dependency-path: 'backend/package-lock.json'
 
     - name: Install backend dependencies
-      run: cd backend && npm ci
+      working-directory: backend
+      run: npm ci
+
+    - name: Security Audit (Backend)
+      working-directory: backend
+      run: npm audit --audit-level=high || true
 
     - name: Generate Prisma client
-      run: cd backend && npx prisma generate
+      working-directory: backend
+      run: npx prisma generate
 
-    - name: Run backend tests
-      run: cd backend && npm test
+    # --- 🧪 TESTING & NEWMAN ---
+    - name: Setup Database and Seed
+      working-directory: backend
+      run: npx prisma db push --force-reset && npx prisma db seed
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
 
-    - name: Setup Node.js for frontend
+    - name: Run Backend Unit Tests
+      working-directory: backend
+      run: npm test
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+
+    - name: Start Server and Run Newman (E2E)
+      working-directory: backend
+      run: |
+        # ติดตั้ง wait-on
+        npm install wait-on
+        
+        # รัน Server ใน Background และรอให้ Port 3001 พร้อม
+        npm run dev > server.log 2>&1 &
+        npx wait-on tcp:3001 --timeout 60000
+        
+        # รัน Newman โดยชี้ Path ไปที่ไฟล์ JSON (ตรวจสอบตัวพิมพ์เล็ก-ใหญ่ให้ตรงกับ Folder จริงนะคั้บ)
+         npx newman run $GITHUB_WORKSPACE/tests/postman/RMS-TestSuite-v2.json --reporters cli
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        JWT_SECRET: "rms-dev-secret-key-change-in-production"
+        PORT: 3001
+
+    # --- 🎨 FRONTEND SETUP & BUILD ---
+    - name: Setup Node.js (Frontend)
       uses: actions/setup-node@v4
       with:
         node-version: '22'
@@ -52,7 +88,9 @@ jobs:
         cache-dependency-path: 'frontend/package-lock.json'
 
     - name: Install frontend dependencies
-      run: cd frontend && npm ci
+      working-directory: frontend
+      run: npm ci
 
     - name: Run frontend build
-      run: cd frontend && npm run build
+      working-directory: frontend
+      run: npm run build 
