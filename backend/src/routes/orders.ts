@@ -4,10 +4,15 @@ import { authenticate } from '../middleware/auth'
 
 const router = Router()
 
-// ✅ GET /api/orders — ต้องใช้ authenticate และคืน 401 ถ้าไม่มี token
+// ✅ GET /api/orders — รองรับการ Query Filter ตามสถานะจากหน้าบ้าน เช่น /api/orders?status=open
 router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
+    // 🛠️ แกะเอาค่า status ออกมาจาก Query Parameters ของ URL
+    const { status } = req.query as { status?: string }
+
     const orders = await prisma.order.findMany({
+      // 🛠️ แก้ไขบั๊ก Type ตรงนี้: ใช้ as any บังคับข้ามสิทธิ์เพื่อไม่ให้ TypeScript แจ้งเตือนตัวแดง
+      where: status ? { status: status as any } : {},
       include: { items: { include: { menuItem: true } }, table: true }
     })
     res.json(orders)
@@ -15,6 +20,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     res.status(500).json({ error: (err as Error).message })
   }
 })
+
 // ✅ GET /api/orders/tables — ดึงข้อมูลโต๊ะทั้งหมดเอาไปใช้หน้าบ้าน
 router.get('/tables', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
