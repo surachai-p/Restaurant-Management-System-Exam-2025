@@ -17,7 +17,7 @@ app.use(express.json())
 
 // ✅ Root Route (แก้ปัญหา Cannot GET /)
 app.get('/', (_req: Request, res: Response) => {
-  res.send('Welcome to KAFUNG Coffee Bar API v2.0.0')
+  res.send('Welcome to Restaurant Management System API v2.0.0')
 })
 
 // ✅ Mount routes
