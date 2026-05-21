@@ -218,7 +218,7 @@
               { "key": "Authorization", "value": "Bearer {{waiter_token}}" },
               { "key": "Content-Type",   "value": "application/json" }
             ],
-            "body": { "mode": "raw", "raw": "{\"tableId\": 2}" }
+            "body": { "mode": "raw", "raw": "{\"tableId\": 1}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-014: create order → 201', () => pm.response.to.have.status(201));",
@@ -233,7 +233,7 @@
               { "key": "Authorization", "value": "Bearer {{waiter_token}}" },
               { "key": "Content-Type",   "value": "application/json" }
             ],
-            "body": { "mode": "raw", "raw": "{\"tableId\": 2}" }
+            "body": { "mode": "raw", "raw": "{\"tableId\": 1}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-015 [BUG-002]: Double booking → 409 Conflict', () => {",
