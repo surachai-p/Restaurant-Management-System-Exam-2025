@@ -15,6 +15,17 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
     res.status(500).json({ error: (err as Error).message })
   }
 })
+// ✅ GET /api/orders/tables — ดึงข้อมูลโต๊ะทั้งหมดเอาไปใช้หน้าบ้าน
+router.get('/tables', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tables = await prisma.restaurantTable.findMany({
+      orderBy: { id: 'asc' } // เรียงตามเบอร์โต๊ะจากน้อยไปมาก
+    })
+    res.json(tables)
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message })
+  }
+})
 
 // ✅ GET /api/orders/:id — รายละเอียดออเดอร์
 router.get('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
