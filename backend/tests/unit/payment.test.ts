@@ -1,15 +1,6 @@
 // tests/unit/payment.test.ts
 import { describe, it, expect } from 'vitest'
-
-// ── Business logic helpers (mirrors payment route logic) ────────────────────
-function calculateChange(totalAmount: number, amountPaid: number): number {
-  return amountPaid - totalAmount
-}
-
-function isValidPayment(totalAmount: number, amountPaid: number): boolean {
-  // This function should exist but DOESN'T in the current route — BUG-001
-  return amountPaid >= totalAmount
-}
+import { calculateChange, isValidPayment } from '../../src/utils/payment'
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 describe('Payment Calculation Logic', () => {

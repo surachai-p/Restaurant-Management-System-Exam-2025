@@ -1,0 +1,94 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rms_test
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rms_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js for backend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package.json'
+
+      - name: Install backend dependencies
+        run: cd backend && npm install
+
+      - name: Run npm audit (backend)
+        run: cd backend && npm audit --audit-level=high
+
+      - name: Generate Prisma client
+        run: cd backend && npx prisma generate
+
+      - name: Prepare test database
+        run: cd backend && npx prisma db push
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rms_test
+
+      - name: Run backend tests
+        run: cd backend && npm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rms_test
+
+      - name: Install Newman CLI
+        run: npm install -g newman
+
+      - name: Run Newman API tests
+        run: |
+          cd backend
+          DATABASE_URL=postgresql://postgres:postgres@postgres:5432/rms_test \
+          JWT_SECRET=supersecretjwtkey \
+          PORT=3001 \
+          npx tsx src/app.ts &
+          BACKEND_PID=$!
+          sleep 5
+          cd ../tests/postman
+          newman run RMS-[68030107]-TestSuite.json -e env-ci.json --disable-unicode
+          kill $BACKEND_PID
+
+      - name: Backend lint
+        run: cd backend && npm run lint
+
+      - name: Setup Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package.json'
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm install
+
+      - name: Run npm audit (frontend)
+        run: cd frontend && npm audit --audit-level=high
+
+      - name: Run frontend build
+        run: cd frontend && npm run build
+
+      - name: Frontend lint
+        run: cd frontend && npm run lint
