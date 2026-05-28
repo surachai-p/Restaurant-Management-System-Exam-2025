@@ -197,15 +197,12 @@ jobs:
 
       - name: Pull Vercel project config
         if: steps.check.outputs.skip != 'true'
-        working-directory: frontend
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build with Vercel
         if: steps.check.outputs.skip != 'true'
-        working-directory: frontend
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy prebuilt to Vercel (production)
         if: steps.check.outputs.skip != 'true'
-        working-directory: frontend
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
