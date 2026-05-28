@@ -34,8 +34,10 @@ services:
       POSTGRES_DB: rms_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-    ports:
-      - "5432:5432"
+    # NOTE: ไม่ expose port 5432 ออก host เพื่อหลีกเลี่ยงชนกับ Postgres
+    # ที่ติดตั้งในเครื่อง dev อยู่แล้ว — backend เข้าผ่าน rms-net ได้ปกติ
+    expose:
+      - "5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks: [rms-net]
@@ -108,7 +110,9 @@ services:
     container_name: rms-frontend-68030085
     restart: unless-stopped
     ports:
-      - "80:80"
+      # NOTE: ใช้ host port 8080 เพื่อหลีกเลี่ยงชนกับ web server อื่น
+      # ในเครื่อง dev (IIS / Apache) — container ยังฟัง port 80 ภายใน
+      - "8080:80"
     depends_on:
       backend:
         condition: service_healthy
