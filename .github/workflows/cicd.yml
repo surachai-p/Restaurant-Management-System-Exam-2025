@@ -1,0 +1,72 @@
+name: RMS CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rms_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Create .env
+        working-directory: backend
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rms_test" >> .env
+          echo "JWT_SECRET=mysecretkey" >> .env
+          echo "NODE_ENV=test" >> .env
+
+      - name: Prisma Generate
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Prisma DB Push
+        working-directory: backend
+        run: npx prisma db push
+
+      - name: Seed Database
+        working-directory: backend
+        run: npx tsx prisma/seed.ts
+
+      - name: Start Backend
+        working-directory: backend
+        run: npm run dev &
+        
+      - name: Wait for API
+        run: sleep 15
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Newman Tests
+        run: |
+          newman run tests/postman/RMS-TestSuite-v2.json \
+          --environment tests/postman/env-local.json
