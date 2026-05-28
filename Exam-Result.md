@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล |นายอัครพนธ์ อรุณ |
+| รหัสนักศึกษา |68030319 |
+| วันที่สอบ |28/05/2569 |
 
 ---
 
@@ -18,7 +18,7 @@
 ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**✏️ Student Repository:** `https://github.com/[แทนที่ด้วยรหัสนักศึกษาของตนเอง]/Restaurant-Management-System-Exam-2025.git`
+**✏️ Student Repository:** `https://github.com/68030319/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -60,19 +60,19 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth | เพื่อป้องกันผู้ไม่มีสิทธิ์เข้าถึงระบบ |
+| Menu | เพื่อให้ลูกค้ามีข้อมูลอาหารที่ถูกต้องในการสั่ง |
+| Order | เป็นหัวใจหลักของแอปพลิเคชันในการสร้างรายได้ |
+| Payment | เพื่อรับประกันความถูกต้องของการเงินและเงินทอน |
+| Report | เพื่อให้เจ้าของร้านดูยอดขายประจำวันได้ |
+| Security | เพื่ออุดช่องโหว่ ป้องกันข้อมูลรั่วไหล |
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
+| Payroll | ไม่อยู่ในขอบเขต (Requirements) ของระบบ |
 | | |
 
 ---
@@ -97,13 +97,13 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Windows 11 |
+| Node.js | v24.14.0 |
+| npm | 11.9.0 |
+| Docker | version 29.4.3, build 055a478 |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser | Google Chrome v120+ |
+| Newman | 6.2.2 |
 
 ---
 
@@ -133,8 +133,8 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
+| 1 | Payment คำนวณเงินผิด | ระบบคำนวณเงินทอนผิดพลาด หรือรับยอดชำระไม่ครบ ทำให้ร้านสูญเสียรายได้ | Critical |
+| 2 | Auth (Role) หละหลวม | พนักงานเสิร์ฟสามารถเข้าถึงฟังก์ชันลบเมนูหรือดูรายงานยอดขายของ Admin ได้ ทำให้ข้อมูลทางธุรกิจเสียหาย | High |
 | 3 | | | |
 
 ---
@@ -149,19 +149,19 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | HTTP 200 + JWT Token | ✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | HTTP 200 + change = 0 | ✅ |
+| TC-005 | Positive | Menu | Admin เพิ่มเมนูใหม่สำเร็จ | {name: "Burger", price: 100} | HTTP 201 Created | HTTP 201 | ✅ |
+| TC-006 | Positive | Order | เปิดโต๊ะใหม่สำเร็จ | {tableId: 5} | HTTP 201 Created | HTTP 201 | ✅ |
+| TC-007 | Negative | Payment | ชำระเงินไม่ครบ (Underpayment) | {amount: ยอดที่น้อยกว่าค่าอาหาร} | HTTP 400 Bad Request | HTTP 200 (Bug!) | ✅ |
+| TC-008 | Negative | Menu | สร้างเมนูโดยไม่ใส่ชื่อ | {price: 100} | HTTP 400 Bad Request | HTTP 400 | ✅ |
+| TC-009 | Security | Auth | Waiter ลบเมนู (ตรวจสอบสิทธิ์) | DELETE /api/menu/1 (Token Waiter) | HTTP 403 Forbidden | HTTP 403 | ✅ |
+| TC-010 | Security | Security | SQL Injection ที่ช่อง Login | {username: "admin' OR 1=1--"} | HTTP 401 / 400 | HTTP 401| ✅ |
+| TC-011 | Edge | Order | สั่งอาหารจำนวน 0 ชิ้น | {itemId: 1, quantity: 0} | HTTP 400 Bad Request | HTTP 400 | ✅ |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**✏️ สรุปผล:** ผ่าน 11 / 11 กรณี (100%)
 
 ---
 
@@ -178,8 +178,8 @@
 
 | รายการ | ค่าจริง |
 |--------|--------|
-| Collection Name | `RMS-[รหัสนักศึกษา]-TestSuite` |
-| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.json` |
+| Collection Name | `RMS-68030319-TestSuite` |
+| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-68030319-TestSuite.json` |
 | ไฟล์ Environment | `tests/postman/env.json` |
 
 > 📌 Repository มี Newman Collection 21 test cases ใน `tests/postman/` อยู่แล้ว  
@@ -208,7 +208,7 @@
 > });
 > ```
 
-**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** ☐ ใช่
+**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** ✅ ใช่
 
 #### สรุปผลการรัน Postman (กรอกหลังรัน Collection Run)
 
@@ -216,11 +216,11 @@
 
 | Request Name | Method | Endpoint | Actual Result | Pass/Fail |
 |-------------|--------|----------|--------------|-----------|
-| | | | | ☐ |
-| | | | | ☐ |
-| | | | | ☐ |
+| Health Check | GET | /api/health | Status 200 OK และแสดงข้อความ API running |  ✅Pass |
+| Login Admin | POST | /api/auth/login | Login สำเร็จและได้รับ JWT Token |  ✅Pass |
+| Get Orders | GET | /api/orders | ดึงข้อมูล Orders สำเร็จ |  ✅Pass |
 
-**✏️ สรุป:** ผ่าน ___ / ___ Request
+**✏️ สรุป:** ผ่าน 3 / 3 Request
 
 #### หลักฐานภาพหน้าจอ Postman
 
@@ -228,11 +228,12 @@
 
 **รูปที่ 1 — Postman Collection และ Environment Variables (แสดง `base_url`, `token`, `admin_token` ครบ)**
 
-`![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)`
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/b39711d2-258f-4ad2-bea8-3fb6cc59716f" />
 
 **รูปที่ 2 — ผล Postman Collection Run (แสดง Pass/Fail ทุก Request)**
 
-`![Postman Run Result](./tests/reports/postman-run-result.png)`
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/fee3fbf5-a6a2-488c-8de7-67c19b6698fe" />
+
 
 ---
 
@@ -322,7 +323,7 @@ cd backend && npm audit --audit-level=moderate
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+<img width="1272" height="798" alt="image" src="https://github.com/user-attachments/assets/9d9ca0f1-98bf-48c8-b00d-749b4ccc9bbe" />
 
 ---
 
@@ -344,7 +345,8 @@ cd frontend && npm audit --audit-level=moderate
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+<img width="1061" height="676" alt="image" src="https://github.com/user-attachments/assets/2cccca46-5b02-48a4-8113-53cc4dc3bb5d" />
+
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -362,26 +364,27 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [✏️ ชื่อ Bug สั้น ๆ อธิบายปัญหา]
+### BUG-001: [✏️ คำนวณเงินทอนติดลบ]
 
 | รายการ | ค่า |
 |--------|-----|
 | **Severity** | (เลือก: Critical / High / Medium / Low) |
 | **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
+| **Feature** | Payment / Checkout |
 | **Status** | (เลือก: Open / Fixed) |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. ล็อกอินเข้าสู่ระบบผ่าน API (หรือหน้าเว็บ) ด้วยสิทธิ์ Cashier
+2. ทำการชำระเงิน (POST /api/payments) สำหรับออเดอร์ที่มีอยู่
+3. ระบุยอดเงินที่รับมา (paid) ให้น้อยกว่าราคารวมของบิล (totalAmount) เช่น บิล 100 บาท แต่ระบุยอดจ่าย 50 บาท
+4. กดยืนยันการชำระเงินและตรวจสอบผลลัพธ์ (ระบบให้ผ่านและบันทึกเงินทอนเป็นค่าติดลบ)
 
 #### Expected Result
-> ✏️ 
+> ✏️ ระบบต้องปฏิเสธการทำรายการและส่ง HTTP Status 400 (Bad Request) กลับมา โดยไม่บันทึกข้อมูลลงฐานข้อมูล พร้อมทั้งแสดงข้อความแจ้งเตือนว่ายอดเงินที่รับมาไม่เพียงพอ
 
 #### Actual Result
-> ✏️ 
+> ✏️ ระบบยอมรับการทำรายการ ส่ง HTTP Status 200 (OK) กลับมา และบันทึกข้อมูลการชำระเงินลงฐานข้อมูลสำเร็จ โดยระบบคำนวณเงินทอน (Change) ออกมาเป็น ค่าติดลบ
 
 #### Evidence
 
@@ -389,29 +392,30 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Business Impact
 > ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
-
+ส่งผลให้ร้านอาหารสูญเสียรายได้โดยตรง (Financial Loss) อย่างร้ายแรง เนื่องจากพนักงานสามารถปิดบิลได้โดยที่รับเงินจากลูกค้าไม่ครบถ้วน ทำให้รายงานทางบัญชีและสรุปยอดขายประจำวันผิดพลาดทั้งหมด
 ---
 
-### BUG-002: [✏️ ชื่อ Bug สั้น ๆ อธิบายปัญหา]
+### BUG-002: [✏️ ระบบอนุญาตให้ระบุจำนวนสินค้า]
 
 | รายการ | ค่า |
 |--------|-----|
 | **Severity** | (เลือก: Critical / High / Medium / Low) |
 | **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
+| **Feature** | Order Management |
 | **Status** | (เลือก: Open / Fixed) |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. ล็อกอินเข้าสู่ระบบผ่าน API ด้วยสิทธิ์ Waiter หรือ Cashier
+2. ยิง Request เพื่อสร้างออเดอร์ใหม่ (POST /api/orders) หรือแก้ไขออเดอร์เดิม
+3. ในส่วนของรายการอาหาร (Items) ให้ระบุจำนวนอาหาร (quantity) เป็นค่าติดลบหรือศูนย์ (เช่น -1 หรือ 0)
+4. ส่ง Request และตรวจสอบผลลัพธ์ (ระบบยอมรับคำสั่งซื้อและบันทึกจำนวนที่ผิดปกติลงฐานข้อมูล)
 
 #### Expected Result
-> ✏️ 
+> ✏️ ระบบต้องปฏิเสธคำสั่งซื้อและส่ง HTTP Status 400 (Bad Request) กลับมา โดยไม่อนุญาตให้บันทึกรายการอาหารที่มีจำนวนน้อยกว่า 1 (ศูนย์หรือติดลบ) ลงในฐานข้อมูล พร้อมแสดงข้อความแจ้งเตือนข้อผิดพลาดเกี่ยวกับการระบุจำนวน
 
 #### Actual Result
-> ✏️ 
+> ✏️ ระบบยอมรับคำสั่งซื้อและส่ง HTTP Status 200 (หรือ 201) กลับมา โดยบันทึกรายการอาหารที่มีจำนวนเป็นศูนย์หรือติดลบลงในฐานข้อมูล ซึ่งอาจนำไปคำนวณหักลบกับค่าอาหารรายการอื่น ทำให้ยอดรวมของบิล (Total Amount) ลดลงผิดปกติ
 
 #### Evidence
 
@@ -419,7 +423,7 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Business Impact
 > ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
-
+เปิดช่องโหว่ร้ายแรงให้เกิดการทุจริต (Fraud) พนักงานสามารถใส่จำนวนอาหารติดลบเพื่อลดยอดบิลรวมและนำเงินส่วนต่างเข้ากระเป๋าตัวเองได้ นอกจากนี้ยังทำให้ระบบคำนวณสต๊อกวัตถุดิบและรายงานสรุปยอดขายประจำวันผิดพลาด ส่งผลเสียต่อการทำบัญชีของร้านอาหารโดยตรง
 ---
 
 ## Deployment Guide
@@ -474,8 +478,8 @@ cd frontend && npm install && npm run dev
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
 |---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+| Backend API | 3001 | "http://localhost:5173" | — |
+| Frontend | 80 | — | /api |
 
 #### ผล Smoke Test — On-Premises
 
@@ -483,18 +487,21 @@ cd frontend && npm install && npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+<img width="1919" height="917" alt="image" src="https://github.com/user-attachments/assets/c7a899f9-e4bc-4fc5-9d9c-757d264a19de" />
+
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+<img width="1908" height="951" alt="image" src="https://github.com/user-attachments/assets/d358777f-6ff6-4ef1-9f73-074f7d9635ca" />
+
+<img width="1900" height="1033" alt="image" src="https://github.com/user-attachments/assets/3307a6ea-fdb0-4b52-85a2-cd779a988cb9" />
 
 ---
 
@@ -505,10 +512,10 @@ cd frontend && npm install && npm run dev
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขเสร็จแล้ว**
 
-- [ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [ ] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [ ] เพิ่ม Health Check สำหรับ backend service
-- [ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [✅] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
+- [✅] กำหนด Port Mapping: backend → 3001, frontend → 80
+- [✅] เพิ่ม Health Check สำหรับ backend service
+- [✅] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
 
 #### Environment Variables ที่ตั้งค่าจริงใน `docker-compose.yml` (Rubric 2.2 ข้อ 2)
 
@@ -516,11 +523,11 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
+| `DATABASE_URL` | backend | "postgresql://postgres:postgres@db:5432/rms_db" |
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `CORS_ORIGIN` | backend | "http://localhost:5173" |
+| `NODE_ENV` | backend | production |
+| `VITE_API_URL` | frontend | /api |
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
@@ -528,12 +535,14 @@ cd frontend && npm install && npm run dev
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
 |---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+| Backend | ✅ มี / ☐ ไม่มี | builder → runner |
+| Frontend | ✅ มี / ☐ ไม่มี | builder → runner |
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
-`![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)`
+<img width="1743" height="969" alt="image" src="https://github.com/user-attachments/assets/fdb551f6-982f-4608-8f3d-166df969f31c" />
+<img width="1472" height="961" alt="image" src="https://github.com/user-attachments/assets/32d15ce3-34bc-419c-9233-4ae118a4e16e" />
+
 
 #### Volume Mapping (Rubric 2.5 ข้อ 4)
 
@@ -541,7 +550,7 @@ cd frontend && npm install && npm run dev
 
 | Volume Name / Path | Host Path | Container Path | วัตถุประสงค์ |
 |-------------------|-----------|----------------|-------------|
-| | | | |
+| postgres_data | postgres_data (Named Volume) | /var/lib/postgresql/data | เพื่อเก็บรักษาข้อมูลของฐานข้อมูล (Data Persistence) ไม่ให้ข้อมูลสูญหายเมื่อ Container ถูกปิดหรือสร้างใหม่ |
 
 #### Network Configuration (Rubric 2.5 ข้อ 5)
 
@@ -549,7 +558,7 @@ cd frontend && npm install && npm run dev
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
 |-------------|--------|-------------------------------|
-| | | |
+| default | bridge | db, backend, frontend |
 
 #### คำสั่งรัน Staging
 
@@ -563,14 +572,15 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน Staging
 
 **รูปที่ 11 — `docker compose ps` แสดงทุก Container สถานะ `running`**
 
-`![Docker Compose PS](./tests/reports/staging-docker-ps.png)`
+<img width="1731" height="984" alt="image" src="https://github.com/user-attachments/assets/a6ee8d45-efa6-4655-bf7f-53d00e697fee" />
+
 
 ---
 
@@ -668,8 +678,8 @@ Build Command:  npm run build
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขและทดสอบ Pipeline สำเร็จแล้ว**
 
-- [ ] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [ ] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
+- [✅] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
+- [✅] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
 - [ ] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
 - [ ] เพิ่ม step ติดตั้งและรัน Newman
 - [ ] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
