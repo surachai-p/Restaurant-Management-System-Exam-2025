@@ -5,8 +5,8 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | นายศุภโชค หอมสมบัติ |
-| รหัสนักศึกษา | 68030282 |
+| ชื่อ-นามสกุล | [ชื่อ-นามสกุลนักศึกษา] |
+| รหัสนักศึกษา | [รหัสนักศึกษา] |
 | วันที่สอบ | 2026-05-28 |
 
 ---
@@ -20,7 +20,7 @@
 (Admin / Cashier / Waiter)
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`
-**Student Repository:** `https://github.com/poko56/Restaurant-Management-System-Exam-2025.git`
+**Student Repository:** `https://github.com/[github-username]/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -43,10 +43,10 @@
 
 | Service | URL | สถานะ |
 |---------|-----|-------|
-| Frontend (Vercel) | https://rms-68030282-op5kugill-poko56s-projects.vercel.app | ✅ Live |
-| Backend (Render) | https://rms-68030282-backend.onrender.com | ✅ Live |
-| API Health Check | https://rms-68030282-backend.onrender.com/api/health | ✅ `{"status":"ok"}` |
-| Database (Neon.tech) | `postgresql://***@ep-shy-water-aoxn6ksg.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require` | ✅ Connected (seeded) |
+| Frontend (Vercel) | https://rms-[รหัสนักศึกษา].vercel.app | ✅ Live |
+| Backend (Render) | https://rms-[รหัสนักศึกษา]-backend.onrender.com | ✅ Live |
+| API Health Check | https://rms-[รหัสนักศึกษา]-backend.onrender.com/api/health | ✅ `{"status":"ok"}` |
+| Database (Neon.tech) | `postgresql://***@ep-[xxx].[region].aws.neon.tech/neondb?sslmode=require` | ✅ Connected (seeded) |
 
 ---
 
@@ -414,7 +414,7 @@ router.put('/:id', authenticate, requireRole('admin'), async (req, res) => { /* 
 
 ```bash
 # Clone
-git clone https://github.com/poko56/Restaurant-Management-System-Exam-2025.git
+git clone https://github.com/[github-username]/Restaurant-Management-System-Exam-2025.git
 cd Restaurant-Management-System-Exam-2025
 
 # Backend
@@ -446,7 +446,7 @@ open http://localhost      # Frontend ผ่าน nginx
 > **ส่วนที่ 4.1 (8 คะแนน)** — ติดตั้งเครื่องตนเองเป็น On-Premises Server ตามแนวทาง CI-CD-SelfHost-Runner-LabSheet
 
 1. ติดตั้ง Node.js 22 LTS + Git บนเครื่อง (มีอยู่แล้ว: Node 22, Git)
-2. Clone repo: `git clone https://github.com/poko56/Restaurant-Management-System-Exam-2025.git`
+2. Clone repo: `git clone https://github.com/[github-username]/Restaurant-Management-System-Exam-2025.git`
 3. ตั้งค่า `backend/.env`:
    ```env
    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rms_db
@@ -522,7 +522,7 @@ HTTP/1.1 200 OK
 > **ส่วนที่ 5.1**
 
 1. ไปที่ https://console.neon.tech → Sign in ด้วย GitHub
-2. **Create Project** → ชื่อ `rms-68030282` → Region `Asia Pacific (Singapore)` → PostgreSQL **16**
+2. **Create Project** → ชื่อ `rms-[รหัสนักศึกษา]` → Region `Asia Pacific (Singapore)` → PostgreSQL **16**
 3. ในแท็บ Dashboard → Connection Details → คัดลอก Connection String รูปแบบ:
    ```
    postgresql://<user>:<password>@ep-xxxxx-xxxxx.ap-southeast-1.aws.neon.tech/rms_db?sslmode=require
@@ -535,9 +535,9 @@ HTTP/1.1 200 OK
 
 #### Backend บน Render.com
 
-1. Render Dashboard → **New +** → **Web Service** → Connect GitHub repo `poko56/Restaurant-Management-System-Exam-2025`
+1. Render Dashboard → **New +** → **Web Service** → Connect GitHub repo `[github-username]/Restaurant-Management-System-Exam-2025`
 2. ตั้งค่า:
-   - **Name:** `rms-68030282-backend`
+   - **Name:** `rms-[รหัสนักศึกษา]-backend`
    - **Region:** Singapore
    - **Branch:** `main`
    - **Root Directory:** `backend`
@@ -549,13 +549,13 @@ HTTP/1.1 200 OK
    |-----|-------|
    | `DATABASE_URL` | (ค่าจาก Neon ข้อ 5.1) |
    | `JWT_SECRET` | (สุ่ม 32 byte เช่น `openssl rand -hex 32`) |
-   | `CORS_ORIGIN` | `https://rms-68030282-op5kugill-poko56s-projects.vercel.app` |
+   | `CORS_ORIGIN` | `https://rms-[รหัสนักศึกษา].vercel.app` |
    | `NODE_ENV` | `production` |
-4. Create Web Service → รอ build เสร็จ → ตรวจ `https://rms-68030282-backend.onrender.com/api/health`
+4. Create Web Service → รอ build เสร็จ → ตรวจ `https://rms-[รหัสนักศึกษา]-backend.onrender.com/api/health`
 
 #### Frontend บน Vercel
 
-1. Vercel Dashboard → **Add New** → **Project** → Import `poko56/Restaurant-Management-System-Exam-2025`
+1. Vercel Dashboard → **Add New** → **Project** → Import `[github-username]/Restaurant-Management-System-Exam-2025`
 2. ตั้งค่า:
    - **Root Directory:** `frontend`
    - **Framework Preset:** Vite
@@ -564,8 +564,8 @@ HTTP/1.1 200 OK
 3. Environment Variable:
    | Key | Value |
    |-----|-------|
-   | `VITE_API_URL` | `https://rms-68030282-backend.onrender.com/api` |
-4. Deploy → ได้ URL เช่น `https://rms-68030282-op5kugill-poko56s-projects.vercel.app`
+   | `VITE_API_URL` | `https://rms-[รหัสนักศึกษา]-backend.onrender.com/api` |
+4. Deploy → ได้ URL เช่น `https://rms-[รหัสนักศึกษา].vercel.app`
 5. กลับไปที่ Render → อัปเดต `CORS_ORIGIN` ให้ตรงกับ URL จริงของ Vercel → Manual Deploy
 
 ### Environment Variables Table
@@ -574,10 +574,10 @@ HTTP/1.1 200 OK
 |----------|-----------|----------------|----------------------------|-------------|
 | `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/rms_db` | `postgresql://postgres:postgres@db:5432/rms_db` | (จาก Neon) `postgresql://...neon.tech/rms_db?sslmode=require` | Prisma connection string |
 | `JWT_SECRET` | `rms-dev-secret` | `rms-dev-secret-change-in-prod` | `openssl rand -hex 32` | ใช้ sign JWT (ต้องสุ่มและไม่แชร์) |
-| `CORS_ORIGIN` | `http://localhost:5173` | `http://localhost` | `https://rms-68030282-op5kugill-poko56s-projects.vercel.app` | Origin ที่อนุญาตเรียก API |
+| `CORS_ORIGIN` | `http://localhost:5173` | `http://localhost` | `https://rms-[รหัสนักศึกษา].vercel.app` | Origin ที่อนุญาตเรียก API |
 | `NODE_ENV` | `development` | `production` | `production` | Mode ของ Express |
 | `PORT` | `3001` | `3001` | (Render กำหนดให้อัตโนมัติ) | Backend port |
-| `VITE_API_URL` | `http://localhost:3001/api` | `/api` (proxy ผ่าน nginx) | `https://rms-68030282-backend.onrender.com/api` | Frontend → Backend URL |
+| `VITE_API_URL` | `http://localhost:3001/api` | `/api` (proxy ผ่าน nginx) | `https://rms-[รหัสนักศึกษา]-backend.onrender.com/api` | Frontend → Backend URL |
 
 ### Smoke Test Results
 
@@ -648,6 +648,6 @@ Push → checkout → setup Node 22
 
 ## สรุปการส่งงาน (สำหรับส่ง MS Teams)
 
-1. **GitHub Repository URL (Public):** `https://github.com/poko56/Restaurant-Management-System-Exam-2025`
-2. **Production Frontend URL:** https://rms-68030282-op5kugill-poko56s-projects.vercel.app/login
-3. **Production Backend URL (Health):** https://rms-68030282-backend.onrender.com/api/health
+1. **GitHub Repository URL (Public):** `https://github.com/[github-username]/Restaurant-Management-System-Exam-2025`
+2. **Production Frontend URL:** https://rms-[รหัสนักศึกษา].vercel.app/login
+3. **Production Backend URL (Health):** https://rms-[รหัสนักศึกษา]-backend.onrender.com/api/health
