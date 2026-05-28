@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** ภูบดินทร์ สัญโญ
+**รหัสนักศึกษา:** 68030404
+**วันที่สอบ:** 28/05/2569
 
 ---
 
@@ -45,13 +45,21 @@
 
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
+- [x] Authentication (Login/Logout, JWT)
+- [x] Menu Management (CRUD + Role-based access)
+- [x] Order Management (Open/Add Items/Confirm/Cancel)
+- [x] Payment Processing (Cash/Card/QR)
+- [x] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**Out of Scope:** 
+
+ระบบชำระเงินผ่าน payment gateway จริง
+ระบบแสดงผลในครัวแบบ real-time
+ระบบตัด stock วัตถุดิบ
+ระบบพิมพ์ใบเสร็จผ่านเครื่องพิมพ์จริง
+Mobile application
+ระบบหลายสาขา
+Offline mode
 
 ### Test Approach
 
@@ -67,8 +75,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   |Google Chrome / Microsoft Edge|
+| OS        |Windows 10/11|
 
 ### Entry/Exit Criteria
 
@@ -79,14 +87,23 @@
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
-
+|มีความเสี่ยง SQL Injection ในการค้นหาเมนู|ข้อมูลรั่วไหลหรือฐานข้อมูลถูกโจมตี| P1 |
+|ระบบยอมรับการชำระเงินที่จ่ายไม่ครบ|ร้านอาจสูญเสียรายได้ และรายงานยอดขายผิดพลาด| P1 |
+|โต๊ะเดียวสามารถเปิดออเดอร์ซ้ำได้|พนักงานสับสน เตรียมอาหารผิด และคิดเงินผิด| P1 |
+|ผู้ใช้ที่ไม่มีสิทธิ์สามารถแก้ไขราคาเมนูได้|ราคาอาหารผิด และเกิดความเสียหายทางการเงิน| P1 |
+|ทดสอบ start date เวลาเที่ยงคืน|ข้อมูลอาจถูกตัดออกเพราะฟิลเตอร์ วันที่รายงานอาจไม่ถูกต้อง| P2 |
 ---
+
 
 ## 🧪 Test Cases & Results
 
-<!-- ส่วนที่ 2 -->
+Total: 21
+
+Passed: 26 (หมายเหตุ: นับตามจำนวนหน่วย Assertions ย่อยที่สั่งรันจริงภายใน 21 Requests)
+
+Failed: 0
+
+Pass Rate: 100%
 
 ### Vitest Results
 ```
@@ -117,7 +134,30 @@ Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
 
 ## 🐛 Bug Reports
 
-<!-- ส่วนที่ 3 -->
+BUG-001: ระบบยอมรับการชำระเงินที่จ่ายไม่ครบ
+Severity: Critical
+
+Feature: Payment
+
+Endpoint: POST /api/payments
+Steps to Reproduce:
+
+Login ด้วยบัญชีสิทธิ์ cashier หรือ admin
+
+ทำการเปิดออเดอร์โต๊ะอาหารและเพิ่มรายการอาหารเข้าไป
+
+ทำการยืนยันออเดอร์ (Confirm Order)
+
+เรียกใช้งานฟังก์ชันชำระเงิน โดยระบุยอดคำสั่ง amountPaid ส่งเข้าไปน้อยกว่าราคายอดรวมจริง (Total)
+
+Expected / Actual Result:
+
+Expected: ระบบต้องแจ้งเตือนข้อผิดพลาด ส่งค่าสถานะกลับมาเป็น 400 Bad Request และไม่อนุญาตให้สร้างรายการบันทึกการชำระเงิน
+
+Actual: ระบบยอมรับยอดเงินที่จ่ายเข้ามา และบันทึกยอดเงินทอน (Change) ลงฐานข้อมูลเป็นค่าติดลบ
+
+Business Impact:
+ออเดอร์ถูกปิดสถานะว่าเป็นชำระเงินเสร็จสิ้น (Paid) ทั้งที่ลูกค้ายังจ่ายเงินไม่ครบ ส่งผลให้ร้านค้าสูญเสียรายได้จริง และทำให้ข้อมูลบนรายงานสรุปยอดขายรายวันเกิดความคลาดเคลื่อนผิดพลาด
 
 ## BUG-001: [ชื่อ Bug]
 
@@ -148,10 +188,10 @@ Docker Desktop (for local)
 
 ### Local Setup (Docker Compose)
 ```bash
-git clone https://github.com/YOUR_USERNAME/restaurant-management-system.git
+git clone https://github.com/phubodin-090649/Restaurant-Management-System-Exam-2025.git
 cd restaurant-management-system
 docker compose up --build
-# Frontend: http://localhost
+# Frontend: http://localhost:5173
 # Backend:  http://localhost:3001/api/health
 ```
 

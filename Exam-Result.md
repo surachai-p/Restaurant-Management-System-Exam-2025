@@ -1,9 +1,5 @@
 # รายงานผลการทดสอบระบบ Restaurant Management System (RMS)
 
-ชื่อ-นามสกุล:  ภูบดินทร์  สัญโญ
-รหัสนักศึกษา:  68030404
-วันที่สอบ   :  28/05/2569
-
 ## 1. Project Overview
 
 Restaurant Management System (RMS) เป็นระบบจัดการร้านอาหารแบบ Full-stack Web Application ใช้สำหรับจัดการงานหลักของร้านอาหาร เช่น การเข้าสู่ระบบ การจัดการเมนู การเปิดออเดอร์โต๊ะ การเพิ่มรายการอาหาร การยืนยันออเดอร์ การชำระเงิน และการดูรายงานยอดขาย
@@ -60,10 +56,10 @@ Restaurant Management System (RMS) เป็นระบบจัดการร
 
 | Service | URL | Status |
 |---|---|---|
-| Frontend | `https://YOUR-FRONTEND-URL.vercel.app` | Pending |
-| Backend API | `https://YOUR-BACKEND-URL.onrender.com` | Pending |
-| Health Check | `https://YOUR-BACKEND-URL.onrender.com/api/health` | Pending |
-| GitHub Repository | `https://github.com/YOUR_USERNAME/YOUR_REPOSITORY` | Pending |
+| Frontend | http://localhost:5173 | Pending |
+| Backend API | http://localhost:3001 | Pending |
+| Health Check | http://localhost:3001/api/health | Pending |
+| GitHub Repository |https://github.com/phubodin-090649/Restaurant-Management-System-Exam-2025.git | Pending |
 
 ### รูปหลักฐานการ Deploy
 
@@ -367,7 +363,7 @@ Restaurant Management System (RMS) เป็นระบบจัดการร
 ### Local Development Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+git clone https://github.com/phubodin-090649/Restaurant-Management-System-Exam-2025.git
 cd YOUR_REPOSITORY
 ```
 
@@ -511,8 +507,7 @@ docker compose up --build
 
 ### รูปหลักฐาน CI/CD
 
-```md
-![GitHub Actions Result](./tests/reports/github-actions-result.png)
+![alt text](image-6.png)
 ```
 
 ## 11. Newman Pass Rate
@@ -537,23 +532,21 @@ newman run tests/postman/RMS-TestSuite-v2.json \
 
 ### รูปหลักฐาน Newman
 
-```md
-![Newman Result](./tests/reports/newman-result.png)
-```
+![alt text](image-7.png)
 
 ## 12. Test Evidence Screenshots
 
-> รวมรูปหลักฐานหน้าจอที่ทำเสร็จแล้วไว้ในหัวข้อนี้ เพื่อให้อาจารย์ตรวจดูได้ง่าย
+> รวมรูปหลักฐานหน้าจอที่ทำเสร็จแล้ว
 
 ```md
-![Login Page](./tests/reports/login-page.png)
-![Dashboard Page](./tests/reports/dashboard-page.png)
-![Menu Page](./tests/reports/menu-page.png)
-![Orders Page](./tests/reports/orders-page.png)
-![Order Detail Page](./tests/reports/order-detail-page.png)
-![Payment Page](./tests/reports/payment-page.png)
-![Receipt Print](./tests/reports/receipt-print.png)
-![Reports Page](./tests/reports/reports-page.png)
+![Login Page]![alt text](image-16.png)
+![Dashboard Page]![alt text](image-15.png)
+![Menu Page]![alt text](image-14.png)
+![Orders Page]![alt text](image-13.png)
+![Order Detail Page]![alt text](image-11.png)
+![Payment Page]![alt text](image-12.png)
+![Receipt Print]![alt text](image-9.png)
+![Reports Page]![alt text](image-8.png)
 ```
 
 ## 13. Final Notes
