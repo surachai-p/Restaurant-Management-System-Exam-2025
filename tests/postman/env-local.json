@@ -1,10 +1,6 @@
 {
   "name": "RMS-Local-v2",
   "values": [
-    { "key": "base_url",      "value": "http://localhost:3001/api", "enabled": true },
-    { "key": "token",         "value": "", "enabled": true },
-    { "key": "admin_token",   "value": "", "enabled": true },
-    { "key": "cashier_token", "value": "", "enabled": true },
-    { "key": "waiter_token",  "value": "", "enabled": true }
+    { "key": "base_url", "value": "http://localhost:3001/api", "enabled": true }
   ]
 }
