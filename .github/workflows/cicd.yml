@@ -61,7 +61,7 @@ jobs:
         run: npm run dev &
         
       - name: Wait for API
-        run: sleep 15
+        run: sleep 30
 
       - name: Install Newman
         run: npm install -g newman
