@@ -6,6 +6,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # --- เพิ่ม 3 บรรทัดนี้เข้าไป ---
+    defaults:
+      run:
+        working-directory: ./backend
+    # ---------------------------
     steps:
       - uses: actions/checkout@v4
 
@@ -17,20 +22,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Newman
-        run: npm install -g newman
-
-      - name: Start Backend Server
-        # ใช้ & เพื่อให้รันเป็น background และทำ step ต่อไปได้ทันที
-        run: npm start &
+      - name: Start Backend
+        run: npm start & 
 
       - name: Wait for Server
-        # ป้องกัน ECONNREFUSED โดยการรอให้ Server ตื่นจริงๆ ก่อน
         run: npx wait-on http://localhost:3001 --timeout 60000
 
       - name: Run Newman API Tests
-        # ไม่มี continue-on-error แล้ว เพื่อให้รายงานผลตามจริง
+        # ตรงนี้ต้องแก้ path ไฟล์ json ให้ย้อนกลับไปหาโฟลเดอร์ tests ที่อยู่ข้างนอกด้วย
         run: |
-          newman run tests/postman/RMS-68030298-TestSuite-v2.json \
-          -e tests/postman/env-ci.json \
+          newman run ../tests/postman/RMS-68030298-TestSuite-v2.json \
+          -e ../tests/postman/env-ci.json \
           --reporters cli
