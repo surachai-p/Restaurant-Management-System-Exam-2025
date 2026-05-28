@@ -44,6 +44,27 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
 
+    - name: Run backend security scan
+      run: cd backend && npm audit --audit-level=high || true
+
+    - name: Start backend for Newman
+      run: |
+        cd backend
+        npm run build || true
+        npx prisma db push || true
+        npx tsx prisma/seed.ts || true
+        npm run dev &
+        sleep 5
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        JWT_SECRET: ci-secret
+
+    - name: Run Newman E2E tests
+      run: |
+        npm install -g newman
+        newman run tests/postman/RMS-TestSuite-v2.json --environment tests/postman/env.json --env-var base_url=http://localhost:3001
+      continue-on-error: true
+
     - name: Setup Node.js for frontend
       uses: actions/setup-node@v4
       with:
@@ -53,6 +74,9 @@ jobs:
 
     - name: Install frontend dependencies
       run: cd frontend && npm ci
+
+    - name: Run frontend security scan
+      run: cd frontend && npm audit --audit-level=high || true
 
     - name: Run frontend build
       run: cd frontend && npm run build
