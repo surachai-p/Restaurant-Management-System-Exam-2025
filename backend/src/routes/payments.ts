@@ -40,14 +40,14 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ✅ [FIXED] BUG-001: ตรวจสอบยอดเงินที่จ่าย ต้องไม่น้อยกว่ายอดรวม
-    if (paid < totalAmount) { 
-      res.status(400).json({ error: 'Insufficient payment amount' }); 
-      return 
+    // --- ส่วนที่แก้ไขเพื่อแก้ BUG-001 ---
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' });
+      return
     }
 
-    // เมื่อตรวจสอบผ่านแล้ว เงินทอนจะเป็น 0 หรือบวกเสมอ
     const change = paid - totalAmount
+    // -------------------------------
 
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
