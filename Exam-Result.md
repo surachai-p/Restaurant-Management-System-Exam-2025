@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล |นาย ณภัทร รัศมี |
+| รหัสนักศึกษา |68030079 |
+| วันที่สอบ |28/5/2569 |
 
 ---
 
@@ -18,7 +18,7 @@
 ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**✏️ Student Repository:** `https://github.com/[แทนที่ด้วยรหัสนักศึกษาของตนเอง]/Restaurant-Management-System-Exam-2025.git`
+**✏️ Student Repository:** `https://github.com/shl35/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) | https://restaurant-management-system-exam-2-drab.vercel.app/| ☐ |
+| Backend (Render) | https://rms-backend-68030079.onrender.com| ☐ |
+| API Health Check (`/api/health`) | https://rms-backend-68030079.onrender.com/api/health| ☐ |
+| Database (Neon.tech connection string) |postgresql://neondb_owner:************@ep-shiny-glade-aoqyto38.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require | ☐ |
 
 ---
 
