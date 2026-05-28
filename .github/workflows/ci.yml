@@ -1,5 +1,6 @@
 steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -8,18 +9,17 @@ steps:
       - name: Install dependencies
         run: npm install
 
-      - name: Prepare Database & Environment
-        # สร้าง .env จำลอง และเตรียม Prisma ให้พร้อมก่อนรัน
+      - name: Prepare Database and Build
         run: |
           echo "DATABASE_URL=file:./dev.db" > .env
           npx prisma generate
+          npx prisma db push
+          npm run build
 
       - name: Start Backend
-        # ใช้คำสั่งที่มั่นใจว่า server จะรันขึ้นมาจริงๆ
         run: npm start & 
 
       - name: Wait for Server
-        # เพิ่มเวลาเป็น 2 นาที (120000ms) เผื่อเครื่อง GitHub รันช้า
         run: npx wait-on http://localhost:3001 --timeout 120000
 
       - name: Run Newman API Tests

@@ -1,43 +1,29 @@
-{
-  "name": "rms-backend",
-  "version": "1.0.0",
-  "description": "Restaurant Management System — Backend API (TypeScript + Prisma)",
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "scripts": {
-    "dev": "tsx watch src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.js",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "test": "vitest run --reporter=verbose",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.14.0",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^22.0.0",
-    "@types/supertest": "^6.0.2",
-    "@vitest/coverage-v8": "^4.1.5",
-    "prisma": "^5.14.0",
-    "supertest": "^7.0.0",
-    "tsx": "^4.15.0",
-    "typescript": "^5.4.5",
-    "vitest": "^4.1.5"
-  }
-}
+steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prepare Database and Build
+        run: |
+          echo "DATABASE_URL=file:./dev.db" > .env
+          npx prisma generate
+          npx prisma db push
+          npm run build
+
+      - name: Start Backend
+        run: npm start & 
+
+      - name: Wait for Server
+        run: npx wait-on http://localhost:3001 --timeout 120000
+
+      - name: Run Newman API Tests
+        run: |
+          newman run ../tests/postman/RMS-68030298-TestSuite-v2.json \
+          -e ../tests/postman/env-ci.json \
+          --reporters cli
