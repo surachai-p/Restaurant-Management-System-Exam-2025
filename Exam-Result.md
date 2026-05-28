@@ -41,14 +41,12 @@
 
 ## Production URLs
 
-> ⚠️ URL ด้านล่างต้องกรอกหลัง Deploy เสร็จ — ผมยังไม่สามารถ Deploy แทนได้
-
 | Service | URL | สถานะ |
 |---------|-----|-------|
-| Frontend (Vercel) | https://rms-68030282.vercel.app | ☐ (รอ deploy) |
-| Backend (Render) | https://rms-68030282.onrender.com | ☐ (รอ deploy) |
-| API Health Check | https://rms-68030282.onrender.com/api/health | ☐ (รอ deploy) |
-| Database (Neon.tech) | `postgresql://...@ep-xxx.neon.tech/rms_db?sslmode=require` | ☐ (รอตั้งค่า) |
+| Frontend (Vercel) | https://rms-68030282-op5kugill-poko56s-projects.vercel.app | ✅ Live |
+| Backend (Render) | https://rms-68030282-backend.onrender.com | ✅ Live |
+| API Health Check | https://rms-68030282-backend.onrender.com/api/health | ✅ `{"status":"ok"}` |
+| Database (Neon.tech) | `postgresql://***@ep-shy-water-aoxn6ksg.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require` | ✅ Connected (seeded) |
 
 ---
 
@@ -551,9 +549,9 @@ HTTP/1.1 200 OK
    |-----|-------|
    | `DATABASE_URL` | (ค่าจาก Neon ข้อ 5.1) |
    | `JWT_SECRET` | (สุ่ม 32 byte เช่น `openssl rand -hex 32`) |
-   | `CORS_ORIGIN` | `https://rms-68030282.vercel.app` |
+   | `CORS_ORIGIN` | `https://rms-68030282-op5kugill-poko56s-projects.vercel.app` |
    | `NODE_ENV` | `production` |
-4. Create Web Service → รอ build เสร็จ → ตรวจ `https://rms-68030282.onrender.com/api/health`
+4. Create Web Service → รอ build เสร็จ → ตรวจ `https://rms-68030282-backend.onrender.com/api/health`
 
 #### Frontend บน Vercel
 
@@ -566,8 +564,8 @@ HTTP/1.1 200 OK
 3. Environment Variable:
    | Key | Value |
    |-----|-------|
-   | `VITE_API_URL` | `https://rms-68030282.onrender.com/api` |
-4. Deploy → ได้ URL เช่น `https://rms-68030282.vercel.app`
+   | `VITE_API_URL` | `https://rms-68030282-backend.onrender.com/api` |
+4. Deploy → ได้ URL เช่น `https://rms-68030282-op5kugill-poko56s-projects.vercel.app`
 5. กลับไปที่ Render → อัปเดต `CORS_ORIGIN` ให้ตรงกับ URL จริงของ Vercel → Manual Deploy
 
 ### Environment Variables Table
@@ -576,10 +574,10 @@ HTTP/1.1 200 OK
 |----------|-----------|----------------|----------------------------|-------------|
 | `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/rms_db` | `postgresql://postgres:postgres@db:5432/rms_db` | (จาก Neon) `postgresql://...neon.tech/rms_db?sslmode=require` | Prisma connection string |
 | `JWT_SECRET` | `rms-dev-secret` | `rms-dev-secret-change-in-prod` | `openssl rand -hex 32` | ใช้ sign JWT (ต้องสุ่มและไม่แชร์) |
-| `CORS_ORIGIN` | `http://localhost:5173` | `http://localhost` | `https://rms-68030282.vercel.app` | Origin ที่อนุญาตเรียก API |
+| `CORS_ORIGIN` | `http://localhost:5173` | `http://localhost` | `https://rms-68030282-op5kugill-poko56s-projects.vercel.app` | Origin ที่อนุญาตเรียก API |
 | `NODE_ENV` | `development` | `production` | `production` | Mode ของ Express |
 | `PORT` | `3001` | `3001` | (Render กำหนดให้อัตโนมัติ) | Backend port |
-| `VITE_API_URL` | `http://localhost:3001/api` | `/api` (proxy ผ่าน nginx) | `https://rms-68030282.onrender.com/api` | Frontend → Backend URL |
+| `VITE_API_URL` | `http://localhost:3001/api` | `/api` (proxy ผ่าน nginx) | `https://rms-68030282-backend.onrender.com/api` | Frontend → Backend URL |
 
 ### Smoke Test Results
 
@@ -587,10 +585,10 @@ HTTP/1.1 200 OK
 
 | # | Feature | ขั้นตอน | ผลคาดหวัง | ผล Staging (Docker) | ผล Production |
 |---|---------|---------|-----------|---------------------|---------------|
-| 1 | Health Check | `GET /api/health` | `{"status":"ok"}` | ✅ Pass | ☐ รอ deploy |
-| 2 | Login | Login `admin / Admin@123` บน Frontend | ได้ JWT + redirect dashboard | ✅ Pass | ☐ รอ deploy |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่ม Pad Thai → Confirm | Order status = confirmed | ✅ Pass | ☐ รอ deploy |
-| 4 | Payment (BUG!) | ชำระเงินจ่ายไม่ครบ → สังเกต change ติดลบ | ควรเป็น 400 — แต่ปัจจุบันได้ 201 + change=-N | ❌ ยืนยัน BUG-001 | ☐ รอ deploy |
+| 1 | Health Check | `GET /api/health` | `{"status":"ok"}` | ✅ Pass | ✅ Pass — Render ตอบ `{"status":"ok","version":"2.0.0"}` |
+| 2 | Login | Login `admin / Admin@123` บน Frontend | ได้ JWT + redirect dashboard | ✅ Pass | ✅ Pass (ดู `screenshots/prod-login.png`) |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่ม Pad Thai → Confirm | Order status = confirmed | ✅ Pass | ✅ Pass (ดู `screenshots/prod-order.png`) |
+| 4 | Payment (BUG!) | ชำระเงินจ่ายไม่ครบ → สังเกต change ติดลบ | ควรเป็น 400 — แต่ปัจจุบันได้ 201 + change=-N | ❌ ยืนยัน BUG-001 | ❌ ยืนยัน BUG-001 บน Production ด้วย (ดู `screenshots/prod-payment-bug.png`) |
 
 **หลักฐานที่ต้องแนบ (หลัง Deploy เสร็จ):**
 - `screenshots/prod-health.png` — `/api/health` บน Render
@@ -651,5 +649,5 @@ Push → checkout → setup Node 22
 ## สรุปการส่งงาน (สำหรับส่ง MS Teams)
 
 1. **GitHub Repository URL (Public):** `https://github.com/poko56/Restaurant-Management-System-Exam-2025`
-2. **Production Frontend URL:** `https://rms-68030282.vercel.app` *(ใส่ URL จริงหลัง deploy)*
-3. **Production Backend URL (Health):** `https://rms-68030282.onrender.com/api/health` *(ใส่ URL จริงหลัง deploy)*
+2. **Production Frontend URL:** https://rms-68030282-op5kugill-poko56s-projects.vercel.app/login
+3. **Production Backend URL (Health):** https://rms-68030282-backend.onrender.com/api/health
