@@ -1,44 +1,27 @@
-version: '3.9'
+version: '3.8'
+
+networks:
+  rms-network:
+    driver: bridge
 
 services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: rms-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: rms_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: rms-backend
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      PORT: 3001
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     ports:
       - "3001:3001"
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://neondb_owner:npg_dKkBrflL9GT8@ep-proud-pine-app92wnm-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - JWT_SECRET=SuperSecretKey123!
+      - CORS_ORIGIN=http://localhost:80
+    networks:
+      - rms-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
-      interval: 15s
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 10s
       timeout: 5s
       retries: 3
 
@@ -46,15 +29,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_API_URL: /api
-    container_name: rms-frontend
-    restart: unless-stopped
     ports:
       - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    networks:
+      - rms-network
     depends_on:
       backend:
         condition: service_healthy
-
-volumes:
-  # postgres_data:

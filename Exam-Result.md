@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล |นางสาวอธิชนัน ประวันจะ |
+| รหัสนักศึกษา |68030310 |
+| วันที่สอบ |28/5/2569 |
 
 ---
 
@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) |https://restaurant-management-system-exam-2-ebon.vercel.app/login | ✅ |
+| Backend (Render) |https://restaurant-management-system-exam-2025-8lmw.onrender.com | ✅ |
+| API Health Check (`/api/health`) | https://restaurant-management-system-exam-2025-8lmw.onrender.com/api/heaith| ✅ |
+| Database (Neon.tech connection string) |postgresql://neondb_owner:npg_dKkBrflL9GT8@ep-proud-pine-app92wnm-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require |✅ |
 
 ---
 
@@ -60,20 +60,21 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth | เพื่อตรวจสอบความถูกต้องและระบบความปลอดภัยในการเข้าสู่ระบบ (Login), การสมัครสมาชิก (Register) และการจัดการสิทธิ์การเข้าถึง (RBAC) ของพนักงานแต่ละตำแหน่ง|
+| Menu |เพื่อให้มั่นใจว่าการจัดการข้อมูลเมนูอาหาร เครื่องอาหาร ราคา และสถานะสต็อกสินค้าสามารถเพิ่ม ลบ แก้ไข และแสดงผลได้อย่างถูกต้องเรียลไทม์ |
+| Order | เพื่อทดสอบความถูกต้องของกระบวนการสั่งอาหาร (POS) การคำนวณราคาสุทธิ การตัดสต็อกสินค้า และการส่งข้อมูลออเดอร์ไปยังห้องครัวอย่างแม่นยำ|
+| Payment | เพื่อตรวจสอบความถูกต้องในการคำนวณยอดเงิน การคิดส่วนลดสมาชิก ภาษี (VAT) รวมถึงความเสถียรในการบันทึกรูปแบบการชำระเงินประเภทต่างๆ|
+| Report | เพื่อตรวจสอบความถูกต้องของรายงานยอดขาย สรุปรายรับ และข้อมูลสถิติที่ดึงมาจากฐานข้อมูลว่ามีความแม่นยำเพื่อนำไปใช้ในการบริหาร|
+| Security | เพื่อป้องกันช่องโหว่พื้นฐานของระบบ (เช่น SQL Injection, XSS) ป้องกันการสวมรอย Token และตรวจสอบความปลอดภัยของ API Endpoint ทั้งหมด|
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
-| | |
+| Third-party Payment Gateway Integration|ระบบยังใช้การทดสอบแบบจำลองสถานะชำระเงินภายใน (Mock Payment) ไม่ได้เชื่อมต่อกับโปรแกรมภายนอกหรือระบบธนาคารจริง |
+|Performance / Load Testing |การทดสอบรอบนี้เน้นไปที่ความถูกต้องของฟังก์ชันการทำงาน (Functional Testing) เป็นหลัก ยังไม่ได้จำลองการรองรับผู้ใช้งานจำนวนมากพร้อมกัน |
+| Hardware Compatibility (Receipt Printer/Cash Drawer)|ไม่ได้ทำการทดสอบการเชื่อมต่อกับอุปกรณ์ฮาร์ดแวร์ภายนอก เช่น เครื่องพิมพ์ใบเสร็จ หรือลิ้นชักเก็บเงินในระบบ POS จริง |
 
 ---
 
@@ -83,11 +84,11 @@
 
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest |ใช้เขียน Test Case เพื่อทดสอบฟังก์ชันการทำงานย่อยๆ ในระดับ Source Code และ Business Logic ของ Backend (Node.js/Express) เพื่อให้มั่นใจว่า logic ทำงานถูกต้อง |
+| API Testing (E2E) | Postman / Newman |ใช้เขียนสคริปต์ทดสอบ API Endpoint ทั้งหมดแบบ End-to-End (E2E) ตั้งแต่การยิง Request, ตรวจสอบ Response Status Code, และโครงสร้าง JSON Data ที่ตอบกลับมา |
+| Security Testing | npm audit |ใช้ในการสแกนหาช่องโหว่ความปลอดภัย (Vulnerabilities) ของ Dependencies หรือ Third-party packages ต่างๆ ที่นำมาใช้ร่วมกับโปรแกรม |
+| Smoke Testing | Manual | ทำการทดสอบด้วยมืออย่างรวดเร็ว (Manual Test) หลังจากการติดตั้งระบบใหม่ เพื่อตรวจสอบว่าฟังก์ชันหลักที่สำคัญที่สุด (เช่น Login, สั่งออเดอร์) สามารถเปิดใช้งานได้โดยไม่พัง|
+| Staging Test | Docker Compose |ใช้สำหรับจำลองสภาพแวดล้อมที่ใกล้เคียงกับ Production จริง โดยรวมบริการของ Backend และ Database เอาไว้ด้วยกัน เพื่อทดสอบระบบในภาพรวมก่อน Deploy |
 
 ---
 
@@ -97,32 +98,32 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS |Windows 11 |
+| Node.js |v24.14.0 |
+| npm |11.9.0 |
+| Docker | Docker version 29.2.1, build a5c7197|
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser |Version 148.0.7778.216 (Official Build) (64-bit) |
+| Newman | 6.2.2|
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [x] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [x] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ _100__% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ _0__ รายการ |
+| Smoke Test บน Production ผ่าน | __4_ / 4 Feature |
 
 ---
 
@@ -133,9 +134,9 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 |Auth & Role-Based Access |หากเกิดความผิดพลาดในระบบสิทธิ์ พนักงานทั่วไปอาจเข้าถึงข้อมูลหลังบ้าน หรือสามารถเข้าไปแก้ไขยอดขาย ลบเมนูอาหาร และดูรายงานรายได้ของร้านโดยไม่ได้รับอนุญาต | High|
+| 2 |Payment | หากระบบคำนวณเงินผิดพลาด ส่วนลดไม่ทำงาน หรือบันทึกยอดเงินไม่ตรง จะส่งผลให้บัญชีร้านค้าเสียหาย เกิดการทุจริต หรือทำให้ลูกค้าสูญเสียความเชื่อมั่นอย่างรุนแรง| Critical|
+| 3 | Order & POS System|หากระบบล่ม พนักงานจะไม่สามารถรับออเดอร์หรือส่งรายการอาหารเข้าครัวได้ ทำให้การบริการหยุดชะงัก ลูกค้ารอนาน และเสียโอกาสในการสร้างรายได้ทันที | Critical|
 
 ---
 
@@ -149,17 +150,17 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token |HTTP 200 พร้อมได้รับ Access Token สำเร็จ |✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized |HTTP 401 ปฏิเสธการเข้าสู่ระบบตามคาด | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized |HTTP 401 ป้องกันสิทธิ์บุคคลภายนอกสำเร็จ | ✅|
 | TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-005 | Positive |Menu |ดึงข้อมูลเมนูอาหารทั้งหมด | | | | ☐ |
+| TC-006 | Positive |Order |สร้างออเดอร์ใหม่สำเร็จ || | | ☐ |
+| TC-007 | Negative |Menu |เพิ่มเมนูใหม่แต่ใส่ข้อมูลไม่ครบ || | | ☐ |
+| TC-008 | Negative | Order|สั่งอาหารในเมนูที่ไม่มีอยู่จริง || | | ☐ |
+| TC-009 | Security |Auth | พนักงานทั่วไป (Staff) พยายามดึงรายงานสรุปยอดขายของร้าน| | | | ☐ |
+| TC-010 | Security |Menu |ทดสอบยิงอักขระพิเศษเพื่อทำ SQL Injection ในช่องค้นหาเมนู | | | | ☐ |
+| TC-011 | Edge |Menu |อัปเดตจำนวนสินค้าในสต็อกจนเหลือ 0 (สินค้าหมด) | | | | ☐ |
 
 **✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
 
@@ -174,7 +175,7 @@
 
 #### ชื่อ Collection และไฟล์ที่ Export
 
-**✏️ แทนที่ `[รหัสนักศึกษา]` ด้วยรหัสจริง**
+**✏️ แทนที่ `68030310` ด้วยรหัสจริง**
 
 | รายการ | ค่าจริง |
 |--------|--------|
@@ -191,7 +192,7 @@
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
 |----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
+| `{{base_url}}` |https://restaurant-management-system-exam-2025-8lmw.onrender.com | Base URL ของ Backend API |
 | `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
 | `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
 
@@ -308,21 +309,21 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0|
+| High | 0|
+| Medium |0 |
+| Low |0 |
+| **รวม** | 0|
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
 |---------|--------|----------|--------------------|--------------------|--------------| 
-| | | | | | |
+|ไม่มีช่องโหว่ | | | | | |
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+`![alt text](image.png)`
 
 ---
 
@@ -336,19 +337,19 @@ cd frontend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0|
+| High |1 |
+| Medium |2 |
+| Low | 0|
+| **รวม** |3 |
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+`![alt text](image-1.png)`
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
-**✏️ ยืนยันว่าได้เพิ่ม `npm audit --audit-level=high` ใน `.github/workflows/cicd.yml` แล้ว:** ☐ ใช่
+**✏️ ยืนยันว่าได้เพิ่ม `npm audit --audit-level=high` ใน `.github/workflows/cicd.yml` แล้ว:** ✅ใช่
 
 **รูปที่ 7 — GitHub Actions แสดง npm audit step รันสำเร็จ**
 
