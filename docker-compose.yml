@@ -28,9 +28,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgres://postgres:postgres@db:5432/rms_db
+      DATABASE_URL: postgresql://rms_db_ten0_user:9jaLH9RIPnauUcLvJdvo4rC2RlQQPZZk@dpg-d8cnmmp9rddc73dei8rg-a/rms_db_ten0
       JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app/}
     ports:
       - "3001:3001"
     depends_on:
@@ -48,7 +48,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /api
+        VITE_API_URL: https://rms-backend-um90.onrender.com
     container_name: rms-frontend
     restart: unless-stopped
     ports:
