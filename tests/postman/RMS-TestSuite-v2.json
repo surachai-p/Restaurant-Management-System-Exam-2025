@@ -44,8 +44,8 @@
             "pm.test('TC-002: returns JWT token', () => {",
             "  const b = pm.response.json();",
             "  pm.expect(b.token).to.be.a('string').and.not.empty;",
-            "  pm.collectionVariables.set('admin_token', b.token);",
-            "  pm.collectionVariables.set('token', b.token);",
+            "  pm.environment.set('admin_token', b.token);",
+            "  pm.environment.set('token', b.token);",
             "});"
           ]}}]
         },
@@ -58,7 +58,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-003: cashier login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
+            "pm.environment.set('cashier_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -70,7 +70,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-004: waiter login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('waiter_token', pm.response.json().token);"
+            "pm.environment.set('waiter_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -117,14 +117,14 @@
             "pm.test('TC-008: get menu 200', () => pm.response.to.have.status(200));",
             "pm.test('TC-008: returns array', () => pm.expect(pm.response.json()).to.be.an('array'));",
             "const items = pm.response.json();",
-            "if (items.length > 0) pm.collectionVariables.set('menu_item_id', items[0].id);"
+            "if (items.length > 0) pm.environment.set('menu_item_id', items[0].id);"
           ]}}]
         },
         {
           "name": "TC-009 Search Menu (Positive)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=Pad+Thai", "query": [{ "key": "search", "value": "Pad Thai" }] },
+            "url": "{{base_url}}/menu?search=Pad+Thai",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -138,7 +138,7 @@
           "name": "TC-010 SQL Injection in Search (Security - BUG-003)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271", "query": [{ "key": "search", "value": "' OR '1'='1" }] },
+            "url": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -214,7 +214,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-014: create order → 201', () => pm.response.to.have.status(201));",
-            "pm.collectionVariables.set('order_id', pm.response.json().id);"
+            "pm.environment.set('order_id', pm.response.json().id);"
           ]}}]
         },
         {
@@ -279,6 +279,22 @@
       "name": "Payment",
       "item": [
         {
+          "name": "TC-020 Underpayment (BUG-001)",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/payments",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"orderId\": {{order_id}}, \"amountPaid\": 1, \"method\": \"cash\"}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
+            "  pm.response.to.have.status(400);",
+            "});"
+          ]}}]
+        },
+        {
           "name": "TC-019 Exact Payment (Positive)",
           "request": {
             "method": "POST", "url": "{{base_url}}/payments",
@@ -292,22 +308,6 @@
             "pm.test('TC-019: payment → 201', () => pm.response.to.have.status(201));",
             "pm.test('TC-019: change is non-negative', () => {",
             "  pm.expect(pm.response.json().change).to.be.above(-1);",
-            "});"
-          ]}}]
-        },
-        {
-          "name": "TC-020 Underpayment (BUG-001)",
-          "request": {
-            "method": "POST", "url": "{{base_url}}/payments",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
-              { "key": "Content-Type",   "value": "application/json" }
-            ],
-            "body": { "mode": "raw", "raw": "{\"orderId\": 9999, \"amountPaid\": 1, \"method\": \"cash\"}" }
-          },
-          "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
-            "  pm.response.to.have.status(400);",
             "});"
           ]}}]
         },
