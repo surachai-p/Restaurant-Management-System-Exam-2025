@@ -43,7 +43,7 @@
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
 | Frontend (Vercel) | https://rms-2025.vercel.app | / |
-| Backend (Render) | https://restaurant-management-system-exam-2025-r1cw.onrender.com | / |
+| Backend (Render) |https://restaurant-management-system-exam-2025-r1cw.onrender.com/api/health | / |
 | API Health Check (`/api/health`) | https://rms-2025.vercel.app/api/health | / |
 | Database (Neon.tech connection string) | postgresql://neondb_owner:npg_uN98ROlCFHqE@ep-cool-fog-aoi1f7fv-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require | / |
 
