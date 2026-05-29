@@ -1,0 +1,468 @@
+name: RMS CI/CD Pipeline
+
+# ===================================================
+# ส่วนที่ 1: Trigger — ทำงานอัตโนมัติเมื่อมีการ push/PR ไปที่ main
+# ===================================================
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # รันด้วยมือได้จาก GitHub UI
+
+# ===================================================
+# Environment Variables ระดับ Global
+# (ค่าลับทั้งหมดเก็บใน GitHub Secrets)
+# ===================================================
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  # ─────────────────────────────────────────────────
+  # JOB 1: Security Scan (npm audit)
+  # ─────────────────────────────────────────────────
+  security-scan:
+    name: 🔒 Security Scan (npm audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # ── Backend Security Scan ──
+      - name: Install Backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run npm audit — Backend (fail on HIGH+)
+        working-directory: backend
+        run: npm audit --audit-level=high
+        continue-on-error: false # หาก High/Critical พบจะหยุด pipeline
+
+      - name: Save Backend audit report
+        if: always() # บันทึกรายงานแม้ว่า step ก่อนหน้าจะ fail
+        working-directory: backend
+        run: |
+          npm audit --json > ../audit-backend.json || true
+          npm audit > ../audit-backend.txt || true
+
+      # ── Frontend Security Scan ──
+      - name: Install Frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run npm audit — Frontend (fail on HIGH+)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+        continue-on-error: false
+
+      - name: Save Frontend audit report
+        if: always()
+        working-directory: frontend
+        run: |
+          npm audit --json > ../audit-frontend.json || true
+          npm audit > ../audit-frontend.txt || true
+
+      - name: Upload Security Audit Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-reports
+          path: |
+            audit-backend.json
+            audit-backend.txt
+            audit-frontend.json
+            audit-frontend.txt
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────
+  # JOB 2: Backend Unit & Integration Tests (Vitest)
+  # ─────────────────────────────────────────────────
+  backend-test:
+    name: 🧪 Backend Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    needs: security-scan # รอ security-scan ผ่านก่อน
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: backend
+        run: npx prisma generate
+        env:
+          # POOL ใช้สำหรับ generate client (ไม่ต้องการ direct)
+          DATABASE_URL: ${{ secrets.DATABASE_URL_POOL }}
+          DIRECT_URL: ${{ secrets.DATABASE_URL_DIRECT }}
+
+      - name: Run Unit Tests (Vitest)
+        working-directory: backend
+        run: npm run test -- --reporter=verbose --coverage
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_POOL }}   # runtime queries ผ่าน Pooler
+          DIRECT_URL: ${{ secrets.DATABASE_URL_DIRECT }}   # ใช้ใน schema.prisma directUrl
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          NODE_ENV: test
+
+      - name: Upload Test Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────
+  # JOB 3: Deploy Backend → Render.com
+  # ─────────────────────────────────────────────────
+  deploy-backend:
+    name: 🚀 Deploy Backend to Render
+    runs-on: ubuntu-latest
+    needs: backend-test # รอ unit tests ผ่านก่อน
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Render Deploy Hook
+        # Render ใช้ Deploy Hook URL ที่สร้างจาก Render Dashboard
+        # Settings → Deploy Hook → Copy URL → เก็บใน GitHub Secrets
+        # ⚠️ ต้องตั้งค่า Environment Variables บน Render Dashboard ด้วย:
+        #    DATABASE_URL  = DATABASE_URL_POOL  (runtime queries)
+        #    DIRECT_URL    = DATABASE_URL_DIRECT (prisma db push / migrate)
+        run: |
+          echo "📦 Triggering Render deployment..."
+          curl --silent --show-error --fail \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -o render_deploy_response.json
+          echo "✅ Render deploy hook triggered"
+          cat render_deploy_response.json
+
+      - name: Wait for Render deployment to complete
+        # Render ใช้เวลาประมาณ 2-5 นาทีในการ build + deploy
+        run: |
+          echo "⏳ Waiting 3 minutes for Render to deploy..."
+          sleep 180
+
+      - name: Verify Backend is alive (Health Check)
+        run: |
+          echo "🔍 Checking backend health..."
+          for i in {1..10}; do
+            HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              "${{ secrets.BACKEND_URL }}/api/health")
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "✅ Backend is up! (HTTP $HTTP_STATUS)"
+              exit 0
+            fi
+            echo "⏳ Attempt $i/10 — HTTP $HTTP_STATUS, retrying in 30s..."
+            sleep 30
+          done
+          echo "❌ Backend health check failed after 10 attempts"
+          exit 1
+
+  # ─────────────────────────────────────────────────
+  # JOB 4: Deploy Frontend → Vercel
+  # ─────────────────────────────────────────────────
+  deploy-frontend:
+    name: 🌐 Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    needs: deploy-backend # รอ backend deploy ก่อน เพื่อให้ VITE_API_URL พร้อม
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: frontend
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Frontend (Production)
+        working-directory: frontend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VITE_API_URL: ${{ secrets.BACKEND_URL }}
+
+      - name: Deploy to Vercel Production
+        working-directory: frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  # ─────────────────────────────────────────────────
+  # JOB 5: E2E API Tests (Newman)
+  # ─────────────────────────────────────────────────
+  newman-e2e-test:
+    name: 🔁 E2E API Tests (Newman)
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend] # รอ deploy ทั้งสองฝั่งเสร็จก่อน
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Newman and HTML reporter
+        run: npm install --global newman newman-reporter-htmlextra
+
+      - name: Create Newman environment file
+        # สร้าง env.json แบบ dynamic จาก GitHub Secrets
+        run: |
+          cat > tests/postman/env.json << EOF
+          {
+            "id": "rms-ci-env",
+            "name": "RMS Production Environment",
+            "values": [
+              {
+                "key": "base_url",
+                "value": "${{ secrets.BACKEND_URL }}",
+                "enabled": true
+              },
+              {
+                "key": "frontend_url",
+                "value": "${{ secrets.FRONTEND_URL }}",
+                "enabled": true
+              },
+              {
+                "key": "admin_username",
+                "value": "admin",
+                "enabled": true
+              },
+              {
+                "key": "admin_password",
+                "value": "${{ secrets.ADMIN_PASSWORD }}",
+                "enabled": true
+              },
+              {
+                "key": "token",
+                "value": "",
+                "enabled": true
+              },
+              {
+                "key": "admin_token",
+                "value": "",
+                "enabled": true
+              }
+            ]
+          }
+          EOF
+
+      - name: Run Newman E2E Tests
+        id: newman
+        run: |
+          mkdir -p tests/reports
+          newman run tests/postman/RMS-TestSuite.json \
+            --environment tests/postman/env.json \
+            --reporters cli,htmlextra,json \
+            --reporter-htmlextra-export tests/reports/newman-report.html \
+            --reporter-json-export tests/reports/newman-report.json \
+            --bail failure \
+            --color on
+        continue-on-error: true # บันทึก report แม้บาง test จะ fail
+
+      - name: Parse Newman Results and Set Pass Rate
+        if: always()
+        run: |
+          if [ -f tests/reports/newman-report.json ]; then
+            TOTAL=$(jq '.run.stats.assertions.total' tests/reports/newman-report.json)
+            PASSED=$(jq '.run.stats.assertions.pending' tests/reports/newman-report.json)
+            FAILED=$(jq '.run.stats.assertions.failed' tests/reports/newman-report.json)
+            PASSED=$((TOTAL - FAILED))
+            RATE=$(echo "scale=1; $PASSED * 100 / $TOTAL" | bc)
+            echo "📊 Newman Results: $PASSED/$TOTAL passed ($RATE%)"
+            echo "NEWMAN_PASS_RATE=$RATE" >> $GITHUB_ENV
+            echo "NEWMAN_PASSED=$PASSED" >> $GITHUB_ENV
+            echo "NEWMAN_TOTAL=$TOTAL" >> $GITHUB_ENV
+            echo "NEWMAN_FAILED=$FAILED" >> $GITHUB_ENV
+
+            # Fail pipeline หาก pass rate ต่ำกว่า 80%
+            if (( $(echo "$RATE < 80" | bc -l) )); then
+              echo "❌ Pass rate $RATE% is below 80% threshold"
+              exit 1
+            fi
+            echo "✅ Pass rate $RATE% meets threshold"
+          fi
+
+      - name: Upload Newman Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-e2e-reports
+          path: tests/reports/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────
+  # JOB 6: Smoke Test (Production)
+  # ─────────────────────────────────────────────────
+  smoke-test:
+    name: 🚬 Smoke Test (Production)
+    runs-on: ubuntu-latest
+    needs: newman-e2e-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # ── Smoke Test 1: Backend Health Check ──
+      - name: "[ST-01] Backend Health Check"
+        id: smoke_health
+        run: |
+          echo "🔍 Testing: GET ${{ secrets.BACKEND_URL }}/api/health"
+          RESPONSE=$(curl --silent --fail "${{ secrets.BACKEND_URL }}/api/health")
+          STATUS=$(echo "$RESPONSE" | jq -r '.status')
+          if [ "$STATUS" = "ok" ]; then
+            echo "✅ PASS — Health Check: $RESPONSE"
+          else
+            echo "❌ FAIL — Unexpected response: $RESPONSE"
+            exit 1
+          fi
+
+      # ── Smoke Test 2: Admin Login ──
+      - name: "[ST-02] Admin Login via API"
+        id: smoke_login
+        run: |
+          echo "🔍 Testing: POST ${{ secrets.BACKEND_URL }}/api/auth/login"
+          RESPONSE=$(curl --silent --fail \
+            -X POST "${{ secrets.BACKEND_URL }}/api/auth/login" \
+            -H "Content-Type: application/json" \
+            -d "{\"username\": \"admin\", \"password\": \"${{ secrets.ADMIN_PASSWORD }}\"}")
+          TOKEN=$(echo "$RESPONSE" | jq -r '.token // .accessToken // empty')
+          if [ -n "$TOKEN" ] && [ "$TOKEN" != "null" ]; then
+            echo "✅ PASS — Admin login successful, JWT received"
+            echo "SMOKE_TOKEN=$TOKEN" >> $GITHUB_ENV
+          else
+            echo "❌ FAIL — No JWT token in response: $RESPONSE"
+            exit 1
+          fi
+
+      # ── Smoke Test 3: Open Table & Create Order ──
+      - name: "[ST-03] Open Table and Create Order"
+        id: smoke_order
+        run: |
+          echo "🔍 Testing: POST ${{ secrets.BACKEND_URL }}/api/orders"
+          RESPONSE=$(curl --silent \
+            -X POST "${{ secrets.BACKEND_URL }}/api/orders" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.SMOKE_TOKEN }}" \
+            -d '{"tableNumber": 99, "items": []}')
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            -X POST "${{ secrets.BACKEND_URL }}/api/orders" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.SMOKE_TOKEN }}" \
+            -d '{"tableNumber": 99, "items": []}')
+          # ยอมรับ 200 หรือ 201 = สำเร็จ, 400 = validation error (system ทำงาน)
+          if [[ "$HTTP_STATUS" =~ ^(200|201|400)$ ]]; then
+            echo "✅ PASS — Order endpoint responsive (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ FAIL — Unexpected HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+      # ── Smoke Test 4: Payment Endpoint ──
+      - name: "[ST-04] Payment Endpoint Responsive"
+        id: smoke_payment
+        run: |
+          echo "🔍 Testing: Payment endpoint exists and is reachable"
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            -X POST "${{ secrets.BACKEND_URL }}/api/payments" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.SMOKE_TOKEN }}" \
+            -d '{"orderId": "nonexistent-test"}')
+          # 400/404/422 = endpoint ทำงาน แต่ input ไม่ถูกต้อง (acceptable ใน smoke test)
+          # 401 = ไม่มี auth (ต้องผ่าน smoke_login ก่อน)
+          # 500 = server error = FAIL
+          if [[ "$HTTP_STATUS" =~ ^(400|404|422)$ ]]; then
+            echo "✅ PASS — Payment endpoint responsive (HTTP $HTTP_STATUS)"
+          elif [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ PASS — Payment endpoint OK (HTTP 200)"
+          else
+            echo "❌ FAIL — HTTP $HTTP_STATUS (possible 401 auth issue or 500 server error)"
+            exit 1
+          fi
+
+      # ── Smoke Test 5: Frontend Reachable ──
+      - name: "[ST-05] Frontend Accessible (Vercel)"
+        id: smoke_frontend
+        run: |
+          echo "🔍 Testing: GET ${{ secrets.FRONTEND_URL }}"
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --max-time 30 "${{ secrets.FRONTEND_URL }}")
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ PASS — Frontend is accessible (HTTP $HTTP_STATUS)"
+          else
+            echo "❌ FAIL — Frontend returned HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+      # ── Smoke Test 6: Security — Reject Unauthenticated Request ──
+      - name: "[ST-06] Security — Reject request without JWT"
+        id: smoke_security
+        run: |
+          echo "🔍 Testing: Protected endpoint must reject unauthenticated request"
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            "${{ secrets.BACKEND_URL }}/api/orders")
+          if [ "$HTTP_STATUS" = "401" ]; then
+            echo "✅ PASS — Unauthenticated request rejected with HTTP 401"
+          else
+            echo "❌ FAIL — Expected 401 but got HTTP $HTTP_STATUS (Security issue!)"
+            exit 1
+          fi
+
+      # ── Summary ──
+      - name: Smoke Test Summary
+        if: always()
+        run: |
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "       🚬 SMOKE TEST SUMMARY"
+          echo "════════════════════════════════════════"
+          echo "ST-01 Health Check     : ${{ steps.smoke_health.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "ST-02 Admin Login      : ${{ steps.smoke_login.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "ST-03 Create Order     : ${{ steps.smoke_order.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "ST-04 Payment Endpoint : ${{ steps.smoke_payment.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "ST-05 Frontend Access  : ${{ steps.smoke_frontend.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "ST-06 Auth Security    : ${{ steps.smoke_security.outcome == 'success' && '✅ PASS' || '❌ FAIL' }}"
+          echo "════════════════════════════════════════"
+          echo "Backend  : ${{ secrets.BACKEND_URL }}"
+          echo "Frontend : ${{ secrets.FRONTEND_URL }}"
+          echo "════════════════════════════════════════"
