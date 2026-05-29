@@ -15,7 +15,7 @@ services:
         sync: false # Set in Render dashboard
       - key: CORS_ORIGIN
         sync: false # Set to your frontend URL
-    healthCheckPath: /api/health
+    # healthCheckPath: /api/health
     disk:
       name: prisma-cache
       mountPath: /app/prisma
