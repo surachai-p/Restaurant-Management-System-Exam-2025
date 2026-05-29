@@ -28,7 +28,7 @@ app.get('/api/health', (_req, res) =>
 const PORT = Number(process.env.PORT) || 3001
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`RMS API v2 running on port ${PORT}`))
+  app.listen(PORT,'0.0.0.0', () => console.log(`RMS API v2 running on port ${PORT}`))
 }
 
 export default app

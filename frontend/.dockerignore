@@ -1,0 +1,7 @@
+# โฟลเดอร์ที่ไม่ต้องการให้ก๊อปปี้เข้าไป
+node_modules
+dist
+.git
+.env
+.vscode
+coverage

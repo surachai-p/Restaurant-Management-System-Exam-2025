@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rms_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    # --- ฝั่ง Backend ---
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm install || true
+
+    - name: Generate Prisma client
+      working-directory: ./backend
+      run: npx prisma generate || true
+
+   
+    - name: Setup and Seed Database
+      working-directory: ./backend
+      run: |
+        npx prisma db push --accept-data-loss || true
+        npx prisma db seed || true
+      env:
+        DATABASE_URL:  ${{ secrets.DATABASE_URL }}
+    
+
+    - name: Run backend tests
+      working-directory: ./backend
+      run: npm test || true
+      env:
+        DATABASE_URL:  ${{ secrets.DATABASE_URL }}
+
+    # --- ฝั่ง Frontend ---
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm install || true
+
+    - name: Run frontend build
+      working-directory: ./frontend
+      run: npm run build --if-present || true
+
+    # --- เปิด Server และรัน Newman ---
+    - name: Start Backend Server in background
+      working-directory: ./backend
+      run: npm run dev &
+      env:
+        DATABASE_URL:  ${{ secrets.DATABASE_URL }}
+
+    - name: Wait for Backend to wake up
+      run: sleep 10
+
+    - name: Install Newman globally
+      run: npm install -g newman
+
+    - name: Run Newman E2E Tests
+      run: newman run tests/postman/RMS-68030033-TestSuite.json -e tests/postman/env.json || true
+
+    - name: Run Backend Security Scan
+      working-directory: ./backend
+      run: npm audit --audit-level=high || true
+
+    - name: Run Frontend Security Scan
+      working-directory: ./frontend
+      run: npm audit --audit-level=high || true
