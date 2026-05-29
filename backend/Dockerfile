@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd 
 
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci --only=production && npx prisma generate
+RUN npm ci --only=production && npx prisma@5 generate
 
 FROM node:22-slim AS builder
 WORKDIR /app

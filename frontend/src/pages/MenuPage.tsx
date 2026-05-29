@@ -29,7 +29,7 @@ export default function MenuPage() {
       const params: Record<string, string> = {}
       if (search) params.search = search
       if (cat)    params.category = cat
-      const { data } = await api.get<MenuItem[]>('/menu', { params })
+      const { data } = await api.get<MenuItem[]>('/api/menu', { params })
       setItems(data)
     } catch { setMsg({ type: 'error', text: 'Failed to load menu' }) }
     setLoading(false)
@@ -49,10 +49,10 @@ export default function MenuPage() {
     e.preventDefault()
     try {
       if (editing) {
-        await api.put(`/menu/${editing.id}`, form)
+        await api.put(`/api/menu/${editing.id}`, form)
         setMsg({ type: 'success', text: 'Menu item updated' })
       } else {
-        await api.post('/menu', form)
+        await api.post('/api/menu', form)
         setMsg({ type: 'success', text: 'Menu item added' })
       }
       setShowForm(false); load()
@@ -64,7 +64,7 @@ export default function MenuPage() {
 
   const handleDisable = async (id: number) => {
     if (!confirm('Disable this item?')) return
-    try { await api.delete(`/menu/${id}`); load() }
+    try { await api.delete(`/api/menu/${id}`); load() }
     catch { setMsg({ type: 'error', text: 'Failed to disable item' }) }
   }
 

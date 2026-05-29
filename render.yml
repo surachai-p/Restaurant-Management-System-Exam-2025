@@ -14,7 +14,8 @@ services:
       - key: JWT_SECRET
         sync: false # Set in Render dashboard
       - key: CORS_ORIGIN
-        sync: false # Set to your frontend URL
+        value: https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app,http://localhost:5173
+        sync: false # Multiple origins separated by comma
     healthCheckPath: /api/health
     disk:
       name: prisma-cache

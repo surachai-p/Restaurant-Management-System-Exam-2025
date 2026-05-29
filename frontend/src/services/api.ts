@@ -1,11 +1,20 @@
 /// <reference types="vite/client" />
-/// <reference types="vite/client" />
 // src/services/api.ts
 import axios from 'axios'
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+// เช็กให้ชัวร์ว่าถ้าตัวแปรเป็นค่าว่าง หรือไม่ได้ตั้งไว้ ให้ถอยไปใช้ลิงก์ Render แทน
+const getBaseURL = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl;
+  }
+  // เปลี่ยนเป็น URL หลังบ้านบน Render ของคุณ
+  return 'https://rms-backend-um90.onrender.com/api';
+}
 
-const api = axios.create({ baseURL: BASE })
+const api = axios.create({ 
+  baseURL: getBaseURL() 
+})
 
 api.interceptors.request.use(cfg => {
   const token = localStorage.getItem('rms_token')

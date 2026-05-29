@@ -20,8 +20,8 @@ export default function OrdersPage() {
   const load = async () => {
     setLoading(true)
     const [o, t] = await Promise.all([
-      api.get<Order[]>(`/orders${statusFilter ? `?status=${statusFilter}` : ''}`),
-      api.get<RestaurantTable[]>('/orders/tables'),
+      api.get<Order[]>(`/api/orders${statusFilter ? `?status=${statusFilter}` : ''}`),
+      api.get<RestaurantTable[]>('/api/orders/tables'),
     ])
     setOrders(o.data); setTables(t.data); setLoading(false)
   }
@@ -31,7 +31,7 @@ export default function OrdersPage() {
   const handleNewOrder = async () => {
     if (!newTableId) { setErrMsg('Please select a table'); return }
     try {
-      const { data } = await api.post<Order>('/orders', { tableId: Number(newTableId) })
+      const { data } = await api.post<Order>('/api/orders', { tableId: Number(newTableId) })
       navigate(`/orders/${data.id}`)
     } catch (err) {
       const e = err as AxiosError<{ error: string }>

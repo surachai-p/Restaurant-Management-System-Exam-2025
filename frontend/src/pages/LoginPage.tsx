@@ -1,5 +1,5 @@
 // src/pages/LoginPage.tsx
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import type { AxiosError } from 'axios'
@@ -12,7 +12,11 @@ export default function LoginPage() {
   const { login, user } = useAuth()
   const navigate = useNavigate()
 
-  if (user) { navigate('/'); return null }
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
