@@ -1,0 +1,125 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cicd-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rms_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d rms_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+      JWT_SECRET: rms-ci-secret
+      CORS_ORIGIN: http://localhost:5173
+      VITE_API_URL: /api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Audit backend dependencies
+        working-directory: backend
+        run: npm audit --audit-level=high
+
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Generate Prisma client
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Apply database schema
+        working-directory: backend
+        run: npx prisma db push --skip-generate
+
+      - name: Seed database
+        working-directory: backend
+        run: npx tsx prisma/seed.ts
+
+      - name: Run backend unit tests
+        working-directory: backend
+        run: npm test
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Install Newman
+        run: npm install --global newman
+
+      - name: Start backend API
+        working-directory: backend
+        run: |
+          npm run build
+          NODE_ENV=production npm start &
+          echo $! > backend.pid
+
+      - name: Wait for backend healthcheck
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost:3001/api/health > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          curl --verbose http://localhost:3001/api/health
+          exit 1
+
+      - name: Run Newman collection tests
+        run: >-
+          newman run tests/postman/RMS-TestSuite-v2.json
+          --environment tests/postman/env-ci.json
+          --env-var baseUrl=http://localhost:3001/api
+          --reporters cli

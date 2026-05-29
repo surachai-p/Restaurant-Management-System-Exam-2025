@@ -56,8 +56,7 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 })
 
-// POST /api/orders — open new order
-// ⚠️ BUG-002 [Double Booking]: No check for existing open order on same table
+// POST /api/orders - open new order
 router.post('/', authenticate, async (req, res) => {
   try {
     const { tableId, note } = req.body as { tableId?: number; note?: string }
@@ -66,9 +65,12 @@ router.post('/', authenticate, async (req, res) => {
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
 
-    // ⚠️ BUG-002: Missing duplicate check — allows two orders on same table
-    // Fix: const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
-    //      if (existing) { res.status(409).json({ error: 'Table already has an open order' }); return }
+    const existing = await prisma.order.findFirst({
+      where: { tableId, status: 'open' },
+    })
+    if (existing) {
+      res.status(409).json({ error: 'Table already has an open order' }); return
+    }
 
     const [order] = await prisma.$transaction([
       prisma.order.create({
@@ -107,9 +109,8 @@ router.post('/:id/items', authenticate, async (req, res) => {
       include: { menuItem: true },
     })
 
-    // Recalculate total
     const allItems = await prisma.orderItem.findMany({ where: { orderId } })
-    const total = allItems.reduce((s: number, i: {subtotal: any}) => s + Number(i.subtotal), 0)
+    const total = allItems.reduce((s: number, i: { subtotal: any }) => s + Number(i.subtotal), 0)
     await prisma.order.update({ where: { id: orderId }, data: { totalAmount: total } })
 
     res.status(201).json({ item, totalAmount: total })
@@ -131,7 +132,7 @@ router.delete('/:id/items/:itemId', authenticate, async (req, res) => {
     await prisma.orderItem.deleteMany({ where: { id: itemId, orderId } })
 
     const allItems = await prisma.orderItem.findMany({ where: { orderId } })
-    const total = allItems.reduce((s: number, i: {subtotal: any}) => s + Number(i.subtotal), 0)
+    const total = allItems.reduce((s: number, i: { subtotal: any }) => s + Number(i.subtotal), 0)
     await prisma.order.update({ where: { id: orderId }, data: { totalAmount: total } })
 
     res.json({ message: 'Item removed', totalAmount: total })

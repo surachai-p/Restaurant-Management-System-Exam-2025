@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import MenuPage from './pages/MenuPage'
 import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
+import PaymentQueuePage from './pages/PaymentQueuePage'
 import PaymentPage from './pages/PaymentPage'
 import ReportsPage from './pages/ReportsPage'
 import type { Role } from './types'
@@ -22,7 +23,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
     </div>
@@ -39,6 +40,13 @@ export default function App() {
           <Route path="/menu" element={<Layout><PrivateRoute><MenuPage /></PrivateRoute></Layout>} />
           <Route path="/orders" element={<Layout><PrivateRoute><OrdersPage /></PrivateRoute></Layout>} />
           <Route path="/orders/:id" element={<Layout><PrivateRoute><OrderDetailPage /></PrivateRoute></Layout>} />
+          <Route path="/payment" element={
+            <Layout>
+              <PrivateRoute roles={['admin', 'cashier']}>
+                <PaymentQueuePage />
+              </PrivateRoute>
+            </Layout>
+          } />
           <Route path="/payment/:orderId" element={<Layout><PrivateRoute><PaymentPage /></PrivateRoute></Layout>} />
           <Route path="/reports" element={
             <Layout>

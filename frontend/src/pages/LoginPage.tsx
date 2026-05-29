@@ -30,7 +30,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
       <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🍽️</div>
           <h1 className="text-2xl font-bold text-gray-900">RMS</h1>
           <p className="text-sm text-gray-500 mt-1">Restaurant Management System</p>
         </div>
@@ -56,7 +55,7 @@ export default function LoginPage() {
           </div>
           <button type="submit" disabled={loading}
             className="w-full btn-primary justify-center py-2.5 text-base mt-2">
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

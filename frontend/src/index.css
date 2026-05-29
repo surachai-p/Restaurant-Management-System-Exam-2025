@@ -11,8 +11,8 @@
   .btn        { @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm transition-opacity disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700; }
   .btn-success { @apply btn bg-green-600 text-white hover:bg-green-700; }
-  .btn-danger  { @apply btn bg-red-500  text-white hover:bg-red-600; }
-  .btn-warning { @apply btn bg-amber-500 text-white hover:bg-amber-600; }
+  .btn-danger  { @apply btn bg-red-500 text-white hover:bg-red-600; }
+  .btn-warning { @apply btn bg-amber-600 text-white hover:bg-amber-700; }
   .btn-ghost   { @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200; }
   .btn-sm      { @apply btn px-2.5 py-1 text-xs; }
 
@@ -31,4 +31,34 @@
   .badge-admin     { @apply badge bg-pink-100 text-pink-800; }
   .badge-cashier   { @apply badge bg-indigo-100 text-indigo-800; }
   .badge-waiter    { @apply badge bg-cyan-100 text-cyan-800; }
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+
+  .receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 420px;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 24px !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
 }

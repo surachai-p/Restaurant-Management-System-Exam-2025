@@ -1,23 +1,26 @@
-version: '3.9'
+name: rms
 
 services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: rms-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: rms_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  db:
+    image: postgres:16-alpine
+    container_name: rms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rms_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - rms-network
 
   backend:
     build:
@@ -28,33 +31,44 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/rms_db}
+      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-key-change-in-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     ports:
       - "3001:3001"
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 30s
+    networks:
+      - rms-network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: /api
+        VITE_API_URL: ${VITE_API_URL:-/api}
     container_name: rms-frontend
     restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-/api}
     ports:
       - "80:80"
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - rms-network
 
 volumes:
-  # postgres_data:
+  postgres_data:
+
+networks:
+  rms-network:
+    driver: bridge

@@ -83,11 +83,10 @@ export default function MenuPage() {
         }`}>{msg.text}</div>
       )}
 
-      {/* Filter bar */}
       <div className="card py-3">
         <div className="flex gap-2 flex-wrap items-center">
           <input className="input flex-1 min-w-40" value={search}
-            onChange={e => setSearch(e.target.value)} placeholder="Search menu…"
+            onChange={e => setSearch(e.target.value)} placeholder="Search menu..."
             onKeyDown={e => e.key === 'Enter' && load()} />
           <select className="input w-40" value={cat} onChange={e => setCat(e.target.value as Category | '')}>
             <option value="">All categories</option>
@@ -97,7 +96,6 @@ export default function MenuPage() {
         </div>
       </div>
 
-      {/* Add/Edit form */}
       {showForm && (
         <div className="card border-2 border-blue-200">
           <h2 className="text-lg font-semibold mb-4">{editing ? 'Edit Item' : 'Add New Item'}</h2>
@@ -132,9 +130,8 @@ export default function MenuPage() {
         </div>
       )}
 
-      {/* Menu grid */}
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Loading…</div>
+        <div className="text-center py-20 text-gray-400">Loading...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => (
@@ -143,7 +140,7 @@ export default function MenuPage() {
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${catColors[item.category]}`}>
                   {item.category}
                 </span>
-                <span className="text-lg font-bold text-green-600">฿{Number(item.price).toFixed(2)}</span>
+                <span className="text-lg font-bold text-green-600">THB {Number(item.price).toFixed(2)}</span>
               </div>
               <p className="font-semibold text-gray-900">{item.name}</p>
               {item.description && <p className="text-xs text-gray-500 mt-1">{item.description}</p>}

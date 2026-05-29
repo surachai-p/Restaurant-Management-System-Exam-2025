@@ -9,12 +9,13 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gray-900 text-white h-14 flex items-center px-6 shadow-lg">
-      <span className="text-lg font-bold tracking-wide mr-8">🍽️ RMS</span>
+      <span className="text-lg font-bold tracking-wide mr-8">RMS</span>
       <div className="flex gap-1 flex-1">
         {[
           { to: '/', label: 'Dashboard', end: true },
           { to: '/menu', label: 'Menu', end: false },
           { to: '/orders', label: 'Orders', end: false },
+          ...(user?.role !== 'waiter' ? [{ to: '/payment', label: 'Payment', end: true }] : []),
           ...(user?.role !== 'waiter' ? [{ to: '/reports', label: 'Reports', end: false }] : []),
         ].map(({ to, label, end }) => (
           <NavLink key={to} to={to} end={end}
