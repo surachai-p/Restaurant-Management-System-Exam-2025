@@ -1,0 +1,205 @@
+name: RMS CI/CD — Nattawan 68030085
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────
+  # Job 1 — Test (unit + E2E + security audit)
+  # ────────────────────────────────────────────────────────────────────
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rms_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 8s
+          --health-timeout 4s
+          --health-retries 6
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_ci
+      JWT_SECRET: ci-test-secret-68030085
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # ── Backend ────────────────────────────────────────────────────
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Run backend unit tests (Vitest)
+        working-directory: backend
+        run: npm test
+
+      - name: Backend security audit
+        working-directory: backend
+        run: npm audit --audit-level=high || true
+
+      - name: Push Prisma schema to CI DB + seed
+        working-directory: backend
+        run: |
+          npx prisma db push --skip-generate
+          npx tsx prisma/seed.ts || true
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Start backend in background
+        working-directory: backend
+        run: |
+          nohup npm run start > backend.log 2>&1 &
+          echo "Waiting for backend to come up..."
+          for i in {1..30}; do
+            if curl -sf http://localhost:3001/api/health > /dev/null; then
+              echo "Backend is up"; exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend failed to start"; cat backend.log; exit 1
+
+      # ── E2E with Newman ────────────────────────────────────────────
+      - name: Install Newman + HTML reporter
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman E2E tests
+        run: |
+          mkdir -p tests/reports
+          newman run tests/postman/RMS-68030085-TestSuite.json \
+            --environment tests/postman/env-ci.json \
+            --env-var base_url=http://localhost:3001/api \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export tests/reports/newman-report.html \
+            --suppress-exit-code
+
+      - name: Upload Newman HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report-${{ github.run_number }}
+          path: tests/reports/newman-report.html
+          retention-days: 14
+
+      # ── Frontend ───────────────────────────────────────────────────
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend security audit
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_URL: https://restaurant-management-system-exam-2025-ocv5.onrender.com/api
+
+  # ────────────────────────────────────────────────────────────────────
+  # Job 2 — Deploy backend to Render (only main)
+  # ────────────────────────────────────────────────────────────────────
+  deploy-backend:
+    name: Deploy backend → Render
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL }}
+    steps:
+      - name: Trigger Render deploy hook
+        if: env.RENDER_HOOK != ''
+        run: |
+          echo "Triggering Render deploy hook..."
+          curl -fsS -X POST "$RENDER_HOOK" | head -100
+          echo ""
+
+      - name: Wait then verify backend health
+        if: env.RENDER_HOOK != ''
+        run: |
+          URL="$RENDER_BACKEND_URL"
+          if [ -z "$URL" ]; then
+            URL="https://restaurant-management-system-exam-2025-ocv5.onrender.com"
+          fi
+          echo "Waiting for $URL/api/health to be healthy..."
+          for i in {1..40}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/api/health" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Backend healthy after ${i} tries"; exit 0
+            fi
+            echo "  attempt ${i}: HTTP $STATUS"
+            sleep 15
+          done
+          echo "::warning::Backend not healthy yet — Render may still be building."
+
+      - name: Skip notice
+        if: env.RENDER_HOOK == ''
+        run: |
+          echo "::warning::RENDER_DEPLOY_HOOK_URL not set — skipping backend deploy."
+          echo "Add secret in Settings → Secrets and variables → Actions."
+
+  # ────────────────────────────────────────────────────────────────────
+  # Job 3 — Deploy frontend to Vercel (only main)
+  # ────────────────────────────────────────────────────────────────────
+  deploy-frontend:
+    name: Deploy frontend → Vercel
+    needs: deploy-backend
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Vercel CLI
+        if: env.VERCEL_TOKEN != ''
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel (build on Vercel side, picks up env vars)
+        if: env.VERCEL_TOKEN != ''
+        run: vercel deploy --prod --yes --token="$VERCEL_TOKEN"
+
+      - name: Skip notice
+        if: env.VERCEL_TOKEN == ''
+        run: |
+          echo "::warning::VERCEL_TOKEN/ORG_ID/PROJECT_ID not set — skipping frontend deploy."

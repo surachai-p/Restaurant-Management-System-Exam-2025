@@ -3,6 +3,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import prisma from './lib/prisma'
+import { ensureDatabaseConstraints } from './lib/bootstrap'
 
 import authRoutes    from './routes/auth'
 import menuRoutes    from './routes/menu'
@@ -28,7 +29,8 @@ app.get('/api/health', (_req, res) =>
 const PORT = Number(process.env.PORT) || 3001
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`RMS API v2 running on port ${PORT}`))
+  ensureDatabaseConstraints()
+    .finally(() => app.listen(PORT, () => console.log(`RMS API v2 running on port ${PORT}`)))
 }
 
 export default app

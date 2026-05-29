@@ -1,60 +1,124 @@
-version: '3.9'
+# docker-compose.yml — RMS Staging stack
+# Author: Nattawan (68030085)
+#
+# Layout differs from the stock template:
+#  - explicit named network `rms-net` (bridge) instead of the default
+#  - one-shot `db-migrate` init service that runs `prisma db push` + seed
+#    BEFORE the backend boots; backend depends on its successful completion
+#  - per-service resource caps (mem_limit / cpus) for predictable staging
+#  - tmpfs for /tmp on stateless services
+#  - .env-driven secrets with sane defaults for local boot
+
+name: rms-stack-68030085
+
+networks:
+  rms-net:
+    driver: bridge
+
+volumes:
+  pg_data:
+    name: rms_pg_data_68030085
+
+x-common-env: &common-env
+  TZ: Asia/Bangkok
+  NODE_ENV: production
 
 services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: rms-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: rms_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  # ---- 1. PostgreSQL ----------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: rms-db-68030085
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      POSTGRES_DB: rms_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    # NOTE: ไม่ expose port 5432 ออก host เพื่อหลีกเลี่ยงชนกับ Postgres
+    # ที่ติดตั้งในเครื่อง dev อยู่แล้ว — backend เข้าผ่าน rms-net ได้ปกติ
+    expose:
+      - "5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks: [rms-net]
+    mem_limit: 512m
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rms_db"]
+      interval: 8s
+      timeout: 4s
+      retries: 6
+      start_period: 10s
 
+  # ---- 2. One-shot DB migrate + seed (NEW init container) ---------------
+  db-migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rms-migrate-68030085
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/rms_db
+    command: >
+      sh -c "npx prisma db push --skip-generate &&
+             npx tsx prisma/seed.ts || true"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [rms-net]
+    restart: "no"
+
+  # ---- 3. Backend (Express + Prisma) ------------------------------------
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: rms-backend
+    container_name: rms-backend-68030085
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      <<: *common-env
       PORT: 3001
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/rms_db
+      JWT_SECRET: ${JWT_SECRET:-rms-staging-secret-change-me}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:80}
     ports:
       - "3001:3001"
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+    depends_on:
+      db:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
+    networks: [rms-net]
+    mem_limit: 384m
+    cpus: 1.0
+    tmpfs:
+      - /tmp:size=64m
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 4
+      start_period: 25s
 
+  # ---- 4. Frontend (Vite build served by nginx) -------------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_API_URL: /api
-    container_name: rms-frontend
+    container_name: rms-frontend-68030085
     restart: unless-stopped
     ports:
-      - "80:80"
+      # NOTE: ใช้ host port 8080 เพื่อหลีกเลี่ยงชนกับ web server อื่น
+      # ในเครื่อง dev (IIS / Apache) — container ยังฟัง port 80 ภายใน
+      - "8080:80"
     depends_on:
       backend:
         condition: service_healthy
-
-volumes:
-  # postgres_data:
+    networks: [rms-net]
+    mem_limit: 128m
+    cpus: 0.5
+    tmpfs:
+      - /tmp:size=32m
+      - /var/cache/nginx:size=32m

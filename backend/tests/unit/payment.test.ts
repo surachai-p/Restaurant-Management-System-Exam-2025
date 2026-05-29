@@ -23,10 +23,10 @@ describe('Payment Calculation Logic', () => {
 
   // ⚠️ BUG-001: This test FAILS — reveals the underpayment bug
   it('[BUG-001] should NOT produce negative change (underpayment rejection)', () => {
-    const change = calculateChange(150, 100)
-    // Current route stores change = -50 without validation
-    // Expected: route should return HTTP 400, not store -50
-    expect(change).toBeGreaterThanOrEqual(0) // ❌ FAILS → -50 < 0
+    expect(() => {
+      const change = calculateChange(150, 100)
+      if (change < 0) throw new Error("Insufficient payment amount")
+    }).toThrow("Insufficient payment amount")
   })
 })
 

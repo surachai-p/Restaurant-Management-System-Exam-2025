@@ -1,95 +1,100 @@
 // src/routes/menu.ts
+// BUG-003 (SQL Injection on search) + BUG-004 (RBAC bypass on PUT) —
+// rewritten by Nattawan (68030085).
+//
+// BUG-003 original fix style: keep $queryRaw but use tagged templates.
+// This version: remove raw SQL entirely. The search now uses
+// prisma.menuItem.findMany with `contains` + `mode: 'insensitive'` —
+// no raw SQL string ever touches the database driver, eliminating the
+// attack surface rather than just sanitising it.
+//
+// BUG-004 original fix style: add inline `requireRole('admin')`.
+// This version: data-driven `can('menu:update')` middleware reading
+// from a central permission matrix (lib/permissions.ts), so future
+// permission changes are one line in a table — not scattered greps.
+
 import { Router } from 'express'
-import { Category } from '@prisma/client'
+import { Category, Prisma } from '@prisma/client'
 import prisma from '../lib/prisma'
-import { authenticate, requireRole } from '../middleware/auth'
+import { authenticate } from '../middleware/auth'
+import { can } from '../middleware/rbac'
+import { sendError } from '../lib/errors'
 
 const router = Router()
 
-// GET /api/menu  — list / search
-// ⚠️ BUG-003 [SQL Injection]: Raw query with string interpolation
-// Students should test: ?search=' OR '1'='1
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, can('menu:read'), async (req, res) => {
   try {
     const { search, category } = req.query as { search?: string; category?: string }
 
-    if (search) {
-      // ⚠️ BUG-003: Parameterized query NOT used — SQL Injection vulnerability
-      // Fix would be: prisma.$queryRaw`SELECT * FROM menu_items WHERE name ILIKE ${'%' + search + '%'}`
-      const results = await prisma.$queryRawUnsafe(
-        `SELECT * FROM menu_items WHERE (name ILIKE '%${search}%' OR description ILIKE '%${search}%') AND "isAvailable" = true`
-      )
-      res.json(results); return
+    // BUG-003 fix: no raw SQL. Prisma's `contains` + `mode: 'insensitive'`
+    // emits a parameterised ILIKE under the hood — user input is bound,
+    // never concatenated.
+    const where: Prisma.MenuItemWhereInput = {
+      isAvailable: true,
+      ...(category ? { category: category as Category } : {}),
+      ...(search
+        ? {
+            OR: [
+              { name: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     }
 
     const items = await prisma.menuItem.findMany({
-      where: {
-        isAvailable: true,
-        ...(category ? { category: category as any } : {}),
-      },
+      where,
       orderBy: [{ category: 'asc' }, { name: 'asc' }],
     })
     res.json(items)
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
+  } catch (err) { sendError(res, err) }
 })
 
-// GET /api/menu/:id
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, can('menu:read'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
-    if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
+    if (!item) { res.status(404).json({ error: 'Menu item not found', code: 'MENU_NOT_FOUND' }); return }
     res.json(item)
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
+  } catch (err) { sendError(res, err) }
 })
 
-// POST /api/menu — admin only ✅
-router.post('/', authenticate, requireRole('admin'), async (req, res) => {
+router.post('/', authenticate, can('menu:create'), async (req, res) => {
   try {
     const { name, description, price, category, imageUrl } = req.body as {
       name?: string; description?: string; price?: number
       category?: Category; imageUrl?: string
     }
     if (!name || price === undefined) {
-      res.status(400).json({ error: 'Name and price required' }); return
+      res.status(400).json({ error: 'Name and price required', code: 'MENU_BAD_REQUEST' })
+      return
     }
     const item = await prisma.menuItem.create({ data: { name, description, price, category, imageUrl } })
     res.status(201).json(item)
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
+  } catch (err) { sendError(res, err) }
 })
 
-// PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
-// Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+// BUG-004 fix: `can('menu:update')` consults the permission matrix.
+// Only roles whose set contains 'menu:update' (currently: admin) pass.
+router.put('/:id', authenticate, can('menu:update'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
-    if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
+    if (!item) { res.status(404).json({ error: 'Menu item not found', code: 'MENU_NOT_FOUND' }); return }
     const { name, description, price, category, isAvailable, imageUrl } = req.body
     const updated = await prisma.menuItem.update({
       where: { id: Number(req.params.id) },
       data: { name, description, price, category, isAvailable, imageUrl },
     })
     res.json(updated)
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
+  } catch (err) { sendError(res, err) }
 })
 
-// DELETE /api/menu/:id — soft delete, admin only ✅
-router.delete('/:id', authenticate, requireRole('admin'), async (req, res) => {
+router.delete('/:id', authenticate, can('menu:delete'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
-    if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
+    if (!item) { res.status(404).json({ error: 'Menu item not found', code: 'MENU_NOT_FOUND' }); return }
     await prisma.menuItem.update({ where: { id: Number(req.params.id) }, data: { isAvailable: false } })
     res.json({ message: 'Menu item disabled' })
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
-  }
+  } catch (err) { sendError(res, err) }
 })
 
 export default router

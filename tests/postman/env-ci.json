@@ -1,5 +1,5 @@
 {
-  "name": "RMS-CI",
+  "name": "RMS-CI-Nattawan-68030085",
   "values": [
     { "key": "base_url", "value": "http://localhost:3001/api", "enabled": true },
     { "key": "token",        "value": "", "enabled": true },
