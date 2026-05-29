@@ -1,0 +1,93 @@
+newman-e2e-test:
+  name: E2E API Tests (Newman)
+  runs-on: ubuntu-latest
+  needs: [deploy-backend, deploy-frontend]
+  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Newman
+      run: npm install -g newman newman-reporter-htmlextra
+
+    # ✅ FIX: ensure report folder exists
+    - name: Create reports directory
+      run: mkdir -p tests/reports
+
+    # ✅ FIX: safer env file (no frontend_url needed for tests)
+    - name: Create Newman environment file
+      run: |
+        cat > tests/postman/env.json << EOF
+        {
+          "id": "rms-ci-env",
+          "name": "CI Environment",
+          "values": [
+            {
+              "key": "base_url",
+              "value": "${{ secrets.RENDER_BACKEND_URL }}",
+              "enabled": true
+            },
+            {
+              "key": "admin_username",
+              "value": "admin",
+              "enabled": true
+            },
+            {
+              "key": "admin_password",
+              "value": "${{ secrets.ADMIN_PASSWORD }}",
+              "enabled": true
+            },
+            {
+              "key": "token",
+              "value": "",
+              "enabled": true
+            }
+          ]
+        }
+        EOF
+
+    # ✅ FIX: correct file name (must match your repo)
+    - name: Run Newman Tests
+      id: newman
+      run: |
+        newman run tests/postman/RMS-68030238-TestSuite.json \
+          --environment tests/postman/env.json \
+          --reporters cli,htmlextra,json \
+          --reporter-htmlextra-export tests/reports/newman-report.html \
+          --reporter-json-export tests/reports/newman-report.json \
+          --bail \
+          --color on
+
+    # ✅ FIX: safe pass rate calculation (no crash)
+    - name: Parse Newman Results
+      if: always()
+      run: |
+        if [ -f tests/reports/newman-report.json ]; then
+          TOTAL=$(jq '.run.stats.assertions.total' tests/reports/newman-report.json)
+          FAILED=$(jq '.run.stats.assertions.failed' tests/reports/newman-report.json)
+
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "❌ No assertions found"
+            exit 1
+          fi
+
+          PASSED=$((TOTAL - FAILED))
+          RATE=$(echo "scale=1; $PASSED * 100 / $TOTAL" | bc)
+
+          echo "📊 PASS: $PASSED / $TOTAL ($RATE%)"
+
+          echo "NEWMAN_PASS_RATE=$RATE" >> $GITHUB_ENV
+        fi
+
+    - name: Upload Newman Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: newman-reports
+        path: tests/reports/

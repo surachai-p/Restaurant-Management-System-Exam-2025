@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล | เมจิยานันท์ กันยะ |
+| รหัสนักศึกษา | 68030238 |
+| วันที่สอบ | 28/05/2569 |
 
 ---
 
@@ -60,19 +60,19 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth | ทดสอบการเข้าสู่ระบบของผู้ใช้ทั้ง 3 account ได้แก่ Admin, Cashier และ Waiter เพื่อให้มั่นใจว่าสามารถเข้าสู่ระบบและใช้งานตามสิทธิ์ได้ถูกต้อง |
+| Menu | ใช้จัดการข้อมูลเมนูอาหาร ราคา และสต็อก |
+| Order | ใช้สำหรับเปิดโต๊ะ เพิ่มสินค้า และยืนยันออเดอร์ เป็นกระบวนการหลักของร้านอาหาร |
+| Payment | ใช้คำนวณยอดชำระ เงินทอน และออกใบเสร็จ |
+| Report | ใช้ตรวจสอบยอดขาย |
+| Security | ทดสอบการจำกัดสิทธิ์ของผู้ใช้งานแต่ละ Role เพื่อป้องกันการเข้าถึงฟังก์ชันที่ไม่ได้รับอนุญาต |
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
+| Performance / Load Testing | ไม่มีเวลาหรือทรัพยากรเพียงพอสำหรับทดสอบผู้ใช้งานจำนวนมากพร้อมกัน |
 | | |
 
 ---
@@ -83,11 +83,11 @@
 
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest | ทดสอบการทำงานของ Backend Function |
+| API Testing (E2E) | Postman / Newman | ทดสอบ API ทุก Endpoint และตรวจสอบ Response |
+| Security Testing | npm audit | ตรวจสอบช่องโหว่ของ Dependencies |
+| Smoke Testing | Manual |ทดสอบฟังก์ชันหลักหลัง Deployment |
+| Staging Test | Docker Compose |ทดสอบระบบในสภาพแวดล้อมจำลองก่อน Deploy จริง |
 
 ---
 
@@ -97,32 +97,32 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Windows 10 |
+| Node.js | v22.20.0 |
+| npm | 10.9.3 |
+| Docker | Docker version 29.4.3, build 055a478 |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser | Google Chrome |
+| Newman | 6.2.2 |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [ ✅ ] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [ ✅ ] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [ ✅ ] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [ ✅ ] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ 80% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ 0 รายการ |
+| Smoke Test บน Production ผ่าน | 4 / 4 Feature |
 
 ---
 
@@ -133,9 +133,10 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Payment | หากคำนวณเงินผิดหรือชำระเงินไม่ได้ ร้านอาจสูญเสียรายได้ | Critical |
+| 2 | Auth | หากเข้าสู่ระบบไม่ได้ พนักงานจะไม่สามารถใช้งานระบบได้ | High |
+| 3 | Order | หากออเดอร์ผิดพลาด อาจทำให้อาหารผิดรายการและลูกค้าไม่พอใจ |Medium  |
+| 4 | Report | หากรายงานยอดขายผิด อาจส่งผลต่อการวิเคราะห์รายได้ของร้าน | High |
 
 ---
 
@@ -149,19 +150,19 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | HTTP 200 OK + JWT token returned successfully | ✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-004 | Edge | Menu | ราคาอาหาร = 0 | `{name:"Pizza", price:0}` |HTTP 400 Validation Error | HTTP 201 Created — system allowed menu creation with price = 0 | Fail |
+| TC-005 | Positive | Auth | Login ด้วย cashier | {username: "cashier", password: "Cashier@123} |HTTP 200 + JWT + role = cashier | HTTP 200 OK + token returned successfully | ✅ |
+| TC-006 | Positive | Menu | เพิ่มเมนูสำเร็จ (admin) | {name:"Pizza", price:120} | HTTP 201 + menu created | HTTP 201 Created + menu added successfully | ✅ |
+| TC-007 | Negative | Menu | เพิ่มเมนูโดยไม่มีชื่อ | {name:"", price:100} | HTTP 400 Validation Error | HTTP 400 Bad Request + name required | ✅ |
+| TC-008 | Negative | Auth | username ไม่พบในระบบ | {username:"xxx", password:"123"} | HTTP 401 | HTTP 401 Unauthorized returned for invalid username | ✅ |
+| TC-009 | Security | Menu API | ใช้ token ปลอม | Authorization: "Bearer fake.token" | HTTP 401 Unauthorized | HTTP 401 Unauthorized + invalid token error | ✅ |
+| TC-010 | Security | Role Access | waiter พยายาม delete menu | DELETE /api/menu/1 (role=waiter) | HTTP 403 Forbidden | HTTP 403 Forbidden returned for waiter role | ✅ |
+| TC-011 | Edge | Order | สั่งจำนวนสินค้า = 0 | {itemId:1, qty:0} |                         HTTP 400 หรือ reject order | HTTP 201 Created — system allowed order creation with qty = 0 | Fail |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**✏️ สรุปผล:** ผ่าน 9 / 11 กรณี (81.8%)
 
 ---
 
@@ -191,7 +192,7 @@
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
 |----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
+| `{{base_url}}` | http://localhost:3001 | Base URL ของ Backend API |
 | `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
 | `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
 
@@ -208,7 +209,7 @@
 > });
 > ```
 
-**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** ☐ ใช่
+**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** ✅ ใช่
 
 #### สรุปผลการรัน Postman (กรอกหลังรัน Collection Run)
 
@@ -216,11 +217,11 @@
 
 | Request Name | Method | Endpoint | Actual Result | Pass/Fail |
 |-------------|--------|----------|--------------|-----------|
-| | | | | ☐ |
-| | | | | ☐ |
-| | | | | ☐ |
+| TC-001 Login Success | POST | /api/auth/login | Status code is 200,Response has JWT token | Pass |
+| TC-003 NO token | GET | /api/orders | Status code is 401,Response has JWT token | Pass/Fail |
+| TC-004 Create menu with price = 0 | POST | /api/menu | HTTP 201 Created | Fail |
 
-**✏️ สรุป:** ผ่าน ___ / ___ Request
+**✏️ สรุป:** ผ่าน 6 / 12 Request
 
 #### หลักฐานภาพหน้าจอ Postman
 
@@ -229,10 +230,13 @@
 **รูปที่ 1 — Postman Collection และ Environment Variables (แสดง `base_url`, `token`, `admin_token` ครบ)**
 
 `![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)`
+![alt text](image-2.png)
 
 **รูปที่ 2 — ผล Postman Collection Run (แสดง Pass/Fail ทุก Request)**
 
 `![Postman Run Result](./tests/reports/postman-run-result.png)`
+![alt text](image.png)
+![alt text](image-1.png)
 
 ---
 
@@ -256,21 +260,188 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 **✏️ วาง output จาก Terminal ที่ได้หลังรัน Newman แทนที่ข้อความ template ด้านล่างทั้งหมด**
 
 ```
-[วาง Newman CLI output จริงที่นี่]
+newman
+
+RMS-68030238-TestSuite
+
+→ TC-001 Login Success
+  ┌
+  │ 'runtime~jwt.auth: could not sign the request: Invalid secret key. Enter a valid key.'
+  └
+  POST http://localhost:3001/api/auth/login [200 OK, 594B, 4.6s]
+  √  Status code is 200
+  √  Response has JWT token
+
+→ TC-002 Invalid Password
+  POST http://localhost:3001/api/auth/login [401 Unauthorized, 342B, 440ms]
+  √  Status code is 401
+  1. Response has JWT token
+
+→ TC-003 No Token
+  ┌
+  │ 'runtime~jwt.auth: could not sign the request: Invalid secret key. Enter a valid key.'
+  └
+  GET http://localhost:3001/api/orders [401 Unauthorized, 344B, 37ms]
+  √  Status code is 401
+  2. Response has JWT token
+
+→ TC-004 Create menu with price = 0
+  POST http://localhost:3001/api/menu [401 Unauthorized, 347B, 22ms]
+  3. Status code is 400
+  4. Response has JWT token
+
+→ TC-005 Cashier Login
+  ┌
+  │ 'runtime~jwt.auth: could not sign the request: Invalid secret key. Enter a valid key.'
+  └
+  POST http://localhost:3001/api/auth/login [200 OK, 608B, 481ms]
+  √  Status code is 200
+  √  Response has JWT token
+
+→ TC-006 Create Menu
+  POST http://localhost:3001/api/menu [401 Unauthorized, 347B, 11ms]
+  5. Status code is 201
+  6. Response has JWT token
+
+→ TC-007 Empty Menu Name
+  POST http://localhost:3001/api/menu [errored]
+     Invalid character in header content ["Authorization"]
+  8. Status code is 400
+  9. Response has JWT token
+
+→ TC-008 Invalid Username
+  ┌
+  │ 'runtime~jwt.auth: could not sign the request: Invalid secret key. Enter a valid key.'
+  └
+  POST http://localhost:3001/api/auth/login [401 Unauthorized, 342B, 323ms]
+  √  Status code is 401
+ 10. Response has JWT token
+
+→ TC-009 Fake Token
+  POST http://localhost:3001/api/menu [401 Unauthorized, 347B, 46ms]
+  √  Status code is 401
+ 11. Response has JWT token
+
+→ TC-010 Waiter Delete Menu
+  DELETE http://localhost:3001/api/menu/1 [401 Unauthorized, 347B, 46ms]
+ 12. Status code is 403
+ 13. Response has JWT token
+
+→ TC-011 Qty = 0
+  POST http://localhost:3001/api/orders [401 Unauthorized, 347B, 9ms]
+ 14. Status code is 400
+ 15. Response has JWT token
+
+┌─────────────────────────┬────────────────────┬───────────────────┐
+│                         │           executed │            failed │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              iterations │                  1 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│                requests │                 11 │                 1 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│            test-scripts │                 22 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│      prerequest-scripts │                 11 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              assertions │                 22 │                14 │
+├─────────────────────────┴────────────────────┴───────────────────┤
+│ total run duration: 9.6s                                         │
+├──────────────────────────────────────────────────────────────────┤
+│ total data received: 871B (approx)                               │
+├──────────────────────────────────────────────────────────────────┤
+│ average response time: 636ms [min: 9ms, max: 4.6s, s.d.: 1393ms] │
+└──────────────────────────────────────────────────────────────────┘
+
+   #  failure              detail                                                                            
+                                                                                                             
+ 01.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid credentials' } to have property 'token'                
+                           at assertion:1 in test-script                                                     
+                           inside "TC-002 Invalid Password"                                                  
+                                                                                                             
+ 02.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Access token required' } to have property 'token'              
+                           at assertion:1 in test-script                                                     
+                           inside "TC-003 No Token"                                                          
+                                                                                                             
+ 03.  AssertionError       Status code is 400                                                                
+                           expected response to have status code 400 but got 401                             
+                           at assertion:0 in test-script                                                     
+                           inside "TC-004 Create menu with price = 0"                                        
+                                                                                                             
+ 04.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid or expired token' } to have property 'token'           
+                           at assertion:1 in test-script                                                     
+                           inside "TC-004 Create menu with price = 0"                                        
+                                                                                                             
+ 05.  AssertionError       Status code is 201                                                                
+                           expected response to have status code 201 but got 401                             
+                           at assertion:0 in test-script                                                     
+                           inside "TC-006 Create Menu"                                                       
+                                                                                                             
+ 06.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid or expired token' } to have property 'token'           
+                           at assertion:1 in test-script                                                     
+                           inside "TC-006 Create Menu"                                                       
+                                                                                                             
+ 07.  TypeError            Invalid character in header content ["Authorization"]                             
+                           at request                                                                        
+                           inside ""                                                                         
+                                                                                                             
+ 08.  AssertionError       Status code is 400                                                                
+                           expected PostmanResponse{ …(5) } to have property 'code'                          
+                           at assertion:0 in test-script                                                     
+                           inside "TC-007 Empty Menu Name"                                                   
+                                                                                                             
+ 09.  JSONError            Response has JWT token                                                            
+                           "undefined" is not valid JSON                                                     
+                           at assertion:1 in test-script                                                     
+                           inside "TC-007 Empty Menu Name"                                                   
+                                                                                                             
+ 10.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid credentials' } to have property 'token'                
+                           at assertion:1 in test-script                                                     
+                           inside "TC-008 Invalid Username"                                                  
+                                                                                                             
+ 11.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid or expired token' } to have property 'token'           
+                           at assertion:1 in test-script                                                     
+                           inside "TC-009 Fake Token"                                                        
+                                                                                                             
+ 12.  AssertionError       Status code is 403                                                                
+                           expected response to have status code 403 but got 401                             
+                           at assertion:0 in test-script                                                     
+                           inside "TC-010 Waiter Delete Menu"                                                
+                                                                                                             
+ 13.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid or expired token' } to have property 'token'           
+                           at assertion:1 in test-script                                                     
+                           inside "TC-010 Waiter Delete Menu"                                                
+                                                                                                             
+ 14.  AssertionError       Status code is 400                                                                
+                           expected response to have status code 400 but got 401                             
+                           at assertion:0 in test-script                                                     
+                           inside "TC-011 Qty = 0"                                                           
+                                                                                                             
+ 15.  AssertionError       Response has JWT token                                                            
+                           expected { error: 'Invalid or expired token' } to have property 'token'           
+                           at assertion:1 in test-script                                                     
+                           inside "TC-011 Qty = 0"                                                           
+
 ```
 
 **✏️ กรอกตัวเลขจริงจาก Newman output:**
 
 | Metric | ค่าจริง |
 |--------|--------|
-| Total Requests | |
-| Tests Passed | |
-| Tests Failed | |
-| Pass Rate | % |
+| Total Requests | 11 |
+| Tests Passed | 8 |
+| Tests Failed | 14 |
+| Pass Rate | 36.36% |
 
 **รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
-`![Newman Run Result](./tests/reports/newman-cli-result.png)`
+`![alt text](image-3.png)`
 
 ---
 
@@ -281,7 +452,7 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 
 | รายการ | สถานะ |
 |--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ☐ |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ |
 | `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ☐ |
 | GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ☐ |
 | Newman Pass Rate บันทึกอยู่ใน Pipeline log | ☐ |
@@ -308,21 +479,21 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0 |
+| High | 0 |
+| Medium | 0 |
+| Low | 0 |
+| **รวม** | 0 |
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
 |---------|--------|----------|--------------------|--------------------|--------------| 
-| | | | | | |
+|ไม่พบช่องโหว่ | | | | | |
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+`![alt text](image-4.png)`
 
 ---
 
@@ -336,15 +507,15 @@ cd frontend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0 |
+| High | 0 |
+| Medium | 0 |
+| Low | 0 |
+| **รวม** | 0 |
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+`![alt text](image-5.png)`
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -366,29 +537,29 @@ cd frontend && npm audit --audit-level=moderate
 
 | รายการ | ค่า |
 |--------|-----|
-| **Severity** | (เลือก: Critical / High / Medium / Low) |
-| **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
-| **Status** | (เลือก: Open / Fixed) |
+| **Severity** | Medium |
+| **Priority** | P2 |
+| **Feature** |Backend / Security Scan |
+| **Status** | Fixed |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. cd backend
+2. run npm audit --audit-level=moderate
+3. พบ error ENOLOCK
 
 #### Expected Result
-> ✏️ 
+> ✏️ npm audit ทำงานได้
 
 #### Actual Result
-> ✏️ 
+> ✏️ Error: This command requires an existing lockfile
 
 #### Evidence
 
 `![BUG-001](./tests/reports/bug-001.png)`
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ไม่สามารถตรวจสอบความปลอดภัย dependency ได้ เสี่ยงต่อ security ของระบบร้านอาหาร
 
 ---
 
@@ -396,29 +567,30 @@ cd frontend && npm audit --audit-level=moderate
 
 | รายการ | ค่า |
 |--------|-----|
-| **Severity** | (เลือก: Critical / High / Medium / Low) |
-| **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
-| **Status** | (เลือก: Open / Fixed) |
+| **Severity** | High |
+| **Priority** | P1 |
+| **Feature** | CI/CD Security Scan |
+| **Status** | Open |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. Push code ขึ้น GitHub repository
+2. ไปที่แท็บ Actions (GitHub Actions)
+3. ตรวจสอบ workflow cicd.yml
+4. ดูว่า step npm audit --audit-level=high ไม่ถูกรันหรือไม่แสดงผล
 
 #### Expected Result
-> ✏️ 
+> ✏️ CI pipeline ต้องมีขั้นตอน Security Scan และรัน npm audit สำเร็จทุกครั้งที่มีการ push code
 
 #### Actual Result
-> ✏️ 
+> ✏️ Security scan step ไม่ถูกรัน หรือ workflow ข้ามขั้นตอน npm audit ทำให้ไม่มีผลการตรวจสอบความปลอดภัยใน CI
 
 #### Evidence
 
 `![BUG-002](./tests/reports/bug-002.png)`
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ทำให้ระบบร้านอาหารมีความเสี่ยง เพราะโค้ดใหม่สามารถถูก deploy ได้โดยไม่ผ่านการตรวจสอบ security dependency เสี่ยงต่อช่องโหว่ใน production เช่นระบบสั่งอาหาร / payment อาจถูกโจมตีได้
 
 ---
 
@@ -474,8 +646,8 @@ cd frontend && npm install && npm run dev
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
 |---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+| Backend API | 3001 | `http://localhost:5173` | — |
+| Frontend | 5173 | — |  http://localhost:3001 |
 
 #### ผล Smoke Test — On-Premises
 
@@ -483,18 +655,18 @@ cd frontend && npm install && npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+`![alt text](image-6.png)`
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+`![alt text](image-7.png)`
 
 ---
 
@@ -505,10 +677,10 @@ cd frontend && npm install && npm run dev
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขเสร็จแล้ว**
 
-- [ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [ ] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [ ] เพิ่ม Health Check สำหรับ backend service
-- [ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [✅ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
+- [✅ ] กำหนด Port Mapping: backend → 3001, frontend → 80
+- [✅ ] เพิ่ม Health Check สำหรับ backend service
+- [✅ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
 
 #### Environment Variables ที่ตั้งค่าจริงใน `docker-compose.yml` (Rubric 2.2 ข้อ 2)
 
@@ -516,11 +688,12 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
+| `DATABASE_URL` | backend | DATABASE_URL=postgresql://neondb_owner:npg_O4GVspU3KZEB@ep-steep-rain-aqa3c5b3-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+ |
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `CORS_ORIGIN` | backend | http://localhost:3001 |
+| `NODE_ENV` | backend | production |
+| `VITE_API_URL` | frontend | http://localhost:80 |
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
@@ -528,8 +701,8 @@ cd frontend && npm install && npm run dev
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
 |---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+| Backend | ☐ มี / ✅ ไม่มี | |
+| Frontend | ✅ มี / ☐ ไม่มี | builder → nginx|
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
@@ -541,7 +714,7 @@ cd frontend && npm install && npm run dev
 
 | Volume Name / Path | Host Path | Container Path | วัตถุประสงค์ |
 |-------------------|-----------|----------------|-------------|
-| | | | |
+| ไม่มี Volume mapping | | | |
 
 #### Network Configuration (Rubric 2.5 ข้อ 5)
 
@@ -549,7 +722,7 @@ cd frontend && npm install && npm run dev
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
 |-------------|--------|-------------------------------|
-| | | |
+| project_default | bridge | backend, frontend, db |
 
 #### คำสั่งรัน Staging
 
@@ -563,8 +736,8 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` |✅ |
+| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ไม่ผ่าน |
 
 #### หลักฐาน Staging
 
@@ -620,11 +793,11 @@ Build Command:  npm run build
 | Variable | Service | ค่าที่ตั้งจริงบน Cloud |
 |----------|---------|----------------------|
 | `PORT` | Backend (Render) | `10000` |
-| `DATABASE_URL` | Backend (Render) | |
+| `DATABASE_URL` | Backend (Render) | postgresql://neondb_owner:npg_O4GVspU3KZEB@ep-steep-rain-aqa3c5b3-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require |
 | `JWT_SECRET` | Backend (Render) | (ตั้งค่าแล้ว — ไม่ระบุ) |
-| `CORS_ORIGIN` | Backend (Render) | `https://[ชื่อ app ของตนเอง].vercel.app` |
+| `CORS_ORIGIN` | Backend (Render) | `https://frontend-six-sable-64.vercel.app` |
 | `NODE_ENV` | Backend (Render) | `production` |
-| `VITE_API_URL` | Frontend (Vercel) | `https://[ชื่อ api ของตนเอง].onrender.com` |
+| `VITE_API_URL` | Frontend (Vercel) | `https://restaurant-management-system-exam-2025-nifu.onrender.com` |
 
 ---
 
@@ -635,24 +808,24 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ✅ |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ✅ |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ✅ |
 | 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+`![alt text](image-8.png)`
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+`![alt text](image-9.png)`
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+`![alt text](image-10.png)`
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
