@@ -1,0 +1,29 @@
+name: CI Pipeline - Newman Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Newman Tests
+        run: |
+          newman run tests/postman/RMS-68030238-TestSuite.json \
+            --environment tests/postman/env.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export tests/reports/newman-report.html
