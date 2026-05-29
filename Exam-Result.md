@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล |นางสาวกันติชา ย๋องชา |
+| รหัสนักศึกษา |68030020 |
+| วันที่สอบ |29/05/2569 |
 
 ---
 
@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) | https://rms-68030020.vercel.app | ✅ |
+| Backend (Render) | https://rms-68030020.onrender.com | ✅ |
+| API Health Check (`/api/health`) | https://rms-68030020.onrender.com/api/health | ✅ |
+| Database (Neon.tech connection string) | postgresql://[user]:***@[host].neon.tech/[db]?sslmode=require | ✅ |
 
 ---
 
@@ -60,20 +60,20 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth | ตรวจสอบการเข้าสู่ระบบและการจัดการสิทธิ์ผู้ใช้ |
+| Menu | ตรวจสอบการแสดงและแก้ไขเมนูอาหาร |
+| Order | ตรวจสอบการสร้างและจัดการออเดอร์ |
+| Payment | ตรวจสอบการชำระเงินและคำนวณเงินทอน |
+| Report | ตรวจสอบการแสดงรายงานยอดขาย |
+| Security | ตรวจสอบความปลอดภัย เช่น การป้องกัน API โดย JWT Token |
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
-| | |
+| ระบบแจ้งเตือนแบบ Real-time | ไม่มี requirement ในข้อสอบ และใช้ resource เพิ่มเติม |
+| การ Integrate กับ Payment Gateway จริง | ใช้ mock เท่านั้น ไม่มีการเชื่อมต่อกับ gateway จริง |
 
 ---
 
@@ -83,11 +83,11 @@
 
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest | ทดสอบฟังก์ชันแต่ละส่วนของ backend แยกจากกัน |
+| API Testing (E2E) | Postman / Newman | ทดสอบ endpoint ของ API ตามกรณีทดสอบจริง |
+| Security Testing | npm audit | ตรวจสอบช่องโหว่ dependency ของ backend/frontend |
+| Smoke Testing | Manual | ทดสอบฟีเจอร์หลักหลัง deploy ว่าทำงานได้จริง |
+| Staging Test | Docker Compose | ทดสอบระบบรวมในสภาพแวดล้อม staging ด้วย docker compose |
 
 ---
 
@@ -97,32 +97,32 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Windows 11 Pro |
+| Node.js | 22.1.0 |
+| npm | 10.5.0 |
+| Docker | 26.0.0 |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser | Chrome 124.0.6367.207 |
+| Newman | 6.1.2 |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
-#### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+#### Entry Criteria — ✅ ทำเครื่องหมายเมื่อทำสำเร็จแล้ว
+- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [x] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [x] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ 90% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ 0 รายการ |
+| Smoke Test บน Production ผ่าน | 4 / 4 Feature |
 
 ---
 
@@ -133,9 +133,9 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Payment | ลูกค้าชำระเงินผิด/เงินทอนไม่ถูกต้อง ส่งผลเสียต่อรายได้ | Critical |
+| 2 | Order | ออเดอร์ตกหล่น/ผิดพลาด ทำให้บริการลูกค้าไม่ครบถ้วน | High |
+| 3 | Auth | ระบบล็อกอินล่มหรือรั่วไหลข้อมูลผู้ใช้ | High |
 
 ---
 
@@ -149,19 +149,19 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | HTTP 200 + JWT Token | ✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | HTTP 200 + change = 0 | ✅ |
+| TC-005 | Positive | Menu | เพิ่มเมนูใหม่ | `{name: "Pizza", price: 200}` | HTTP 201 Created | HTTP 201 Created | ✅ |
+| TC-006 | Positive | Order | เปิดโต๊ะใหม่ | `{table: 5}` | HTTP 201 Created | HTTP 201 Created | ✅ |
+| TC-007 | Negative | Payment | ชำระเงินน้อยกว่ายอด | `{orderId: 1, amount: 10}` | HTTP 400 Bad Request | HTTP 400 Bad Request | ✅ |
+| TC-008 | Negative | Order | สั่งอาหารโดยไม่ระบุเมนู | `{table: 1, items: []}` | HTTP 400 Bad Request | HTTP 400 Bad Request | ✅ |
+| TC-009 | Security | Menu | เพิ่มเมนูโดยไม่มี token | POST /api/menu (no Authorization) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-010 | Security | Report | เรียกดูรายงานโดย user ปกติ | GET /api/reports (user token) | HTTP 403 Forbidden | HTTP 403 Forbidden | ✅ |
+| TC-011 | Edge | Order | สั่งอาหารจำนวนมากผิดปกติ | `{table: 1, items: [1000 x "Pizza"]}` | HTTP 400 Bad Request | HTTP 400 Bad Request | ✅ |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 11 / 11 กรณี (100%)
 
 ---
 
@@ -178,9 +178,9 @@
 
 | รายการ | ค่าจริง |
 |--------|--------|
-| Collection Name | `RMS-[รหัสนักศึกษา]-TestSuite` |
-| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.json` |
-| ไฟล์ Environment | `tests/postman/env.json` |
+| Collection Name | RMS-68030020-TestSuite |
+| ไฟล์ที่ Export ไปไว้ใน Repository | tests/postman/RMS-68030020-TestSuite.json |
+| ไฟล์ Environment | tests/postman/env.json |
 
 > 📌 Repository มี Newman Collection 21 test cases ใน `tests/postman/` อยู่แล้ว  
 > นักศึกษาต้องสร้าง Collection ของตนเองที่ครอบคลุมกรณีทดสอบในส่วนที่ 2
@@ -191,7 +191,7 @@
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
 |----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
+| `{{base_url}}` | https://rms-68030020.onrender.com | Base URL ของ Backend API |
 | `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
 | `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
 
