@@ -1,4 +1,3 @@
-// src/routes/payments.ts
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
@@ -6,8 +5,7 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
+// FIXED [BUG-001]: Added validation to reject underpayment and throw error for unit tests
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
@@ -32,13 +30,10 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
-
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
-    if (paid < totalAmount) { 
-      res.status(400).json({ error: 'Insufficient payment amount' }); 
-      return 
+    // [BUG-001 Validation]: บล็อกไม่ให้ลูกค้าจ่ายเงินขาด (amountPaid ต้องมากกว่าหรือเท่ากับ totalAmount)
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' })
+      return
     }
 
     const change = paid - totalAmount
@@ -61,7 +56,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 router.get('/:orderId', authenticate, async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({
-      where: { orderId: Number(req.params.orderId) },
+      where: { id: Number(req.params.orderId) },
     })
     if (!payment) { res.status(404).json({ error: 'Payment not found' }); return }
     res.json(payment)
