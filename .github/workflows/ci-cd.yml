@@ -28,7 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # --- Backend Section ---
+      - name: Setup Node.js for Backend
         uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -39,16 +40,15 @@ jobs:
         run: |
           cd backend && npm ci
 
-      - name: Build and Prepare Database
+      - name: Generate Prisma Client
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
         run: |
           cd backend
           npx prisma generate
           npx prisma db push
-          npm run build
 
-      - name: Run Backend Unit Tests (Vitest)
+      - name: Run backend tests (Vitest)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
         run: |
@@ -59,20 +59,23 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
           PORT: 3001
-          JWT_SECRET: test_secret
+          JWT_SECRET: test_secret_key_123
         run: |
           cd backend
+          npm run build
           npm start &
 
-      - name: Wait for API to be ready
-        run: npx wait-on http://localhost:3001/api/health --timeout 60000
+      - name: Install Newman and Wait
+        run: |
+          npm install -g newman wait-on
+          npx wait-on http://localhost:3001/api/health --timeout 60000
 
       - name: Run Newman API Tests
         run: |
-          npm install -g newman
           newman run tests/postman/RMS-68030298-TestSuite-v2.json \
           --reporters cli
 
+      # --- Frontend Section ---
       - name: Setup Node.js for Frontend
         uses: actions/setup-node@v4
         with:
@@ -84,6 +87,6 @@ jobs:
         run: |
           cd frontend && npm ci
 
-      - name: Run Frontend Build
+      - name: Run frontend build
         run: |
           cd frontend && npm run build
