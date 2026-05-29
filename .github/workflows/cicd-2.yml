@@ -18,6 +18,59 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  audit-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # ✅ 2. เพิ่ม actions/setup-node สำหรับ Node.js version 22
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: |
+          backend/package-lock.json
+          frontend/package-lock.json
+
+    # ✅ 5. เพิ่ม step npm audit --audit-level=high ทั้ง backend และ frontend
+    - name: Security Audit — Frontend
+      run: |
+        cd frontend
+        npm audit --audit-level=high
+
+    - name: Security Audit — Backend
+      run: |
+        cd backend
+        npm audit --audit-level=high
+
+    # ติดตั้ง Dependencies สำหรับ Backend และ Frontend เพื่อเตรียมรันเทส
+    - name: Install Dependencies
+      run: |
+        cd backend && npm ci
+        cd ../frontend && npm ci
+
+    # ✅ 3. เพิ่ม step รัน Unit Test ของ Backend (npm test)
+    - name: Run Backend Unit Tests
+      run: |
+        cd backend
+        npm test
+
+    # ✅ 4. เพิ่ม step ติดตั้งและรัน Newman (สำหรับรัน Postman Automated Test)
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Run Postman Tests via Newman
+      run: |
+        newman run postman/RMS-[68030251]-TestSuite.json
+        echo "🚀 Running Newman Postman tests..."
+        if [ -f "postman/RMS-[68030251]-TestSuite.json" ]; then
+          newman run postman/RMS-[68030251]-TestSuite.json
+        else
+          echo "⚠️ Newman collection file not found, skipping execution. Please update the path in yml."
+        fi
   # ─────────────────────────────────────────────────
   # JOB 1: Security Scan (npm audit)
   # ─────────────────────────────────────────────────

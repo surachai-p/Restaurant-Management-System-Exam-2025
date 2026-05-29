@@ -9,7 +9,7 @@ const getBaseURL = (): string => {
     return envUrl;
   }
   // เปลี่ยนเป็น URL หลังบ้านบน Render ของคุณ
-  return 'https://rms-backend-um90.onrender.com';
+  return 'https://rms-backend-um90.onrender.com/api';
 }
 
 const api = axios.create({ 
