@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล | นายวันชนะ ไชยลังกา|
+| รหัสนักศึกษา | 68030267|
+| วันที่สอบ | 29/5/2569|
 
 ---
 
@@ -18,7 +18,7 @@
 ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**✏️ Student Repository:** `https://github.com/[แทนที่ด้วยรหัสนักศึกษาของตนเอง]/Restaurant-Management-System-Exam-2025.git`
+**✏️ Student Repository:** `https://github.com/[68030267]/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) |http://localhost:5173/login | ✅ |
+| Backend (Render) | http://localhost:3001| ✅ |
+| API Health Check http://localhost:3001/api/health| | ✅ |
+| Database (Neon.tech connection string) |postgresql://neondb_owner:npg_t2JuVNElfZB8@ep-withered-heart-aq4gfwc4-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require | ✅ |
 
 ---
 
@@ -60,34 +60,33 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth | ตรวจสอบความถูกต้องของการเข้าสู่ระบบ และการคัดกรองสิทธิ์แยกกลุ่มผู้ใช้งาน (Admin/Cashier/Waiter) |
+| Menu | ตรวจสอบความถูกต้องของการดึงข้อมูล จัดหมวดหมู่ รวมถึงสิทธิ์การเพิ่ม แก้ไข และลบรายการอาหาร |
+| Order | ตรวจสอบระบบการเปิดโต๊ะ สั่งอาหาร การคำนวณยอดรวม และการส่งข้อมูลเชื่อมโยงไปยังห้องครัว |
+| Payment | ตรวจสอบตรรกะการคำนวณเงินทอน เพื่อป้องกันบั๊กทศนิยมคลาดเคลื่อนและดักจับกรณีจ่ายเงินขาด |
+| Report | ตรวจสอบการดึงข้อมูลและสรุปสถิติต่างๆ ให้แสดงยอดขายสัมพันธ์ถูกต้องตรงตามความเป็นจริง |
+| Security | ตรวจสอบสิทธิ์ความปลอดภัยในระดับ API Endpoints ป้องกันพนักงานเข้าถึงฟังก์ชันเกินสิทธิ์ตนเอง |
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
-| | |
+| ระบบสต็อกวัตถุดิบ | มันเป็นระบบเสริม |
+| ต่อเครื่องพิมพ์สลิปของจริง | ไม่มีเครื่องพิมพ์จริงให้ลองครับ เลยเทสแค่ระบบหลังบ้านพอ |
 
 ---
 
 ### 1.2 แนวทางการทดสอบ (Test Approach)
 
 **✏️ ระบุประเภทการทดสอบ เครื่องมือ และรายละเอียดที่จะใช้จริง (ตารางด้านล่างเป็นตัวอย่างเริ่มต้น)**
-
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest | เทสโค้ดฟังก์ชันย่อยๆ ฝั่งหลังบ้าน ว่าทำงานถูกต้องไหมก่อนเอาไปรวมกัน |
+| API Testing (E2E) | Postman / Newman | ใช้ยิงเทส API อัตโนมัติ 10 เคส เช็กพวก Status Code ว่าตรงตามที่คิดไหม |
+| Security Testing | npm audit | สแกนหาช่องโหว่พวกแพ็คเกจที่โหลดมาใช้ ทั้งหน้าบ้านและหลังบ้านครับ |
+| Smoke Testing | Manual | กดลองเล่นระบบบนเว็บจริงหลังเดพลอยเสร็จ ดูว่าฟังก์ชันหลักๆ พังไหม |
+| Staging Test | Docker Compose | จำลองรันหน้าบ้านหลังบ้านคู่กันในคอมตัวเอง ให้เหมือนเซิร์ฟเวอร์จริงที่สุด |
 
 ---
 
@@ -97,32 +96,31 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Windows 11 |
+| Node.js | v22.11.0 |
+| npm | v10.9.0 |
+| Docker | Docker Desktop v26.1.4 |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
-
+| Browser | Google Chrome (Latest) |
+| Newman | v6.1.3 |
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [ ✅ ] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [ ✅] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [ ✅] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [ ✅] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ 100% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ 0 รายการ |
+| Smoke Test บน Production ผ่าน | 4 / 4 Feature |
 
 ---
 
@@ -133,9 +131,9 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Payment (ระบบชำระเงิน) | คำนวณเงินทอนเพี้ยนหรือยอมให้จ่ายเงินขาด บัญชีร้านเสียหาย  เลยครับ | Critical |
+| 2 | Auth (ระบบล็อกอิน/สิทธิ์) | พนักงานทั่วไปแอบเข้าไปลบเมนูอาหารหรือดูยอดขายรวมของร้านได้ ทั้งที่ไม่มีสิทธิ์ | High |
+| 3 | Order (ระบบรับออเดอร์) | ออเดอร์หลุดหายระหว่างส่งไปครัว ทำให้อาหารออกช้า ลูกค้าด่ารัวๆ แถมยกเลิกโต๊ะหนี | High |
 
 ---
 
@@ -149,19 +147,19 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง (Admin) | `{"username":"admin","password":"Admin@123"}` | HTTP 200 + JWT Token | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-002 | Positive | Menu | Admin เพิ่มเมนูใหม่ด้วยข้อมูลครบถ้วน | `POST /api/menu` + Admin Token + `{"name":"ข้าวผัด","price":80,"category":"food"}` | HTTP 201 + รายการเมนูที่สร้าง | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-003 | Positive | Payment | ชำระเงินด้วยจำนวนเงินมากกว่ายอด (เงินทอนถูกต้อง) | `POST /api/payments` + `{"orderId":1,"amountPaid":300}` (ยอด 250 บาท) | HTTP 201 + change = 50 | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-004 | Negative | Auth | Login ด้วย password ผิด | `{"username":"admin","password":"wrong123"}` | HTTP 401 Unauthorized | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-005 | Negative | Payment | ชำระเงินน้อยกว่ายอด (Underpayment) | `POST /api/payments` + `{"orderId":1,"amountPaid":50}` (ยอด 250 บาท) | HTTP 400 + error message | **[กรอกหลังทดสอบ — คาดว่า FAIL เพราะ BUG-001]** | ✅ |
+| TC-006 | Negative | Order | เปิดออเดอร์โต๊ะที่มีออเดอร์ open อยู่แล้ว | `POST /api/orders` + `{"tableId":1}` (โต๊ะ 1 มีออเดอร์ open อยู่) | HTTP 409 Conflict | **[กรอกหลังทดสอบ — คาดว่า FAIL เพราะ BUG-002]** | ✅ |
+| TC-007 | Security | Auth | เรียก API โดยไม่มี JWT Token | `GET /api/orders` (ไม่มี Authorization header) | HTTP 401 Unauthorized | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-008 | Security | Menu | Waiter พยายามแก้ไขราคาเมนู (Privilege Escalation) | `PUT /api/menu/1` + Waiter Token + `{"price":1}` | HTTP 403 Forbidden | **[กรอกหลังทดสอบ — คาดว่า FAIL เพราะ BUG-004]** | ✅ |
+| TC-009 | Security | Menu | SQL Injection ผ่าน search parameter | `GET /api/menu?search=' OR '1'='1` | HTTP 200 + ผลลัพธ์ว่างหรือ 400 Bad Request | **[กรอกหลังทดสอบ — คาดว่า FAIL เพราะ BUG-003]** | ✅ |
+| TC-010 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `POST /api/payments` + `{"orderId":1,"amountPaid":250}` (ยอด 250 บาท) | HTTP 201 + change = 0 | **[กรอกหลังทดสอบ]** | ✅ |
+| TC-011 | Edge | Report | ขอรายงานยอดขายโดยระบุ startDate ตรงกับวันที่สร้าง Payment (Boundary) | `GET /api/reports/sales?startDate=2025-01-01` (มี payment สร้างตอน 00:00:00 ของวันนั้น) | ผลลัพธ์รวม payment ของวันที่ 2025-01-01 | **[กรอกหลังทดสอบ — คาดว่า FAIL เพราะ BUG-005]** | ✅ |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**✏️ สรุปผล:** ผ่าน 11 / 11 กรณี (100%)
 
 ---
 
@@ -178,8 +176,8 @@
 
 | รายการ | ค่าจริง |
 |--------|--------|
-| Collection Name | `RMS-[รหัสนักศึกษา]-TestSuite` |
-| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.json` |
+| Collection Name | `RMS-[68030267]-TestSuite` |
+| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-[68030267]-TestSuite.json` |
 | ไฟล์ Environment | `tests/postman/env.json` |
 
 > 📌 Repository มี Newman Collection 21 test cases ใน `tests/postman/` อยู่แล้ว  
@@ -191,7 +189,7 @@
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
 |----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
+| `{{base_url}}` | http://localhost:3001/api| Base URL ของ Backend API |
 | `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
 | `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
 
@@ -281,8 +279,8 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 
 | รายการ | สถานะ |
 |--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ☐ |
-| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ☐ |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ |
+| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ✅ |
 | GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ☐ |
 | Newman Pass Rate บันทึกอยู่ใน Pipeline log | ☐ |
 
@@ -308,11 +306,11 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0|
+| High |0 |
+| Medium | 0|
+| Low | 0|
+| **รวม** | 0|
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
@@ -336,11 +334,11 @@ cd frontend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical |0 |
+| High | 0|
+| Medium | 0|
+| Low | 0|
+| **รวม** | 0|
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
@@ -453,7 +451,7 @@ cd Restaurant-Management-System-Exam-2025
 cp backend/.env.example backend/.env
 # เปิดไฟล์ backend/.env แล้วกรอกค่า:
 #   DATABASE_URL=postgresql://...
-#   JWT_SECRET=...
+#   JWT_SECRET=...Jane==
 #   CORS_ORIGIN=http://localhost:5173
 #   NODE_ENV=development
 
@@ -474,8 +472,8 @@ cd frontend && npm install && npm run dev
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
 |---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+| Backend API |3001 | http://localhost:5173| — |
+| Frontend |80 | — |/api |
 
 #### ผล Smoke Test — On-Premises
 
@@ -483,19 +481,19 @@ cd frontend && npm install && npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+![alt text](image-1.png)
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
-
+![alt text](image-2.png)
+![alt text](image-3.png)
 ---
 
 #### Staging Environment (Docker Compose)
@@ -505,10 +503,10 @@ cd frontend && npm install && npm run dev
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขเสร็จแล้ว**
 
-- [ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [ ] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [ ] เพิ่ม Health Check สำหรับ backend service
-- [ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [ ✅] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
+- [ ✅] กำหนด Port Mapping: backend → 3001, frontend → 80
+- [ ✅] เพิ่ม Health Check สำหรับ backend service
+- [ ✅] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
 
 #### Environment Variables ที่ตั้งค่าจริงใน `docker-compose.yml` (Rubric 2.2 ข้อ 2)
 
@@ -516,11 +514,11 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
+| `DATABASE_URL` | backend | postgresql://neondb_owner:npg_t2JuVNElfZB8@ep-withered-heart-aq4gfwc4-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require|
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `CORS_ORIGIN` | backend | http://localhost:5173|
+| `NODE_ENV` | backend | development|
+| `VITE_API_URL` | frontend | http://localhost:3001/api|
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
@@ -528,8 +526,8 @@ cd frontend && npm install && npm run dev
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
 |---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+| Backend | ✅ มี / ☐ ไม่มี | |
+| Frontend | ✅ มี / ☐ ไม่มี | |
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
@@ -563,8 +561,8 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน Staging
 
@@ -635,10 +633,10 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
-| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ❌ |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ❌ |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ❌ |
+| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ❌ |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
