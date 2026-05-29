@@ -192,7 +192,7 @@
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
 |----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
+| `{{base_url}}` | http://localhost:3001 | Base URL ของ Backend API |
 | `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
 | `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
 
@@ -441,7 +441,7 @@ RMS-68030238-TestSuite
 
 **รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
-`![Newman Run Result](./tests/reports/newman-cli-result.png)`
+`![alt text](image-3.png)`
 
 ---
 
@@ -452,7 +452,7 @@ RMS-68030238-TestSuite
 
 | รายการ | สถานะ |
 |--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ☐ |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ |
 | `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ☐ |
 | GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ☐ |
 | Newman Pass Rate บันทึกอยู่ใน Pipeline log | ☐ |
@@ -479,21 +479,21 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0 |
+| High | 0 |
+| Medium | 0 |
+| Low | 0 |
+| **รวม** | 0 |
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
 |---------|--------|----------|--------------------|--------------------|--------------| 
-| | | | | | |
+|ไม่พบช่องโหว่ | | | | | |
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+`![alt text](image-4.png)`
 
 ---
 
@@ -507,15 +507,15 @@ cd frontend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0 |
+| High | 0 |
+| Medium | 0 |
+| Low | 0 |
+| **รวม** | 0 |
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+`![alt text](image-5.png)`
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -537,29 +537,29 @@ cd frontend && npm audit --audit-level=moderate
 
 | รายการ | ค่า |
 |--------|-----|
-| **Severity** | (เลือก: Critical / High / Medium / Low) |
-| **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
-| **Status** | (เลือก: Open / Fixed) |
+| **Severity** | Medium |
+| **Priority** | P2 |
+| **Feature** |Backend / Security Scan |
+| **Status** | Fixed |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. cd backend
+2. run npm audit --audit-level=moderate
+3. พบ error ENOLOCK
 
 #### Expected Result
-> ✏️ 
+> ✏️ npm audit ทำงานได้
 
 #### Actual Result
-> ✏️ 
+> ✏️ Error: This command requires an existing lockfile
 
 #### Evidence
 
 `![BUG-001](./tests/reports/bug-001.png)`
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ไม่สามารถตรวจสอบความปลอดภัย dependency ได้ เสี่ยงต่อ security ของระบบร้านอาหาร
 
 ---
 
@@ -567,29 +567,30 @@ cd frontend && npm audit --audit-level=moderate
 
 | รายการ | ค่า |
 |--------|-----|
-| **Severity** | (เลือก: Critical / High / Medium / Low) |
-| **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
-| **Status** | (เลือก: Open / Fixed) |
+| **Severity** | High |
+| **Priority** | P1 |
+| **Feature** | CI/CD Security Scan |
+| **Status** | Open |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. Push code ขึ้น GitHub repository
+2. ไปที่แท็บ Actions (GitHub Actions)
+3. ตรวจสอบ workflow cicd.yml
+4. ดูว่า step npm audit --audit-level=high ไม่ถูกรันหรือไม่แสดงผล
 
 #### Expected Result
-> ✏️ 
+> ✏️ CI pipeline ต้องมีขั้นตอน Security Scan และรัน npm audit สำเร็จทุกครั้งที่มีการ push code
 
 #### Actual Result
-> ✏️ 
+> ✏️ Security scan step ไม่ถูกรัน หรือ workflow ข้ามขั้นตอน npm audit ทำให้ไม่มีผลการตรวจสอบความปลอดภัยใน CI
 
 #### Evidence
 
 `![BUG-002](./tests/reports/bug-002.png)`
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ทำให้ระบบร้านอาหารมีความเสี่ยง เพราะโค้ดใหม่สามารถถูก deploy ได้โดยไม่ผ่านการตรวจสอบ security dependency เสี่ยงต่อช่องโหว่ใน production เช่นระบบสั่งอาหาร / payment อาจถูกโจมตีได้
 
 ---
 
@@ -645,8 +646,8 @@ cd frontend && npm install && npm run dev
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
 |---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+| Backend API | 3001 | `http://localhost:5173` | — |
+| Frontend | 5173 | — |  http://localhost:3001 |
 
 #### ผล Smoke Test — On-Premises
 
@@ -654,18 +655,18 @@ cd frontend && npm install && npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ✅ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+`![alt text](image-6.png)`
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+`![alt text](image-7.png)`
 
 ---
 
@@ -676,10 +677,10 @@ cd frontend && npm install && npm run dev
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขเสร็จแล้ว**
 
-- [ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [ ] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [ ] เพิ่ม Health Check สำหรับ backend service
-- [ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [✅ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
+- [✅ ] กำหนด Port Mapping: backend → 3001, frontend → 80
+- [✅ ] เพิ่ม Health Check สำหรับ backend service
+- [✅ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
 
 #### Environment Variables ที่ตั้งค่าจริงใน `docker-compose.yml` (Rubric 2.2 ข้อ 2)
 
@@ -687,11 +688,12 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
+| `DATABASE_URL` | backend | DATABASE_URL=postgresql://neondb_owner:npg_O4GVspU3KZEB@ep-steep-rain-aqa3c5b3-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+ |
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `CORS_ORIGIN` | backend | http://localhost:3001 |
+| `NODE_ENV` | backend | production |
+| `VITE_API_URL` | frontend | http://localhost:80 |
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
@@ -699,8 +701,8 @@ cd frontend && npm install && npm run dev
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
 |---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+| Backend | ☐ มี / ✅ ไม่มี | |
+| Frontend | ✅ มี / ☐ ไม่มี | builder → nginx|
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
@@ -712,7 +714,7 @@ cd frontend && npm install && npm run dev
 
 | Volume Name / Path | Host Path | Container Path | วัตถุประสงค์ |
 |-------------------|-----------|----------------|-------------|
-| | | | |
+| ไม่มี Volume mapping | | | |
 
 #### Network Configuration (Rubric 2.5 ข้อ 5)
 
@@ -720,7 +722,7 @@ cd frontend && npm install && npm run dev
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
 |-------------|--------|-------------------------------|
-| | | |
+| project_default | bridge | backend, frontend, db |
 
 #### คำสั่งรัน Staging
 
@@ -734,8 +736,8 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` |✅ |
+| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ไม่ผ่าน |
 
 #### หลักฐาน Staging
 
@@ -791,11 +793,11 @@ Build Command:  npm run build
 | Variable | Service | ค่าที่ตั้งจริงบน Cloud |
 |----------|---------|----------------------|
 | `PORT` | Backend (Render) | `10000` |
-| `DATABASE_URL` | Backend (Render) | |
+| `DATABASE_URL` | Backend (Render) | postgresql://neondb_owner:npg_O4GVspU3KZEB@ep-steep-rain-aqa3c5b3-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require |
 | `JWT_SECRET` | Backend (Render) | (ตั้งค่าแล้ว — ไม่ระบุ) |
-| `CORS_ORIGIN` | Backend (Render) | `https://[ชื่อ app ของตนเอง].vercel.app` |
+| `CORS_ORIGIN` | Backend (Render) | `https://frontend-six-sable-64.vercel.app` |
 | `NODE_ENV` | Backend (Render) | `production` |
-| `VITE_API_URL` | Frontend (Vercel) | `https://[ชื่อ api ของตนเอง].onrender.com` |
+| `VITE_API_URL` | Frontend (Vercel) | `https://restaurant-management-system-exam-2025-nifu.onrender.com` |
 
 ---
 
@@ -806,24 +808,24 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ✅ |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ✅ |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ✅ |
 | 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+`![alt text](image-8.png)`
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+`![alt text](image-9.png)`
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+`![alt text](image-10.png)`
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
