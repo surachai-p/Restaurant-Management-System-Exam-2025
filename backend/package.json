@@ -2,6 +2,7 @@
   "name": "rms-backend",
   "version": "1.0.0",
   "description": "Restaurant Management System — Backend API (TypeScript + Prisma)",
+  "type": "commonjs",
   "engines": {
     "node": ">=22.0.0"
   },
