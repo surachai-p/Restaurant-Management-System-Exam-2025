@@ -10,7 +10,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/rms_db?sslmode=disable
+      - DATABASE_URL=postgresql://neondb_owner:npg_t2JuVNElfZB8@ep-withered-heart-aq4gfwc4-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
       - JWT_SECRET=LocalStagingSecretKey2025
       - CORS_ORIGIN=http://localhost:80
     volumes:
