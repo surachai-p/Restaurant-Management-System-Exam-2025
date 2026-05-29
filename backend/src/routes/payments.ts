@@ -2,13 +2,14 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
+import { Request, Response } from 'express';
 
 const router = Router()
 
 // POST /api/payments
 // ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
 // Negative change is stored and returned when customer underpays
-router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
       orderId?: number; amountPaid?: number; method?: 'cash' | 'card' | 'qr'
@@ -53,7 +54,7 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 })
 
 // GET /api/payments/:orderId
-router.get('/:orderId', authenticate, async (req, res) => {
+router.get('/:orderId', authenticate, async (req: Request, res: Response) => {
   try {
     const payment = await prisma.payment.findUnique({
       where: { orderId: Number(req.params.orderId) },
