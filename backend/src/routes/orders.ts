@@ -1,4 +1,3 @@
-// src/routes/orders.ts
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
@@ -57,7 +56,7 @@ router.get('/:id', authenticate, async (req, res) => {
 })
 
 // POST /api/orders — open new order
-// ⚠️ BUG-002 [Double Booking]: No check for existing open order on same table
+// FIXED [BUG-002]: Prevent double booking by checking for existing open orders on the same table
 router.post('/', authenticate, async (req, res) => {
   try {
     const { tableId, note } = req.body as { tableId?: number; note?: string }
@@ -66,9 +65,12 @@ router.post('/', authenticate, async (req, res) => {
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
 
-    // ⚠️ BUG-002: Missing duplicate check — allows two orders on same table
-    // Fix: const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
-    //      if (existing) { res.status(409).json({ error: 'Table already has an open order' }); return }
+    // [BUG-002 Validation]: Check if the table already has an active open order
+    const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
+    if (existing) { 
+      res.status(409).json({ error: 'Table already has an open order' }); 
+      return 
+    }
 
     const [order] = await prisma.$transaction([
       prisma.order.create({
@@ -174,4 +176,4 @@ router.put('/:id/cancel', authenticate, requireRole('admin', 'cashier'), async (
   }
 })
 
-export default router
+ export default router
