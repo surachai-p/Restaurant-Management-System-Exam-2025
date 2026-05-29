@@ -36,6 +36,11 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
 
     // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
+    if (paid < totalAmount) { 
+      res.status(400).json({ error: 'Insufficient payment amount' }); 
+      return 
+    }
+
     const change = paid - totalAmount
 
     const [payment] = await prisma.$transaction([
