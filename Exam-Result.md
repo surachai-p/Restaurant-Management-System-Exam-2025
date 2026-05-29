@@ -671,7 +671,7 @@ Build Command:  npm run build
 - [ ] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
 - [ ] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
 - [ ] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [ ] เพิ่ม step ติดตั้งและรัน Newman
+- [ ] เพิ่ม step ติดตั้งและรัน Newman 
 - [ ] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
 
 ### Newman Pass Rate จาก CI/CD Pipeline
