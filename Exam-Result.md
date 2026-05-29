@@ -686,7 +686,7 @@ cd frontend && npm install && npm run dev
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
 |-------------|--------|-------------------------------|
-| Default (Bridge) | bridge | backend, frontend |
+| rms_default (auto-generated) | bridge | db, backend, frontend |
 
 #### คำสั่งรัน Staging
 
@@ -757,11 +757,11 @@ Build Command:  npm run build
 | Variable | Service | ค่าที่ตั้งจริงบน Cloud |
 |----------|---------|----------------------|
 | `PORT` | Backend (Render) | `10000` |
-| `DATABASE_URL` | Backend (Render) | |
+| `DATABASE_URL` | Backend (Render) | postgresql://neondb_owner:npg_3cQySeOUdzh6@ep-divine-water-aox7h6hc-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require |
 | `JWT_SECRET` | Backend (Render) | (ตั้งค่าแล้ว — ไม่ระบุ) |
-| `CORS_ORIGIN` | Backend (Render) | `https://[ชื่อ app ของตนเอง].vercel.app` |
+| `CORS_ORIGIN` | Backend (Render) | `https://restaurant-management-system-exam-2025-1-xces.onrender.com/` |
 | `NODE_ENV` | Backend (Render) | `production` |
-| `VITE_API_URL` | Frontend (Vercel) | `https://[ชื่อ api ของตนเอง].onrender.com` |
+| `VITE_API_URL` | Frontend (Vercel) | `https://restaurant-management-system-exam-2025-1-xces.onrender.com/api` |
 
 ---
 
@@ -772,28 +772,28 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
-| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ✅ |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ✅ |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ✅ |
+| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ✅ |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+![Smoke Test Health](./tests/reports/smoke-1-health.png)
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+![Smoke Test Login](./tests/reports/smoke-2-login.png)
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+![Smoke Test Order](./tests/reports/smoke-3-order.png)
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
-`![Smoke Test Payment](./tests/reports/smoke-4-payment.png)`
+![Smoke Test Payment](./tests/reports/smoke-4-payment.png)
 
 ---
 
@@ -805,11 +805,11 @@ Build Command:  npm run build
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขและทดสอบ Pipeline สำเร็จแล้ว**
 
-- [ ] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [ ] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
-- [ ] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [ ] เพิ่ม step ติดตั้งและรัน Newman
-- [ ] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
+- [✅] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
+- [✅] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
+- [✅] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
+- [✅] เพิ่ม step ติดตั้งและรัน Newman
+- [✅] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
 
 ### Newman Pass Rate จาก CI/CD Pipeline
 
@@ -817,14 +817,14 @@ Build Command:  npm run build
 
 | Metric | ค่าจริง |
 |--------|--------|
-| Total Tests | |
-| Tests Passed | |
-| Tests Failed | |
-| **Pass Rate** | **%** |
+| Total Tests | 15 |
+| Tests Passed | 11 |
+| Tests Failed | 4 |
+| **Pass Rate** | **73.3%** |
 
 **รูปที่ 16 — GitHub Actions Pipeline สำเร็จ (แสดง Newman Pass Rate ใน log)**
 
-`![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)`
+![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)
 
 ---
 
