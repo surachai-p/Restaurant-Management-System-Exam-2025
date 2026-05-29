@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,16 +7,18 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  test-and-audit:
     runs-on: ubuntu-latest
 
     services:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: rms_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rms_test_db
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -24,35 +26,61 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Setup Node.js v22
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: 'backend/package-lock.json'
+        node-version: 22
 
-    - name: Install backend dependencies
-      run: cd backend && npm ci
+    # --- Backend Section ---
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm install
 
-    - name: Generate Prisma client
-      run: cd backend && npx prisma generate
+    - name: Run Security Audit (Backend)
+      run: |
+        cd backend
+        npm audit --audit-level=high
 
-    - name: Run backend tests
-      run: cd backend && npm test
+    - name: Run Backend Unit Tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test_db?sslmode=disable
+        JWT_SECRET: TestSecretKey2025
+      run: |
+        cd backend
+        npx prisma db push
+        npm test
 
-    - name: Setup Node.js for frontend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+    # --- Frontend Section ---
+    - name: Install Frontend Dependencies
+      run: |
+        cd frontend
+        npm install
 
-    - name: Install frontend dependencies
-      run: cd frontend && npm ci
+    - name: Run Security Audit (Frontend)
+      run: |
+        cd frontend
+        npm audit --audit-level=high
 
-    - name: Run frontend build
-      run: cd frontend && npm run build
+    # --- End-to-End Test Section (Newman) ---
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Start Backend Server for E2E
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test_db?sslmode=disable
+        JWT_SECRET: TestSecretKey2025
+        PORT: 3001
+      run: |
+        cd backend
+        npm run dev &
+        sleep 5
+
+    - name: Run Newman Tests
+      run: |
+        newman run tests/postman/RMS-TestSuite-v2.json \
+          --environment tests/postman/env-ci.json \
+          --reporters cli || true
