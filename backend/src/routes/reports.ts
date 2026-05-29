@@ -2,13 +2,14 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
+import { Request, Response } from 'express';
 
 const router = Router()
 
 // GET /api/reports/sales?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
 // ⚠️ BUG-005 [Date Filter]: Uses strictly-greater-than (gt) for startDate
 // Orders exactly at midnight of startDate are excluded from results
-router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query as { startDate?: string; endDate?: string }
 
@@ -58,7 +59,7 @@ router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, 
 })
 
 // GET /api/reports/daily
-router.get('/daily', authenticate, requireRole('admin', 'cashier'), async (_req, res) => {
+router.get('/daily', authenticate, requireRole('admin', 'cashier'), async (_req: Request, res: Response) => {
   try {
     const today = new Date(); today.setHours(0, 0, 0, 0)
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1)

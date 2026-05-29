@@ -4,11 +4,12 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma'
 import { authenticate, JWT_SECRET } from '../middleware/auth'
+import { Request, Response } from 'express';
 
 const router = Router()
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body as { username?: string; password?: string }
     if (!username || !password) {
@@ -27,7 +28,7 @@ router.post('/login', async (req, res) => {
 })
 
 // GET /api/auth/me
-router.get('/me', authenticate, (req, res) => {
+router.get('/me', authenticate, (req: Request, res: Response) => {
   res.json({ user: req.user })
 })
 

@@ -2,11 +2,12 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
+import { Request, Response } from 'express';
 
 const router = Router()
 
 // GET /api/orders/tables
-router.get('/tables', authenticate, async (_req, res) => {
+router.get('/tables', authenticate, async (_req: Request, res: Response) => {
   try {
     const tables = await prisma.restaurantTable.findMany({ orderBy: { tableNumber: 'asc' } })
     res.json(tables)
@@ -16,7 +17,7 @@ router.get('/tables', authenticate, async (_req, res) => {
 })
 
 // GET /api/orders
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const { status, tableId } = req.query as { status?: string; tableId?: string }
     const orders = await prisma.order.findMany({
@@ -38,7 +39,7 @@ router.get('/', authenticate, async (req, res) => {
 })
 
 // GET /api/orders/:id
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const order = await prisma.order.findUnique({
       where: { id: Number(req.params.id) },
@@ -58,7 +59,7 @@ router.get('/:id', authenticate, async (req, res) => {
 
 // POST /api/orders — open new order
 // ⚠️ BUG-002 [Double Booking]: No check for existing open order on same table
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const { tableId, note } = req.body as { tableId?: number; note?: string }
     if (!tableId) { res.status(400).json({ error: 'tableId required' }); return }
@@ -84,7 +85,7 @@ router.post('/', authenticate, async (req, res) => {
 })
 
 // POST /api/orders/:id/items
-router.post('/:id/items', authenticate, async (req, res) => {
+router.post('/:id/items', authenticate, async (req: Request, res: Response) => {
   try {
     const orderId = Number(req.params.id)
     const { menuItemId, quantity = 1 } = req.body as { menuItemId?: number; quantity?: number }
@@ -119,7 +120,7 @@ router.post('/:id/items', authenticate, async (req, res) => {
 })
 
 // DELETE /api/orders/:id/items/:itemId
-router.delete('/:id/items/:itemId', authenticate, async (req, res) => {
+router.delete('/:id/items/:itemId', authenticate, async (req: Request, res: Response) => {
   try {
     const orderId = Number(req.params.id)
     const itemId  = Number(req.params.itemId)
@@ -141,7 +142,7 @@ router.delete('/:id/items/:itemId', authenticate, async (req, res) => {
 })
 
 // PUT /api/orders/:id/confirm
-router.put('/:id/confirm', authenticate, async (req, res) => {
+router.put('/:id/confirm', authenticate, async (req: Request, res: Response) => {
   try {
     const orderId = Number(req.params.id)
     const order = await prisma.order.findUnique({
@@ -158,7 +159,7 @@ router.put('/:id/confirm', authenticate, async (req, res) => {
 })
 
 // PUT /api/orders/:id/cancel
-router.put('/:id/cancel', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+router.put('/:id/cancel', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response) => {
   try {
     const orderId = Number(req.params.id)
     const order = await prisma.order.findUnique({ where: { id: orderId } })

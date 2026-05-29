@@ -3,13 +3,14 @@ import { Router } from 'express'
 import { Category } from '@prisma/client'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
+import { Request, Response } from 'express';
 
 const router = Router()
 
 // GET /api/menu  — list / search
 // ⚠️ BUG-003 [SQL Injection]: Raw query with string interpolation
 // Students should test: ?search=' OR '1'='1
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const { search, category } = req.query as { search?: string; category?: string }
 
@@ -36,7 +37,7 @@ router.get('/', authenticate, async (req, res) => {
 })
 
 // GET /api/menu/:id
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
@@ -47,7 +48,7 @@ router.get('/:id', authenticate, async (req, res) => {
 })
 
 // POST /api/menu — admin only ✅
-router.post('/', authenticate, requireRole('admin'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin'), async (req: Request, res: Response) => {
   try {
     const { name, description, price, category, imageUrl } = req.body as {
       name?: string; description?: string; price?: number
@@ -65,7 +66,7 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
 
 // PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
 // Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, requireRole('admin'), async (req: Request, res: Response) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
@@ -81,7 +82,7 @@ router.put('/:id', authenticate, async (req, res) => {
 })
 
 // DELETE /api/menu/:id — soft delete, admin only ✅
-router.delete('/:id', authenticate, requireRole('admin'), async (req, res) => {
+router.delete('/:id', authenticate, requireRole('admin'), async (req: Request, res: Response) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }
