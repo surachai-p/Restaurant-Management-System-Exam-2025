@@ -1,60 +1,40 @@
 version: '3.9'
 
 services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: rms-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: rms_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  db:
+    image: postgres:16
+    container_name: db-1
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=rms_db
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: rms-backend
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      PORT: 3001
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    build: ./backend
     ports:
-      - "3001:3001"
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
+      - "3001:3001" # กำหนด Port Mapping backend 
+    environment:
+      # แก้ localhost เป็น db เพื่ออ้างอิงถึง service db ใน docker network
+      - DATABASE_URL=postgresql://neondb_owner:npg_uN98ROlCFHqE@ep-cool-fog-aoi1f7fv-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - JWT_SECRET=rms-dev-secret-key-change-in-production
+      - CORS_ORIGIN=http://localhost:5173 # เพิ่มตัวแปร CORS_ORIGIN
+    depends_on:
+      - db
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
-      interval: 15s
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 10s
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: /api
-    container_name: rms-frontend
-    restart: unless-stopped
+    build: ./frontend
     ports:
-      - "80:80"
+      - "80:80" # กำหนด Port Mapping frontend เป็น 80
+    environment:
+      - VITE_API_URL=/api
     depends_on:
       backend:
-        condition: service_healthy
-
-volumes:
-  # postgres_data:
+        condition: service_healthy # กำหนดให้รอ backend ผ่าน healthcheck ก่อนจึงจะเริ่มทำงาน
