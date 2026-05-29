@@ -9,6 +9,7 @@ import menuRoutes    from './routes/menu'
 import orderRoutes   from './routes/orders'
 import paymentRoutes from './routes/payments'
 import reportRoutes  from './routes/reports'
+import { Request, Response } from 'express';
 
 const app = express()
 
@@ -21,7 +22,7 @@ app.use('/api/orders',   orderRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/reports',  reportRoutes)
 
-app.get('/api/health', (_req, res) =>
+app.get('/api/health', (_req: Request, res: Response) =>
   res.json({ status: 'ok', timestamp: new Date(), version: '2.0.0' })
 )
 

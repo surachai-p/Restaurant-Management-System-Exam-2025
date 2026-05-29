@@ -56,3 +56,10 @@ jobs:
 
     - name: Run frontend build
       run: cd frontend && npm run build
+
+    - name: Run Install Newman
+      run: npm install -g newman newman-reporter-htmlextra
+
+    - name: Run Postman tests
+      run: newman run tests/postman/RMS-68030159-TestSuite.json --environment tests/postman/env.json --reporters cli,htmlextra 
+      
