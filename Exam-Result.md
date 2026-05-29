@@ -617,14 +617,14 @@ Build Command:  npm run build
 
 **✏️ กรอก URL จริงที่ได้หลัง Deploy (ใช้สำหรับตั้งค่าใน Render และ Vercel)**
 
-| Variable | Service | ค่าที่ตั้งจริงบน Cloud |
-|----------|---------|----------------------|
-| `PORT` | Backend (Render) | `10000` |
-| `DATABASE_URL` | Backend (Render) | |
-| `JWT_SECRET` | Backend (Render) | (ตั้งค่าแล้ว — ไม่ระบุ) |
-| `CORS_ORIGIN` | Backend (Render) | `https://[ชื่อ app ของตนเอง].vercel.app` |
-| `NODE_ENV` | Backend (Render) | `production` |
-| `VITE_API_URL` | Frontend (Vercel) | `https://[ชื่อ api ของตนเอง].onrender.com` |
+|    Variable    |     Service      |            ค่าที่ตั้งจริงบน Cloud               |
+|----------------|------------------|-------------------------------------------|
+| `PORT`         | Backend (Render) |                 `10000`                    |
+| `DATABASE_URL` | Backend (Render) | postgresql://neondb_owner:npg_uN98ROlCFHqE@ep-cool-fog-aoi1f7fv-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require                                         |
+| `JWT_SECRET`   | Backend (Render) |           (ตั้งค่าแล้ว — ไม่ระบุ)               |
+| `CORS_ORIGIN`  | Backend (Render) |      https://rms-2025.vercel.app          |
+| `NODE_ENV`     | Backend (Render) |               production              |
+| `VITE_API_URL` | Frontend (Vercel) | https://restaurant-management-system-exam-2025-r1cw.onrender.com/api |
 
 ---
 
@@ -635,28 +635,28 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
-| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | / |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | / |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | / |
+| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | / |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+![Smoke Test Health](./img/api_health_check.png)
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+![Smoke Test Login](./img/rms_login.png)
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+![Smoke Test Order](./img/open_order.png)
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
-`![Smoke Test Payment](./tests/reports/smoke-4-payment.png)`
+![Smoke Test Payment](./img/payment.png)
 
 ---
 
