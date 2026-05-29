@@ -28,7 +28,7 @@ describe('Payment Calculation Logic', () => {
   it('[BUG-001] should NOT produce negative change (underpayment rejection)', () => {
     const change = calculateChange(150, 100)
     // Current route stores change = 0 on underpayment and returns validation errors
-    expect(change).toBeGreaterThanOrEqual(0) 
+    expect(change).toBeGreaterThanOrEqual(0)
   })
 })
 
@@ -59,6 +59,7 @@ describe('Business Risk: Order Total Integrity', () => {
     ]
     const calculated = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0)
     const stored     = items.reduce((s, i) => s + i.subtotal, 0)
+    
     expect(calculated).toBe(265)
     expect(stored).toBe(265)
     expect(calculated).toBe(stored)

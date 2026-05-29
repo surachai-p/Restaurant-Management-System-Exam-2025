@@ -1,12 +1,12 @@
 // src/routes/payments.ts
-import { Router } from 'express'
+import { Router, NextFunction, Request, Response } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
 
 const router = Router()
 
 // POST /api/payments
-router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
+router.post('/', authenticate, requireRole('admin', 'cashier'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
       orderId?: number; amountPaid?: number; method?: 'cash' | 'card' | 'qr'
@@ -52,13 +52,13 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
         required: totalAmount, 
         provided: paid 
       })
-      return // สั่งตัดจบการทำงานทันที ไม่ให้วิ่งลงไปหา prisma ข้างล่าง
+      return 
     }
 
     // 🔒 [เซฟตี้ชั้นที่ 2]: บังคับคำนวณเงินทอนไม่ให้ต่ำกว่า 0 เสมอในระดับตัวแปร
     const change = Math.max(0, paid - totalAmount)
 
-    // 3. บันทึกข้อมูลลงฐานข้อมูลแบบพร้อมกัน
+    // 3. บันทึกข้อมูลลงฐานข้อมูลแบบพร้อมกัน (Atomicity)
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
         data: { 
@@ -76,12 +76,14 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 
     res.status(201).json({ payment, change, message: 'Payment processed successfully' })
   } catch (err) {
+    // 💡 ปรับปรุงเพื่อให้ Express Error Handler ช่วยดูแลแอปพลิเคชันไม่ให้ค้าง
     res.status(500).json({ error: (err as Error).message })
+    next(err)
   }
 })
 
 // GET /api/payments/:orderId
-router.get('/:orderId', authenticate, async (req, res) => {
+router.get('/:orderId', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const payment = await prisma.payment.findUnique({
       where: { orderId: Number(req.params.orderId) },
@@ -93,6 +95,7 @@ router.get('/:orderId', authenticate, async (req, res) => {
     res.json(payment)
   } catch (err) {
     res.status(500).json({ error: (err as Error).message })
+    next(err)
   }
 })
 
