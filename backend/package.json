@@ -39,5 +39,19 @@
     "tsx": "^4.15.0",
     "typescript": "^5.4.5",
     "vitest": "^4.1.5"
-  }
+  },
+  "prisma": {
+    "seed": "npx ts-node prisma/seed.ts"
+  },
+
+
+
+
+  "scripts": {
+  "test": "vitest run",
+  "build": "tsc",
+  "start": "node dist/app.js",
+  "dev": "tsx watch src/app.ts",
+  "ci:e2e": "npx prisma db seed || true && nohup node dist/app.js > server.log 2>&1 & for i in {1..30}; do if curl -s http://localhost:3001/ > /dev/null || curl -s http://localhost:3001/api/auth/login > /dev/null; then echo 'Backend is up!'; break; fi; sleep 2; done && cd .. && npx newman run tests/postman/RMS-TestSuite-v2.json --reporters cli,htmlextra --reporter-htmlextra-export tests/postman/newman-report.html --env-var base_url=http://localhost:3001"
+}
 }

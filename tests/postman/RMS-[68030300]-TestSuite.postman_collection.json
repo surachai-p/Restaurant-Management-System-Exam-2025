@@ -1,0 +1,296 @@
+{
+  "info": {
+    "_postman_id": "297138c7-9b01-47a5-a236-c92f22512063",
+    "name": "RMS-[68030300]-TestSuite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52715203"
+  },
+  "item": [
+    {
+      "name": "Admin Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const jsonData = pm.response.json();\r",
+              "if (jsonData.token) {\r",
+              "    pm.environment.set(\"admin_token\", jsonData.token);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"Admin@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cashier Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const jsonData = pm.response.json();\r",
+              "if (jsonData.token) {\r",
+              "    pm.environment.set(\"token\", jsonData.token);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"cashier1\",\r\n  \"password\": \"Cashier@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Open Table & Order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const jsonData = pm.response.json();\r",
+              "if (jsonData.id) {\r",
+              "    pm.environment.set(\"current_order_id\", jsonData.id);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"tableId\": 2\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Payment Underpaid Amount",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Should return 400 Bad Request due to underpayment\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Error message should be clear\", function () {\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.error).to.exist;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"orderId\": {{current_order_id}},\r\n  \"amountPaid\": 20\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/payments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "payments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Items to Order",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"menuItemId\": 1,\r\n  \"quantity\": 2\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/orders/{{current_order_id}}/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "{{current_order_id}}",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Confirm Order to Kitchen",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/orders/{{current_order_id}}/confirm",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "orders",
+            "{{current_order_id}}",
+            "confirm"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
