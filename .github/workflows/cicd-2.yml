@@ -401,7 +401,7 @@ jobs:
       - name: "[ST-05] Frontend Accessible (Vercel)"
         id: smoke_frontend
         run: |
-          TARGET_FRONTEND="https://restaurant-management-system-exam-2025-g1p8fekqo.vercel.app"
+          TARGET_FRONTEND="https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app/orders"
           echo "🔍 Testing: GET $TARGET_FRONTEND"
           HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
             --max-time 30 "$TARGET_FRONTEND")

@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) |https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app/orders | ✅ |
+| Backend (Render) |https://rms-backend-um90.onrender.com | ✅ |
+| API Health Check (`/api/health`) | https://rms-backend-um90.onrender.com/api/health| ✅ |
+| Database (Neon.tech connection string)/(Render) |postgresql://rms_db_ten0_user:9jaLH9RIPnauUcLvJdvo4rC2RlQQPZZk@dpg-d8cnmmp9rddc73dei8rg-a/rms_db_ten0| ✅ |
 
 ---
 
@@ -656,11 +656,11 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend |postgres://postgres:postgres@db:5432/rms_db|
+| `DATABASE_URL` | backend |postgresql://rms_db_ten0_user:9jaLH9RIPnauUcLvJdvo4rC2RlQQPZZk@dpg-d8cnmmp9rddc73dei8rg-a/rms_db_ten0|
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend |${CORS_ORIGIN:-http://localhost:5173}|
+| `CORS_ORIGIN` | backend |https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app/|
 | `NODE_ENV` | backend |production|
-| `VITE_API_URL` | frontend |/api|
+| `VITE_API_URL` | frontend |https://rms-backend-um90.onrender.com|
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
