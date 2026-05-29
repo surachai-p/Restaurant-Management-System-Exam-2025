@@ -59,21 +59,41 @@ router.get('/:id', authenticate, async (req, res) => {
 // POST /api/orders — open new order
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { tableId, note } = req.body as { tableId?: number; note?: string }
+    const { tableId, note } = req.body as { tableId?: any; note?: string }
     if (!tableId) { res.status(400).json({ error: 'tableId required' }); return }
 
-    const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
+    // 🔒 ล็อกเรื่องชนิดข้อมูล: แปลงเป็น Number ให้ชัวร์ 100% ป้องกันฐานข้อมูลมองเป็น String
+    const targetTableId = Number(tableId)
+
+    const table = await prisma.restaurantTable.findUnique({ where: { id: targetTableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
 
-    // Check for existing open order on same table
-    const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
-    if (existing) { res.status(409).json({ error: 'Table already has an open order' }); return }
+    // 🔥 [ดักจับชั้นที่ 1]: บล็อกด้วยสถานะโต๊ะจาก Prisma Studio โดยแปลงให้เป็นตัวพิมพ์เล็กก่อนเช็ก
+    // (ป้องกันกรณีใน DB เก็บเป็น 'occupied', 'Occupied' หรือ 'OCCUPIED')
+    if (table.status && table.status.toLowerCase() === 'occupied') {
+      res.status(409).json({ error: 'Table is currently occupied' })
+      return
+    }
 
+    // 🔥 [ดักจับชั้นที่ 2]: บล็อกซ้ำด้วยการหาออเดอร์ที่ยังติดสถานะกินอยู่ในร้าน (open หรือ confirmed)
+    const existing = await prisma.order.findFirst({ 
+      where: { 
+        tableId: targetTableId, 
+        status: { in: ['open', 'confirmed'] } 
+      } 
+    })
+    
+    if (existing) { 
+      res.status(409).json({ error: 'Table already has an active order' })
+      return 
+    }
+
+    // กระบวนการสร้างออเดอร์และล็อกสถานะโต๊ะจะเริ่มทำงานก็ต่อเมื่อผ่านดักจับทั้งสองชั้นด้านบนมาได้เท่านั้น
     const [order] = await prisma.$transaction([
       prisma.order.create({
-        data: { tableId, waiterId: req.user!.id, status: 'open', note },
+        data: { tableId: targetTableId, waiterId: req.user!.id, status: 'open', note },
       }),
-      prisma.restaurantTable.update({ where: { id: tableId }, data: { status: 'occupied' } }),
+      prisma.restaurantTable.update({ where: { id: targetTableId }, data: { status: 'occupied' } }),
     ])
 
     res.status(201).json(order)
@@ -81,7 +101,6 @@ router.post('/', authenticate, async (req, res) => {
     res.status(500).json({ error: (err as Error).message })
   }
 })
-
 // POST /api/orders/:id/items
 router.post('/:id/items', authenticate, async (req, res) => {
   try {

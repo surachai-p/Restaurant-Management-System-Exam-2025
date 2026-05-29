@@ -6,55 +6,59 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // POST /api/payments
-// 🛠️ FIXED [BUG-001]: Added robust input validation and fixed control flow returns
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
       orderId?: number; amountPaid?: number; method?: 'cash' | 'card' | 'qr'
     }
 
-    // 1. ตรวจสอบว่าส่งข้อมูลที่จำเป็นมาครบถ้วนและถูกต้องหรือไม่
+    // 1. ตรวจสอบข้อมูลเบื้องต้น
     if (!orderId || amountPaid === undefined || amountPaid === null) {
-      return res.status(400).json({ error: 'orderId and amountPaid required' })
+      res.status(400).json({ error: 'orderId and amountPaid required' })
+      return
     }
 
-    // 2. ป้องกันกรณีส่งค่าติดลบ หรือไม่ใช่ตัวเลขเข้ามา
     const paid = Number(amountPaid)
     if (isNaN(paid) || paid < 0) {
-      return res.status(400).json({ error: 'amountPaid must be a valid positive number' })
+      res.status(400).json({ error: 'amountPaid must be a valid positive number' })
+      return
     }
 
-    // 3. ค้นหาข้อมูลออเดอร์
+    // 2. ดึงข้อมูลออเดอร์มาตรวจสอบ
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: { items: true },
     })
 
     if (!order) { 
-      return res.status(404).json({ error: 'Order not found' }) 
+      res.status(404).json({ error: 'Order not found' }) 
+      return 
     }
     if (order.status !== 'confirmed') {
-      return res.status(400).json({ error: 'Order must be confirmed before payment' })
+      res.status(400).json({ error: 'Order must be confirmed before payment' })
+      return 
     }
     if (!order.items.length) {
-      return res.status(400).json({ error: 'Order has no items' })
+      res.status(400).json({ error: 'Order has no items' })
+      return 
     }
 
     const totalAmount = Number(order.totalAmount)
 
-    // 4. [จุดสำคัญ] ตรวจสอบว่าเงินที่จ่ายมา น้อยกว่ายอดรวมที่ต้องจ่ายหรือไม่
+    // 🚨 [จุดสำคัญที่สุด]: บล็อกไม่ให้เงินน้อยกว่ายอดรวมหลุดไปทำรายการเด็ดขาด!
     if (paid < totalAmount) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Insufficient payment amount', 
         required: totalAmount, 
         provided: paid 
       })
+      return // สั่งตัดจบการทำงานทันที ไม่ให้วิ่งลงไปหา prisma ข้างล่าง
     }
 
-    // 5. คำนวณเงินทอน (ค่าจะเป็นบวกหรือศูนย์เสมอ ไม่มีทางติดลบ)
-    const change = paid - totalAmount
+    // 🔒 [เซฟตี้ชั้นที่ 2]: บังคับคำนวณเงินทอนไม่ให้ต่ำกว่า 0 เสมอในระดับตัวแปร
+    const change = Math.max(0, paid - totalAmount)
 
-    // 6. บันทึกธุรกรรมลงฐานข้อมูลแบบพร้อม ๆ กัน (Transaction)
+    // 3. บันทึกข้อมูลลงฐานข้อมูลแบบพร้อมกัน
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
         data: { 
@@ -70,9 +74,9 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
       prisma.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } }),
     ])
 
-    return res.status(201).json({ payment, change, message: 'Payment processed successfully' })
+    res.status(201).json({ payment, change, message: 'Payment processed successfully' })
   } catch (err) {
-    return res.status(500).json({ error: (err as Error).message })
+    res.status(500).json({ error: (err as Error).message })
   }
 })
 
@@ -83,11 +87,12 @@ router.get('/:orderId', authenticate, async (req, res) => {
       where: { orderId: Number(req.params.orderId) },
     })
     if (!payment) { 
-      return res.status(404).json({ error: 'Payment not found' }) 
+      res.status(404).json({ error: 'Payment not found' }) 
+      return 
     }
-    return res.json(payment)
+    res.json(payment)
   } catch (err) {
-    return res.status(500).json({ error: (err as Error).message })
+    res.status(500).json({ error: (err as Error).message })
   }
 })
 
