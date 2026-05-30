@@ -1,49 +1,106 @@
-// prisma/seed.ts
-import { PrismaClient, Role, Category } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import jwt from 'jwt-simple';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-async function main() {
-  const count = await prisma.user.count()
-  if (count > 0) { console.log('Database already seeded.'); return }
+export const register = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password, name, role } = req.body;
 
-  console.log('Seeding database...')
+    if (!username || !password || !name) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
 
-  const hash = (p: string) => bcrypt.hashSync(p, 10)
+    const existingUser = await prisma.user.findUnique({
+      where: { username },
+    });
 
-  await prisma.user.createMany({
-    data: [
-      { username: 'admin',    password: hash('Admin@123'),   role: Role.admin,   name: 'Admin User' },
-      { username: 'cashier1', password: hash('Cashier@123'), role: Role.cashier, name: 'Cashier One' },
-      { username: 'waiter1',  password: hash('Waiter@123'),  role: Role.waiter,  name: 'Waiter One' },
-      { username: 'waiter2',  password: hash('Waiter@123'),  role: Role.waiter,  name: 'Waiter Two' },
-    ],
-  })
+    if (existingUser) {
+      res.status(400).json({ message: 'Username already exists' });
+      return;
+    }
 
-  await prisma.menuItem.createMany({
-    data: [
-      { name: 'Pad Thai',          description: 'Classic Thai stir-fried noodles',  price: 80,  category: Category.food },
-      { name: 'Tom Yum Soup',      description: 'Spicy Thai soup with shrimp',       price: 120, category: Category.food },
-      { name: 'Green Curry',       description: 'Thai green curry with coconut milk',price: 110, category: Category.food },
-      { name: 'Fried Rice',        description: 'Thai-style fried rice with egg',    price: 75,  category: Category.food },
-      { name: 'Spring Rolls',      description: 'Crispy vegetable spring rolls (6)', price: 65,  category: Category.food },
-      { name: 'Mango Sticky Rice', description: 'Sweet dessert with fresh mango',    price: 60,  category: Category.dessert },
-      { name: 'Coconut Ice Cream', description: 'Homemade coconut ice cream',        price: 55,  category: Category.dessert },
-      { name: 'Fresh OJ',          description: '100% fresh squeezed orange juice',  price: 45,  category: Category.drink },
-      { name: 'Thai Iced Tea',     description: 'Sweetened tea with condensed milk', price: 40,  category: Category.drink },
-      { name: 'Singha Beer',       description: 'Thai lager 330ml',                  price: 70,  category: Category.drink },
-    ],
-  })
+    // แฮชรหัสผ่านให้ปลอดภัยก่อนบันทึกเข้าตู้เย็น (Database)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.restaurantTable.create({
-      data: { tableNumber: i, capacity: i <= 5 ? 4 : 6 },
-    })
+    const user = await prisma.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        name,
+        role: role || 'waiter',
+      },
+    });
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
   }
+};
 
-  console.log('Seed complete.')
-  console.log('Accounts: admin/Admin@123 | cashier1/Cashier@123 | waiter1/Waiter@123')
+export const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      res.status(400).json({ message: 'Missing username or password' });
+      return;
+    }
+
+    // ค้นหาผู้ใช้จากชื่อที่กรอกเข้ามา
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    // ถ้าไม่เจอชื่อผู้ใช้ หรือ บัญชีโดนปิดใช้งาน (isActive === false)
+    if (!user || !user.isActive) {
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+
+    // ตรวจสอบความถูกต้องของรหัสผ่านที่ลูกค้ากรอก เปรียบเทียบกับรหัสที่ผ่านการแฮชในระบบ
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+
+    // สร้างกุญแจดิจิทัล (JWT Token) ให้หน้าบ้านใช้สำหรับล็อกอินค้างไว้
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    };
+    const token = jwt.encode(payload, JWT_SECRET);
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect())
