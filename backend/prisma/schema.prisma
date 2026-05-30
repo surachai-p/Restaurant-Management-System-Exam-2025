@@ -132,3 +132,4 @@ model Payment {
 
   @@map("payments")
 }
+// update database connection

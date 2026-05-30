@@ -1,4 +1,3 @@
-// src/routes/reports.ts
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
@@ -6,17 +5,17 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // GET /api/reports/sales?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
-// ⚠️ BUG-005 [Date Filter]: Uses strictly-greater-than (gt) for startDate
-// Orders exactly at midnight of startDate are excluded from results
+// ⚠️ BUG-005 Fixed: เปลี่ยนจาก 'gt' (>) มาเป็น 'gte' (>=) เพื่อไม่ให้บิลที่เกิดตอนเที่ยงคืนเป๊ะตกหล่น
 router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { startDate, endDate } = req.query as { startDate?: string; endDate?: string }
 
-    const dateFilter: { gt?: Date; lte?: Date } = {}
+    // ปรับเปลี่ยน Type ปลายทางให้รองรับ gte ตามหลักการทำงานที่ถูกต้อง
+    const dateFilter: { gte?: Date; lte?: Date } = {}
 
     if (startDate) {
-      // ⚠️ BUG-005: Should be 'gte' (>=) not 'gt' (>) — off-by-one error
-      dateFilter.gt = new Date(startDate)   // WRONG: should be gte
+      // ⚠️ BUG-005 Fixed: ปรับเป็น gte (มากกว่าหรือเท่ากับ) เรียบร้อยค่ะ
+      dateFilter.gte = new Date(startDate)   
     }
     if (endDate) {
       const end = new Date(endDate)

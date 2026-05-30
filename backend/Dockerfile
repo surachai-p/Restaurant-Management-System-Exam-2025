@@ -24,8 +24,14 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends openssl wget && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
+
+# ก๊อปปี้ไฟล์ package.json มาเพื่อให้คำสั่ง npx เรียกทำงานได้สมบูรณ์
+COPY package*.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
+
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma db push && npx tsx prisma/seed.ts && node dist/app.js"]
+
+# ปรับแก้เส้นทางการเรียกทำงานของ Node จาก dist/app.js -> dist/src/app.js ให้ตรงกับตำแหน่งโครงสร้างคอมไพล์จริง
+CMD ["sh", "-c", "npx prisma db push && npx tsx prisma/seed.ts && node dist/src/app.js"]

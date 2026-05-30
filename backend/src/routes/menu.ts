@@ -1,4 +1,3 @@
-// src/routes/menu.ts
 import { Router } from 'express'
 import { Category } from '@prisma/client'
 import prisma from '../lib/prisma'
@@ -7,19 +6,21 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // GET /api/menu  — list / search
-// ⚠️ BUG-003 [SQL Injection]: Raw query with string interpolation
-// Students should test: ?search=' OR '1'='1
+// ⚠️ BUG-003 Fixed: เปลี่ยนจาก $queryRawUnsafe มาใช้ $queryRaw แบบปลอดภัยเพื่อป้องกัน SQL Injection
 router.get('/', authenticate, async (req, res) => {
   try {
     const { search, category } = req.query as { search?: string; category?: string }
 
     if (search) {
-      // ⚠️ BUG-003: Parameterized query NOT used — SQL Injection vulnerability
-      // Fix would be: prisma.$queryRaw`SELECT * FROM menu_items WHERE name ILIKE ${'%' + search + '%'}`
-      const results = await prisma.$queryRawUnsafe(
-        `SELECT * FROM menu_items WHERE (name ILIKE '%${search}%' OR description ILIKE '%${search}%') AND "isAvailable" = true`
-      )
-      res.json(results); return
+      const searchPattern = `%${search}%`
+      // ใช้ $queryRaw และส่งค่าตัวแปรผ่านแทมเพลตสติง (Prisma จะจัดการทำความสะอาดข้อมูลให้อัตโนมัติ)
+      const results = await prisma.$queryRaw`
+        SELECT * FROM menu_items 
+        WHERE (name ILIKE ${searchPattern} OR description ILIKE ${searchPattern}) 
+        AND "isAvailable" = true
+      `
+      res.json(results)
+      return
     }
 
     const items = await prisma.menuItem.findMany({
@@ -63,9 +64,8 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   }
 })
 
-// PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
-// Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+// PUT /api/menu/:id — ⚠️ BUG-004 Fixed: เติม requireRole('admin') เพื่อป้องกันไม่ให้พนักงานทั่วไปแอบมาแก้ราคาเมนู
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }

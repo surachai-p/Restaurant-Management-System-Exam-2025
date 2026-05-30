@@ -1,20 +1,33 @@
 {
   "compilerOptions": {
+    // ==========================================
+    // Target & Modules
+    // ==========================================
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+
+    // ==========================================
+    // Bundler & Resolution (ปรับให้เหมาะกับ Vite)
+    // ==========================================
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+
+    // ==========================================
+    // Strict Type-Checking
+    // ==========================================
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

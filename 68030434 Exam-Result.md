@@ -7,9 +7,12 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| นางสาวสุธาสินี มีอ้น | |
+| 68030434 | |
+| 28-29/05/2569 | |
+
+<img width="909" height="254" alt="test1" src="https://github.com/user-attachments/assets/271abf3d-b195-4fe8-b172-44f96df813f3" />
+<img width="1919" height="1017" alt="test2" src="https://github.com/user-attachments/assets/d068fc20-d05d-447c-88fa-ac5ffb7450b5" />
 
 ---
 
@@ -18,7 +21,7 @@
 ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**✏️ Student Repository:** `https://github.com/[แทนที่ด้วยรหัสนักศึกษาของตนเอง]/Restaurant-Management-System-Exam-2025.git`
+**✏️ Student Repository:** `https://github.com/[68030434]/Restaurant-Management-System-Exam-2025.git`
 
 ---
 

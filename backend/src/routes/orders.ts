@@ -1,4 +1,3 @@
-// src/routes/orders.ts
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
@@ -57,7 +56,7 @@ router.get('/:id', authenticate, async (req, res) => {
 })
 
 // POST /api/orders — open new order
-// ⚠️ BUG-002 [Double Booking]: No check for existing open order on same table
+// ⚠️ BUG-002 Fixed: เพิ่มการตรวจเช็กเพื่อป้องกันไม่ให้เปิดออเดอร์ซ้ำซ้อนบนโต๊ะเดียวกัน
 router.post('/', authenticate, async (req, res) => {
   try {
     const { tableId, note } = req.body as { tableId?: number; note?: string }
@@ -66,13 +65,22 @@ router.post('/', authenticate, async (req, res) => {
     const table = await prisma.restaurantTable.findUnique({ where: { id: tableId } })
     if (!table) { res.status(404).json({ error: 'Table not found' }); return }
 
-    // ⚠️ BUG-002: Missing duplicate check — allows two orders on same table
-    // Fix: const existing = await prisma.order.findFirst({ where: { tableId, status: 'open' } })
-    //      if (existing) { res.status(409).json({ error: 'Table already has an open order' }); return }
+    // ⚠️ BUG-002 Fixed: ตรวจสอบออเดอร์ที่ค้างอยู่ (ถ้ามีออเดอร์ที่ยัง open หรือยังไม่ปิดโต๊ะ ให้ปฏิเสธคำขอ)
+    const existing = await prisma.order.findFirst({ 
+      where: { 
+        tableId, 
+        status: { in: ['open', 'confirmed'] } 
+      } 
+    })
+    if (existing) { 
+      res.status(409).json({ error: 'Table already has an active order' }); 
+      return 
+    }
 
+    // ปรับเปลี่ยนไอดีพนักงานจาก id เป็น sub ให้เข้าคู่กับระบบล็อกอิน
     const [order] = await prisma.$transaction([
       prisma.order.create({
-        data: { tableId, waiterId: req.user!.id, status: 'open', note },
+        data: { tableId, waiterId: req.user!.sub, status: 'open', note },
       }),
       prisma.restaurantTable.update({ where: { id: tableId }, data: { status: 'occupied' } }),
     ])

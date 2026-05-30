@@ -1,49 +1,113 @@
-// prisma/seed.ts
-import { PrismaClient, Role, Category } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  const count = await prisma.user.count()
-  if (count > 0) { console.log('Database already seeded.'); return }
+  console.log('🌱 Starting database seeding...');
 
-  console.log('Seeding database...')
+  // 1. ล้างข้อมูลเก่าออกให้หมดก่อนเพื่อป้องกันข้อมูลซ้ำ (ตามลำดับความสัมพันธ์)
+  await prisma.payment.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.restaurantTable.deleteMany();
+  await prisma.menuItem.deleteMany();
+  await prisma.user.deleteMany();
 
-  const hash = (p: string) => bcrypt.hashSync(p, 10)
+  // 2. สร้างรหัสผ่านที่ผ่านการแฮชสำหรับผู้ใช้เริ่มต้น
+  const hashedPassword = await bcrypt.hash('password123', 10);
 
-  await prisma.user.createMany({
-    data: [
-      { username: 'admin',    password: hash('Admin@123'),   role: Role.admin,   name: 'Admin User' },
-      { username: 'cashier1', password: hash('Cashier@123'), role: Role.cashier, name: 'Cashier One' },
-      { username: 'waiter1',  password: hash('Waiter@123'),  role: Role.waiter,  name: 'Waiter One' },
-      { username: 'waiter2',  password: hash('Waiter@123'),  role: Role.waiter,  name: 'Waiter Two' },
-    ],
-  })
+  // 3. สร้างข้อมูลผู้ใช้จำลอง (Users)
+  console.log('👥 Seeding users...');
+  const admin = await prisma.user.create({
+    data: {
+      username: 'admin',
+      password: hashedPassword,
+      name: 'Manager Somchai',
+      role: 'admin',
+    },
+  });
 
+  const cashier = await prisma.user.create({
+    data: {
+      username: 'cashier01',
+      password: hashedPassword,
+      name: 'Somsri Cashier',
+      role: 'cashier',
+    },
+  });
+
+  const waiter = await prisma.user.create({
+    data: {
+      username: 'waiter01',
+      password: hashedPassword,
+      name: 'Anan Waiter',
+      role: 'waiter',
+    },
+  });
+
+  // 4. สร้างเมนูอาหารเริ่มต้น (Menu Items)
+  console.log('🍔 Seeding menu items...');
   await prisma.menuItem.createMany({
     data: [
-      { name: 'Pad Thai',          description: 'Classic Thai stir-fried noodles',  price: 80,  category: Category.food },
-      { name: 'Tom Yum Soup',      description: 'Spicy Thai soup with shrimp',       price: 120, category: Category.food },
-      { name: 'Green Curry',       description: 'Thai green curry with coconut milk',price: 110, category: Category.food },
-      { name: 'Fried Rice',        description: 'Thai-style fried rice with egg',    price: 75,  category: Category.food },
-      { name: 'Spring Rolls',      description: 'Crispy vegetable spring rolls (6)', price: 65,  category: Category.food },
-      { name: 'Mango Sticky Rice', description: 'Sweet dessert with fresh mango',    price: 60,  category: Category.dessert },
-      { name: 'Coconut Ice Cream', description: 'Homemade coconut ice cream',        price: 55,  category: Category.dessert },
-      { name: 'Fresh OJ',          description: '100% fresh squeezed orange juice',  price: 45,  category: Category.drink },
-      { name: 'Thai Iced Tea',     description: 'Sweetened tea with condensed milk', price: 40,  category: Category.drink },
-      { name: 'Singha Beer',       description: 'Thai lager 330ml',                  price: 70,  category: Category.drink },
+      {
+        name: 'Basil Fried Rice with Pork',
+        description: 'Spicy Thai basil fried rice with minced pork and fried egg',
+        price: 65.00,
+        category: 'food',
+        isAvailable: true,
+      },
+      {
+        name: 'Tom Yum Goong',
+        description: 'Spicy and sour lemongrass soup with prawns',
+        price: 150.00,
+        category: 'food',
+        isAvailable: true,
+      },
+      {
+        name: 'Iced Green Tea',
+        description: 'Sweet and creamy Thai style iced green tea',
+        price: 45.00,
+        category: 'drink',
+        isAvailable: true,
+      },
+      {
+        name: 'Water',
+        description: 'Bottled drinking water with ice',
+        price: 10.00,
+        category: 'drink',
+        isAvailable: true,
+      },
+      {
+        name: 'Mango Sticky Rice',
+        description: 'Sweet sticky rice with ripe mango and coconut milk',
+        price: 89.00,
+        category: 'dessert',
+        isAvailable: true,
+      },
     ],
-  })
+  });
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.restaurantTable.create({
-      data: { tableNumber: i, capacity: i <= 5 ? 4 : 6 },
-    })
-  }
+  // 5. สร้างโต๊ะอาหารจำลอง (Restaurant Tables)
+  console.log('🪑 Seeding restaurant tables...');
+  await prisma.restaurantTable.createMany({
+    data: [
+      { tableNumber: 1, capacity: 2, status: 'available' },
+      { tableNumber: 2, capacity: 4, status: 'available' },
+      { tableNumber: 3, capacity: 4, status: 'available' },
+      { tableNumber: 4, capacity: 6, status: 'available' },
+      { tableNumber: 5, capacity: 8, status: 'available' },
+    ],
+  });
 
-  console.log('Seed complete.')
-  console.log('Accounts: admin/Admin@123 | cashier1/Cashier@123 | waiter1/Waiter@123')
+  console.log('✅ Database seeding completed successfully!');
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect())
+main()
+  .catch((e) => {
+    console.error('❌ Error during seeding:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

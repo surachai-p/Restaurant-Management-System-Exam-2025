@@ -1,9 +1,40 @@
 {
   "name": "RMS-CI",
   "values": [
-    { "key": "base_url", "value": "http://localhost:3001/api", "enabled": true },
-    { "key": "token",        "value": "", "enabled": true },
-    { "key": "admin_token",  "value": "", "enabled": true },
-    { "key": "waiter_token", "value": "", "enabled": true }
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api",
+      "enabled": true
+    },
+    {
+      "key": "token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "waiter_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "cashier_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "menu_item_id",
+      "value": "1",
+      "enabled": true
+    }
   ]
 }

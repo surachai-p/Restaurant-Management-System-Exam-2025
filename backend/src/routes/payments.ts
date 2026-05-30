@@ -1,13 +1,11 @@
-// src/routes/payments.ts
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
 
 const router = Router()
 
-// POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
+// POST /api/payments — ดำเนินการชำระเงิน (แคชเชียร์ หรือ แอดมินเท่านั้น)
+// ⚠️ BUG-001 Fixed: เพิ่มการตรวจสอบยอดเงินที่จ่ายเข้ามาว่าต้องมากกว่าหรือเท่ากับยอดรวมอาหาร
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
@@ -32,15 +30,19 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
+    // ⚠️ BUG-001 Fixed: ตรวจสอบถ้ายอดเงินชำระน้อยกว่ายอดรวม ให้ปฏิเสธการจ่ายเงินทันที
+    if (paid < totalAmount) { 
+      res.status(400).json({ error: 'Insufficient payment amount' }); 
+      return 
+    }
 
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
+    // คำนวณเงินทอน (ค่าจะไม่ติดลบแล้วเพราะเราดักไว้ด้านบนแล้วค่ะ)
     const change = paid - totalAmount
 
+    // ปรับเปลี่ยนไอดีจาก id เป็น sub เพื่อให้เข้าล็อคกับระบบเช็กยามเฝ้าประตู
     const [payment] = await prisma.$transaction([
       prisma.payment.create({
-        data: { orderId, cashierId: req.user!.id, totalAmount, amountPaid: paid, change, method: method ?? 'cash' },
+        data: { orderId, cashierId: req.user!.sub, totalAmount, amountPaid: paid, change, method: method ?? 'cash' },
       }),
       prisma.order.update({ where: { id: orderId }, data: { status: 'paid' } }),
       prisma.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } }),
