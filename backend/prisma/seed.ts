@@ -1,106 +1,113 @@
-import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import jwt from 'jwt-simple';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export const register = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password, name, role } = req.body;
+async function main() {
+  console.log('🌱 Starting database seeding...');
 
-    if (!username || !password || !name) {
-      res.status(400).json({ message: 'Missing required fields' });
-      return;
-    }
+  // 1. ล้างข้อมูลเก่าออกให้หมดก่อนเพื่อป้องกันข้อมูลซ้ำ (ตามลำดับความสัมพันธ์)
+  await prisma.payment.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.restaurantTable.deleteMany();
+  await prisma.menuItem.deleteMany();
+  await prisma.user.deleteMany();
 
-    const existingUser = await prisma.user.findUnique({
-      where: { username },
-    });
+  // 2. สร้างรหัสผ่านที่ผ่านการแฮชสำหรับผู้ใช้เริ่มต้น
+  const hashedPassword = await bcrypt.hash('password123', 10);
 
-    if (existingUser) {
-      res.status(400).json({ message: 'Username already exists' });
-      return;
-    }
+  // 3. สร้างข้อมูลผู้ใช้จำลอง (Users)
+  console.log('👥 Seeding users...');
+  const admin = await prisma.user.create({
+    data: {
+      username: 'admin',
+      password: hashedPassword,
+      name: 'Manager Somchai',
+      role: 'admin',
+    },
+  });
 
-    // แฮชรหัสผ่านให้ปลอดภัยก่อนบันทึกเข้าตู้เย็น (Database)
-    const hashedPassword = await bcrypt.hash(password, 10);
+  const cashier = await prisma.user.create({
+    data: {
+      username: 'cashier01',
+      password: hashedPassword,
+      name: 'Somsri Cashier',
+      role: 'cashier',
+    },
+  });
 
-    const user = await prisma.user.create({
-      data: {
-        username,
-        password: hashedPassword,
-        name,
-        role: role || 'waiter',
+  const waiter = await prisma.user.create({
+    data: {
+      username: 'waiter01',
+      password: hashedPassword,
+      name: 'Anan Waiter',
+      role: 'waiter',
+    },
+  });
+
+  // 4. สร้างเมนูอาหารเริ่มต้น (Menu Items)
+  console.log('🍔 Seeding menu items...');
+  await prisma.menuItem.createMany({
+    data: [
+      {
+        name: 'Basil Fried Rice with Pork',
+        description: 'Spicy Thai basil fried rice with minced pork and fried egg',
+        price: 65.00,
+        category: 'food',
+        isAvailable: true,
       },
-    });
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
+      {
+        name: 'Tom Yum Goong',
+        description: 'Spicy and sour lemongrass soup with prawns',
+        price: 150.00,
+        category: 'food',
+        isAvailable: true,
       },
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error });
-  }
-};
-
-export const login = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      res.status(400).json({ message: 'Missing username or password' });
-      return;
-    }
-
-    // ค้นหาผู้ใช้จากชื่อที่กรอกเข้ามา
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    // ถ้าไม่เจอชื่อผู้ใช้ หรือ บัญชีโดนปิดใช้งาน (isActive === false)
-    if (!user || !user.isActive) {
-      res.status(401).json({ message: 'Invalid username or password' });
-      return;
-    }
-
-    // ตรวจสอบความถูกต้องของรหัสผ่านที่ลูกค้ากรอก เปรียบเทียบกับรหัสที่ผ่านการแฮชในระบบ
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid username or password' });
-      return;
-    }
-
-    // สร้างกุญแจดิจิทัล (JWT Token) ให้หน้าบ้านใช้สำหรับล็อกอินค้างไว้
-    const payload = {
-      sub: user.id,
-      username: user.username,
-      role: user.role,
-      iat: Math.floor(Date.now() / 1000),
-    };
-    const token = jwt.encode(payload, JWT_SECRET);
-
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
+      {
+        name: 'Iced Green Tea',
+        description: 'Sweet and creamy Thai style iced green tea',
+        price: 45.00,
+        category: 'drink',
+        isAvailable: true,
       },
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error });
-  }
-};
+      {
+        name: 'Water',
+        description: 'Bottled drinking water with ice',
+        price: 10.00,
+        category: 'drink',
+        isAvailable: true,
+      },
+      {
+        name: 'Mango Sticky Rice',
+        description: 'Sweet sticky rice with ripe mango and coconut milk',
+        price: 89.00,
+        category: 'dessert',
+        isAvailable: true,
+      },
+    ],
+  });
+
+  // 5. สร้างโต๊ะอาหารจำลอง (Restaurant Tables)
+  console.log('🪑 Seeding restaurant tables...');
+  await prisma.restaurantTable.createMany({
+    data: [
+      { tableNumber: 1, capacity: 2, status: 'available' },
+      { tableNumber: 2, capacity: 4, status: 'available' },
+      { tableNumber: 3, capacity: 4, status: 'available' },
+      { tableNumber: 4, capacity: 6, status: 'available' },
+      { tableNumber: 5, capacity: 8, status: 'available' },
+    ],
+  });
+
+  console.log('✅ Database seeding completed successfully!');
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect())
+main()
+  .catch((e) => {
+    console.error('❌ Error during seeding:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
