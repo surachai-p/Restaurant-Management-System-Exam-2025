@@ -17,6 +17,8 @@ jobs:
           POSTGRES_DB: rms_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -26,7 +28,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: Setup Node.js for backend
       uses: actions/setup-node@v4
       with:
         node-version: '22'
@@ -39,8 +41,20 @@ jobs:
     - name: Generate Prisma client
       run: cd backend && npx prisma generate
 
+    # สเต็ปเพิ่มเติม: ตรวจสอบความพร้อมจนกว่าฐานข้อมูลจะพร้อมใช้งานจริง 100%
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until docker exec ${{ job.services.postgres.id }} pg_isready; do
+          echo "Waiting for PostgreSQL to start..."
+          sleep 2
+        done
+
+    # ปรับปรุง: ซิงค์ Schema ตารางเข้า Database ก่อน แล้วค่อยสั่งรันเทสต์รวดเดียว
     - name: Run backend tests
-      run: cd backend && npm test
+      run: |
+        cd backend
+        npx prisma db push
+        npm test
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
 
