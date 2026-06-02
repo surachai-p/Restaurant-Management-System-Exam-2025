@@ -42,7 +42,7 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) |https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app/orders | ✅ |
+| Frontend (Vercel) |https://restaurant-management-s-git-26e209-wanitcha-jabprang-s-projects.vercel.app | ✅ |
 | Backend (Render) |https://rms-backend-um90.onrender.com | ✅ |
 | API Health Check (`/api/health`) | https://rms-backend-um90.onrender.com/api/health| ✅ |
 | Database (Neon.tech connection string)/(Render) |postgresql://rms_db_ten0_user:9jaLH9RIPnauUcLvJdvo4rC2RlQQPZZk@dpg-d8cnmmp9rddc73dei8rg-a/rms_db_ten0| ✅ |
