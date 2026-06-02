@@ -21,13 +21,13 @@ export default function PaymentPage() {
   const [loading, setLoading]   = useState(true)
 
   useEffect(() => {
-    api.get<Order>(`/orders/${orderId}`).then(r => { setOrder(r.data); setLoading(false) })
+    api.get<Order>(`/api/orders/${orderId}`).then(r => { setOrder(r.data); setLoading(false) })
   }, [orderId])
 
   const handlePay = async () => {
     setError('')
     try {
-      const { data } = await api.post<PaymentResult>('/payments', {
+      const { data } = await api.post<PaymentResult>('/api/payments', {
         orderId: Number(orderId),
         amountPaid: parseFloat(amountPaid),
         method,

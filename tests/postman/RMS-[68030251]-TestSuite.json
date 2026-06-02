@@ -1,0 +1,764 @@
+{
+	"info": {
+		"name": "RMS-[68030251]-TestSuite",
+		"description": "Restaurant Management System v2 — Test Collection ",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health & System",
+			"item": [
+				{
+					"name": "GET /api/health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-001: health returns 200', () => pm.response.to.have.status(200));",
+									"pm.test('TC-001: status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));",
+									"pm.test('TC-001: version 2.0.0', () => pm.expect(pm.response.json().version).to.eql('2.0.0'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-002: admin login 200', () => pm.response.to.have.status(200));",
+									"pm.test('TC-002: returns JWT token', () => {",
+									"  const b = pm.response.json();",
+									"  pm.expect(b.token).to.be.a('string').and.not.empty;",
+									"  pm.collectionVariables.set('admin_token', b.token);",
+									"  pm.environment.set('admin_token', b.token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login Cashier",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"cashier1\",\n  \"password\": \"Cashier@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-003: cashier login 200', () => pm.response.to.have.status(200));",
+									"pm.collectionVariables.set('cashier_token', pm.response.json().token);",
+									"pm.environment.set('cashier_token', pm.response.json().token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login Waiter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"waiter1\",\n  \"password\": \"Waiter@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-004: waiter login 200', () => pm.response.to.have.status(200));",
+									"pm.collectionVariables.set('waiter_token', pm.response.json().token);",
+									"pm.environment.set('waiter_token', pm.response.json().token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login Wrong Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrong\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-005: wrong password → 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Login Missing Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-006: missing creds → 400', () => pm.response.to.have.status(400));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "No Token → 401",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/menu",
+							"host": ["{{base_url}}"],
+							"path": ["menu"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-007: no token → 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Menu",
+			"item": [
+				{
+					"name": "GET /menu",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/menu",
+							"host": ["{{base_url}}"],
+							"path": ["menu"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-008: get menu 200', () => pm.response.to.have.status(200));",
+									"pm.test('TC-008: returns array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+									"const items = pm.response.json();",
+									"if (items.length > 0) pm.collectionVariables.set('menu_item_id', items[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Search Menu",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/menu?search=Pad+Thai",
+							"host": ["{{base_url}}"],
+							"path": ["menu"],
+							"query": [
+								{
+									"key": "search",
+									"value": "Pad Thai"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-009: search returns results', () => {",
+									"  pm.response.to.have.status(200);",
+									"  pm.expect(pm.response.json().length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "SQL Injection in Search",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271",
+							"host": ["{{base_url}}"],
+							"path": ["menu"],
+							"query": [
+								{
+									"key": "search",
+									"value": "' OR '1'='1"
+								}
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-010: SQL Injection should NOT leak all records', () => {",
+									"  const body = pm.response.json();",
+									"  if (Array.isArray(body)) {",
+									"    pm.expect(body.length, 'SQL Injection leaked ' + body.length + ' records').to.equal(0);",
+									"  } else {",
+									"    pm.response.to.have.status(400);",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Waiter Updates Menu Price",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/menu/{{menu_item_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["menu", "{{menu_item_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-011: Waiter cannot update menu price (expect 403)', () => {",
+									"  pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Admin Adds Menu Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Dish\",\n  \"price\": 99,\n  \"category\": \"food\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/menu",
+							"host": ["{{base_url}}"],
+							"path": ["menu"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-012: admin adds menu item → 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Waiter Cannot Add Menu Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Waiter Dish\",\n  \"price\": 50,\n  \"category\": \"food\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/menu",
+							"host": ["{{base_url}}"],
+							"path": ["menu"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-013: waiter cannot add menu → 403', () => pm.response.to.have.status(403));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tableId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": ["{{base_url}}"],
+							"path": ["orders"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-014: create order → 201', () => pm.response.to.have.status(201));",
+									"pm.collectionVariables.set('order_id', pm.response.json().id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Double Booking Same Table",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tableId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": ["{{base_url}}"],
+							"path": ["orders"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-015: Double booking → 409 Conflict', () => {",
+									"  pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Add Item to Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"menuItemId\": {{menu_item_id}},\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/{{order_id}}/items",
+							"host": ["{{base_url}}"],
+							"path": ["orders", "{{order_id}}", "items"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-016: add item → 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Confirm Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/orders/{{order_id}}/confirm",
+							"host": ["{{base_url}}"],
+							"path": ["orders", "{{order_id}}", "confirm"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-017: confirm order → 200', () => pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Order Without TableId",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{waiter_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders",
+							"host": ["{{base_url}}"],
+							"path": ["orders"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-018: missing tableId → 400', () => pm.response.to.have.status(400));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "Exact Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{cashier_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{order_id}},\n  \"amountPaid\": 9999,\n  \"method\": \"cash\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/payments",
+							"host": ["{{base_url}}"],
+							"path": ["payments"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-019: payment → 201', () => pm.response.to.have.status(201));",
+									"pm.test('TC-019: change is non-negative', () => {",
+									"  pm.expect(pm.response.json().change).to.be.above(-1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Underpayment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{cashier_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{order_id}},\n  \"amountPaid\": 1,\n  \"method\": \"cash\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/payments",
+							"host": ["{{base_url}}"],
+							"path": ["payments"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-020: Underpayment should → 400', () => {",
+									"  pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Payment Without Auth",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": 1,\n  \"amountPaid\": 100\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/payments",
+							"host": ["{{base_url}}"],
+							"path": ["payments"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('TC-021: no auth → 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:3001/api", "type": "string" },
+		{ "key": "token", "value": "", "type": "string" },
+		{ "key": "admin_token", "value": "", "type": "string" },
+		{ "key": "waiter_token", "value": "", "type": "string" },
+		{ "key": "cashier_token", "value": "", "type": "string" },
+		{ "key": "order_id", "value": "", "type": "string" },
+		{ "key": "menu_item_id", "value": "1", "type": "string" }
+	]
+}

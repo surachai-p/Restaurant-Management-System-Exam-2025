@@ -17,8 +17,8 @@ export default function OrderDetailPage() {
 
   const load = async () => {
     const [o, m] = await Promise.all([
-      api.get<Order>(`/orders/${id}`),
-      api.get<MenuItem[]>('/menu'),
+      api.get<Order>(`/api/orders/${id}`),
+      api.get<MenuItem[]>('/api/menu'),
     ])
     setOrder(o.data); setMenu(m.data); setLoading(false)
   }
@@ -28,7 +28,7 @@ export default function OrderDetailPage() {
   const addItem = async () => {
     if (!selItem) return
     try {
-      await api.post(`/orders/${id}/items`, { menuItemId: Number(selItem), quantity: qty })
+      await api.post(`/api/orders/${id}/items`, { menuItemId: Number(selItem), quantity: qty })
       setMsg({ type: 'success', text: 'Item added' }); setSel(''); setQty(1); load()
     } catch (err) {
       const e = err as AxiosError<{ error: string }>
@@ -38,12 +38,12 @@ export default function OrderDetailPage() {
 
   const removeItem = async (itemId: number) => {
     if (!confirm('Remove this item?')) return
-    try { await api.delete(`/orders/${id}/items/${itemId}`); load() }
+    try { await api.delete(`/api/orders/${id}/items/${itemId}`); load() }
     catch { setMsg({ type: 'error', text: 'Failed to remove item' }) }
   }
 
   const confirmOrder = async () => {
-    try { await api.put(`/orders/${id}/confirm`); setMsg({ type: 'success', text: 'Order confirmed!' }); load() }
+    try { await api.put(`/api/orders/${id}/confirm`); setMsg({ type: 'success', text: 'Order confirmed!' }); load() }
     catch (err) {
       const e = err as AxiosError<{ error: string }>
       setMsg({ type: 'error', text: e.response?.data?.error ?? 'Failed' })
@@ -52,7 +52,7 @@ export default function OrderDetailPage() {
 
   const cancelOrder = async () => {
     if (!window.confirm('Cancel this order?')) return
-    try { await api.put(`/orders/${id}/cancel`); navigate('/orders') }
+    try { await api.put(`/api/orders/${id}/cancel`); navigate('/orders') }
     catch { setMsg({ type: 'error', text: 'Failed to cancel' }) }
   }
 

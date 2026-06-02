@@ -16,7 +16,7 @@ export default function ReportsPage() {
       const params: Record<string, string> = {}
       if (start) params.startDate = start
       if (end)   params.endDate   = end
-      const { data: d } = await api.get<SalesReport>('/reports/sales', { params })
+      const { data: d } = await api.get<SalesReport>('/api/reports/sales', { params })
       setData(d)
     } catch { setError('Failed to load report') }
     setLoading(false)

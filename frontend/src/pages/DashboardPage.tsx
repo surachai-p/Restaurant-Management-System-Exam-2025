@@ -16,9 +16,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const requests = [
-      api.get<RestaurantTable[]>('/orders/tables'),
-      api.get<Order[]>('/orders?status=open'),
-      user!.role !== 'waiter' ? api.get<DailyReport>('/reports/daily') : Promise.resolve({ data: null }),
+      api.get<RestaurantTable[]>('/api/orders/tables'),
+      api.get<Order[]>('/api/orders?status=open'),
+      user!.role !== 'waiter' ? api.get<DailyReport>('/api/reports/daily') : Promise.resolve({ data: null }),
     ] as const
     Promise.all(requests).then(([t, o, d]) => {
       setTables(t.data); setOrders(o.data); setDaily(d.data)

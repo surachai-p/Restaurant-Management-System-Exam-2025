@@ -45,7 +45,6 @@
             "  const b = pm.response.json();",
             "  pm.expect(b.token).to.be.a('string').and.not.empty;",
             "  pm.collectionVariables.set('admin_token', b.token);",
-            "  pm.collectionVariables.set('token', b.token);",
             "});"
           ]}}]
         },
@@ -58,7 +57,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-003: cashier login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
+            "pm.collectionVariables.set('token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -70,7 +69,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-004: waiter login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('waiter_token', pm.response.json().token);"
+            "pm.collectionVariables.set('token', pm.response.json().token);"
           ]}}]
         },
         {
