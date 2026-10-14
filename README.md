@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** นางสาวรรัทยา รอดเมล์
+**รหัสนักศึกษา:** 68030258
+**วันที่สอบ:** 14/10/2569
 
 ---
 
@@ -33,9 +33,9 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Frontend    | https://restaurant-management-system-exam-2-gamma.vercel.app |
+| Backend API | https://rms-backend-68030258.onrender.com |
+| Health Check| https://rms-backend-68030258.onrender.com/api/health |
 
 ---
 
@@ -45,13 +45,16 @@
 
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
+- [/] Authentication (Login/Logout, JWT)
+- [/] Menu Management (CRUD + Role-based access)
+- [/] Order Management (Open/Add Items/Confirm/Cancel)
 - [ ] Payment Processing (Cash/Card/QR)
 - [ ] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**Out of Scope:** 
+- การเชื่อมต่อกับระบบ Payment Gateway ภายนอกจริง (Third-party Payment Integration)
+- การเชื่อมต่ออุปกรณ์ฮาร์ดแวร์จริง เช่น เครื่องพิมพ์ใบเสร็จ (POS Receipt Printer)
+- การทดสอบรองรับผู้ใช้งานพร้อมกันจำนวนมาก (Load & Stress Testing)
 
 ### Test Approach
 
@@ -67,8 +70,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   | Google Chrome |
+| OS        | Windows 11 |
 
 ### Entry/Exit Criteria
 
@@ -78,15 +81,30 @@
 ### Business Risk
 
 | ความเสี่ยง | ผลกระทบ | Priority |
-|-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
+|------------|---------|----------|
+| Server Backend (Render Free Tier) เข้าสู่สถานะ Sleep/Spin down เมื่อไม่มีการใช้งานเกิน 15 นาที | เกิดอาการ Cold Start หน่วงเวลา 30-50 วินาทีในการเรียกใช้งานครั้งแรก พนักงานหรือลูกค้าอาจคิดว่าระบบค้าง | P1 |
+| Session Token (JWT) หมดอายุระหว่างใช้งาน หรือพนักงานล็อกอินค้างไว้ | ระบบจะปฏิเสธคำสั่งซื้อทันที (401 Unauthorized) ทำให้พนักงานต้องล็อกอินใหม่ และต้องกดเลือกรายการอาหารซ้ำอีกครั้ง | P2 |
+| การส่งข้อมูลออเดอร์ที่ไม่สมบูรณ์จากหน้าร้าน (เช่น ข้อมูลไม่ครบถ้วน หรือระบุเลขโต๊ะผิด) | ระบบปฏิเสธการสร้างคำสั่งซื้อ (400 Bad Request) ทำให้รายการอาหารส่งไม่ถึงห้องครัว | P2 |
 
 ---
 
 ## 🧪 Test Cases & Results
 
-<!-- ส่วนที่ 2 -->
+### Test Results Summary (11 Test Cases)
+
+| Test ID | Category | Test Scenario | Method & Endpoint | Expected Status | Actual Status | Result |
+| :--- | :--- | :--- | :--- | :---: | :---: | :---: |
+| **POS-01** | Positive | Login เข้าสู่ระบบด้วยข้อมูลถูกต้อง | `POST /api/auth/login` | 200 OK | 200 OK | **PASS** |
+| **POS-02** | Positive | ดึงข้อมูลรายการอาหารทั้งหมด | `GET /api/menu` | 200 OK | 200 OK | **PASS** |
+| **POS-03** | Positive | สร้างคำสั่งซื้อใหม่สำเร็จ | `POST /api/orders` | 201 Created | 201 Created | **PASS** |
+| **NEG-01** | Negative | Login ด้วย Password ที่ไม่ถูกต้อง | `POST /api/auth/login` | 401 Unauthorized | 401 Unauthorized | **PASS** |
+| **NEG-02** | Negative | สั่งซื้อโดยส่งรายการสินค้าว่างเปล่า (Empty Items) | `POST /api/orders` | 400 Bad Request | 400 Bad Request | **PASS** |
+| **NEG-03** | Negative | ดึงข้อมูลเมนูอาหารที่ไม่มีอยู่จริง (ID: 999999) | `GET /api/menu/999999` | 404 Not Found | 404 Not Found | **PASS** |
+| **SEC-01** | Security | เรียกใช้ Protected Route โดยไม่ส่ง Access Token | `GET /api/orders` | 401 Unauthorized | 401 Unauthorized | **PASS** |
+| **SEC-02** | Security | เรียกใช้งานโดยส่ง Invalid / Expired Token | `GET /api/orders` | 401 Unauthorized | 401 Unauthorized | **PASS** |
+| **SEC-03** | Security | ทดสอบโจมตีด้วย SQL Injection ช่องทาง Login | `POST /api/auth/login` | 401 Unauthorized | 401 Unauthorized | **PASS** |
+| **EDG-01** | Edge Case | สั่งซื้อสินค้าด้วยจำนวนชิ้นติดลบ (Quantity: -5) | `POST /api/orders` | 400 Bad Request | 400 Bad Request | **PASS** |
+| **EDG-02** | Edge Case | ส่ง Payload เมนูโดยตัด Field สำคัญ / ชนิดข้อมูลผิด | `POST /api/menu` | 400 Bad Request | 400 Bad Request | **PASS** |
 
 ### Vitest Results
 ```
@@ -98,42 +116,44 @@ Run: npm test
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Total: 21  |  Passed: 21  |  Failed: 0  |  Pass Rate: 100%
 ```
+
+### Test Case Table
 
 ### Test Case Table
 
 | TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
 |-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
-
----
+| POS-01 | Auth | Admin login success | 200 + JWT | 200 OK | Pass |
+| POS-02 | Menu | Get all menu items | 200 OK | 200 OK | Pass |
+| POS-03 | Order | Create order success | 201 Created | 201 Created | Pass |
+| NEG-01 | Auth | Wrong password login | 401 | 401 Unauthorized | Pass |
+| NEG-02 | Order | Create empty order | 400 | 400 Bad Request | Pass |
+| NEG-03 | Menu | Get non-existent menu | 404 | 404 Not Found | Pass |
+| SEC-01 | Security | Unauthorized request (No token) | 401 | 401 Unauthorized | Pass |
+| SEC-02 | Security | Invalid token request | 401 | 401 Unauthorized | Pass |
+| SEC-03 | Security | SQL Injection login attack | 401 | 401 Unauthorized | Pass |
+| EDG-01 | Order | Negative quantity order | 400 | 400 Bad Request | Pass |
+| EDG-02 | Menu | Invalid payload / missing field | 400 | 400 Bad Request | Pass |---
 
 ## 🐛 Bug Reports
 
-<!-- ส่วนที่ 3 -->
+> ** Status:** No Critical Bugs Found (ไม่พบบั๊กระดับวิกฤตจากการทดสอบด้วย Test Suite ทั้ง 11 เคส ระบบทำงานได้ถูกต้องตาม Scenarios ทั้งหมด)
 
-## BUG-001: [ชื่อ Bug]
+## BUG-001: ไม่มีการ Validate จำนวนสินค้าติดลบในการสร้าง Order
 
-**Severity:** Critical
-**Feature:** Payment
-**Endpoint:** `POST /api/payments`
+**Severity:** High  
+**Feature:** Order Management  
+**Endpoint:** `POST /api/orders`  
 
-### Steps to Reproduce
-1. ...
-
-### Expected / Actual Result
-...
-
-### Business Impact
-...
-
+* **Description:** เมื่อส่ง Payload สั่งซื้อสินค้าโดยระบุจำนวนติดลบ (`quantity: -5`) ในครั้งแรก ระบบยอมให้สร้างออเดอร์ได้
+* **Steps to Reproduce:**
+  1. Login เข้าสู่ระบบเพื่อรับ Access Token
+  2. ยิง Request `POST /api/orders` โดยใส่ Body `{ "items": [{ "menuId": 1, "quantity": -5 }] }`
+* **Expected Result:** ระบบต้องปฏิเสธและตอบกลับด้วย HTTP `400 Bad Request`
+* **Actual Result:** ระบบตอบกลับด้วย HTTP `201 Created` (ในเวอร์ชันตั้งต้น)
+* **Status:** `Resolved` (แก้ไขแล้วโดยเพิ่ม Input Validation เช็ค `quantity > 0` ใน Backend Controller)
 ---
 
 ## 🚀 Deployment Guide
