@@ -108,7 +108,14 @@ export default function OrderDetailPage() {
                     <td className="py-2.5 text-right font-semibold">฿{Number(item.subtotal).toFixed(2)}</td>
                     {isOpen && (
                       <td className="py-2.5 text-right">
-                        <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="px-2.5 py-1 text-xs font-semibold rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                          aria-label={`Remove ${item.menuItem?.name ?? 'item'}`}
+                          title="Remove item"
+                        >
+                          ✕ Remove
+                        </button>
                       </td>
                     )}
                   </tr>

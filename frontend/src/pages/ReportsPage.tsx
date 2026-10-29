@@ -46,7 +46,14 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {error && <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+      {error && (
+        <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={load} className="btn-sm btn-ghost bg-white text-red-700 border border-red-300 hover:bg-red-50">
+            ↻ Retry
+          </button>
+        </div>
+      )}
       {loading && <div className="text-center py-12 text-gray-400">Loading…</div>}
 
       {data && !loading && (

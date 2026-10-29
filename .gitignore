@@ -141,3 +141,5 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+# Temporary Node compile cache used by local test runs
+backend/.tmp-test/

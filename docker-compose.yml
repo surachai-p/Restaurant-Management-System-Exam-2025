@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  # ส่วนของฐานข้อมูล (เอา # ออกให้หมดเพื่อให้รัน Database ในเครื่องได้)
+  # Local PostgreSQL Database service
   db:
     image: postgres:16-alpine
     container_name: rms-db
@@ -20,6 +20,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # Backend API service
   backend:
     build:
       context: ./backend
@@ -27,13 +28,36 @@ services:
     container_name: rms-backend
     restart: unless-stopped
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      # แก้ไข DATABASE_URL ให้ชี้มาที่ container db ในเครื่องเรา
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/rms_db?schema=public
-      JWT_SECRET: rms-dev-secret-change-in-prod
-      CORS_ORIGIN: http://localhost:5173
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/rms_db?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     ports:
       - "3001:3001"
     depends_on:
       db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # Frontend Web application service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+    container_name: rms-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

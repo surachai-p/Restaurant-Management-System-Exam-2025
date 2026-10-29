@@ -60,11 +60,31 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-center text-gray-400">
-          <p className="font-semibold mb-1">Test Accounts</p>
-          <p>admin / Admin@123</p>
-          <p>cashier1 / Cashier@123</p>
-          <p>waiter1 / Waiter@123</p>
+        <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-center text-gray-500">
+          <p className="font-medium text-gray-400 mb-2">Quick Sign-in (Exam & Demo)</p>
+          <div className="flex justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => { setUsername('admin'); setPassword('Admin@123') }}
+              className="px-2.5 py-1 bg-pink-50 text-pink-700 hover:bg-pink-100 rounded-md font-medium text-xs transition-colors"
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsername('cashier1'); setPassword('Cashier@123') }}
+              className="px-2.5 py-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-md font-medium text-xs transition-colors"
+            >
+              Cashier
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsername('waiter1'); setPassword('Waiter@123') }}
+              className="px-2.5 py-1 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 rounded-md font-medium text-xs transition-colors"
+            >
+              Waiter
+            </button>
+          </div>
         </div>
       </div>
     </div>

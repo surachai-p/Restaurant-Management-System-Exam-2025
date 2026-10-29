@@ -38,8 +38,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-gray-500">ภาพรวมผังโต๊ะ ออเดอร์ที่กำลังดำเนินการ และรายงานสรุปยอดขาย</p>
+        </div>
         <span className="text-sm text-gray-500">Welcome, {user?.name}</span>
       </div>
 
@@ -74,7 +77,7 @@ export default function DashboardPage() {
       {/* Table Map */}
       <div className="card">
         <h2 className="text-lg font-semibold mb-4">Table Status</h2>
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-2">
           {tables.map(t => (
             <div key={t.id}
               className={`border-2 rounded-xl p-3 text-center ${tableColor[t.status] ?? ''}`}>

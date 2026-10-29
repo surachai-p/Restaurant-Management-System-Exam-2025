@@ -12,11 +12,13 @@ router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, 
   try {
     const { startDate, endDate } = req.query as { startDate?: string; endDate?: string }
 
-    const dateFilter: { gt?: Date; lte?: Date } = {}
+    const dateFilter: { gte?: Date; lte?: Date } = {}
 
     if (startDate) {
-      // ⚠️ BUG-005: Should be 'gte' (>=) not 'gt' (>) — off-by-one error
-      dateFilter.gt = new Date(startDate)   // WRONG: should be gte
+      // BUG-005 Fixed: Using 'gte' (>=) from start of day instead of 'gt'
+      const start = new Date(startDate)
+      start.setHours(0, 0, 0, 0)
+      dateFilter.gte = start
     }
     if (endDate) {
       const end = new Date(endDate)

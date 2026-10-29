@@ -26,6 +26,10 @@ export default function PaymentPage() {
 
   const handlePay = async () => {
     setError('')
+    if (paid < total) {
+      setError('Insufficient payment amount: Amount paid must be at least ฿' + total.toFixed(2))
+      return
+    }
     try {
       const { data } = await api.post<PaymentResult>('/payments', {
         orderId: Number(orderId),
@@ -131,10 +135,16 @@ export default function PaymentPage() {
               )}
             </div>
             <div className="flex gap-3 pt-2">
-              <button className="btn-success flex-1 justify-center py-3" onClick={handlePay} disabled={!amountPaid}>
+              <button
+                className="btn-success flex-1 justify-center py-3"
+                onClick={handlePay}
+                disabled={!amountPaid || paid < total}
+              >
                 Process Payment
               </button>
-              <button className="btn-ghost" onClick={() => navigate(-1)}>Cancel</button>
+              <button className="btn-ghost" onClick={() => navigate(`/orders/${order.id}`)}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>

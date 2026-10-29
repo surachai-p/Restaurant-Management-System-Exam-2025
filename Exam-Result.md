@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** https://github.com/68030265/Restaurant-Management-System-Exam-2025
 
 ---
 
@@ -33,15 +33,18 @@
 
 ## Production URLs
 
-| Service            | URL                                      | Status |
-|--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+Production URLs are not configured in this workspace.
+
+| Service | URL / status |
+|---------|--------------|
+| Frontend | Not configured |
+| Backend | Not configured |
+| Health check | Local only: http://localhost:3001/api/health returns 200 |
+| Database | Local loopback; no verified Neon URL |
+
+**Student repository:** https://github.com/68030265/Restaurant-Management-System-Exam-2025
 
 ---
-
 ## Test Plan
 
 > **ส่วนที่ 1 — แผนการทดสอบ (4 คะแนน)**
@@ -61,8 +64,9 @@
 #### Out of Scope
 | Feature       | เหตุผลที่ไม่ทดสอบ |
 |---------------|--------------------|
-| <!-- ตัวอย่าง --> Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
-| <!-- เพิ่มเติม --> | |
+| Performance & Load Test (JMeter / k6) | ไม่อยู่ในขอบเขตของข้อสอบปฏิบัติรอบนี้ เน้น Functional, Security และ E2E |
+| Payment Gateway Integration (Omise / Stripe Webhook) | ใช้ระบบจำลองการชำระเงินภายในระบบ (Cash, Card, QR) ไม่ต่อยอดไปยัง Gateway ภายนอก |
+| Real hardware thermal POS receipt printer | ระบบทดสอบผ่านการคืนค่า JSON และแสดงผลบนหน้าเว็บแทนการสั่งพิมพ์ฮาร์ดแวร์จริง |
 
 ---
 
@@ -70,218 +74,202 @@
 
 | ประเภทการทดสอบ           | เครื่องมือ       | รายละเอียด |
 |--------------------------|-----------------|------------|
-| Unit Testing             | Vitest          | ทดสอบฟังก์ชันใน Backend |
-| API Testing (E2E)        | Postman / Newman | ทดสอบ REST API endpoint ทั้งหมด |
-| Security Testing         | npm audit, Manual | ตรวจสอบช่องโหว่ Dependency และ API |
+| Unit Testing             | Vitest          | ทดสอบฟังก์ชันตรรกะการคำนวณเงินและตรวจสอบความถูกต้องใน Backend |
+| API Testing (E2E)        | Postman / Newman | ทดสอบ REST API endpoint ทั้งหมดตาม Test Suite |
+| Security Testing         | npm audit, Manual | ตรวจสอบช่องโหว่ Dependency, SQL Injection และ Broken Access Control |
 | Smoke Testing            | Manual / Newman | ทดสอบ Feature หลัก 4 รายการบน Production |
-| Staging Deployment Test  | Docker Compose  | ทดสอบก่อน Deploy บน Cloud |
+| Staging Deployment Test  | Docker Compose  | ทดสอบการทำงานของ Multi-container ก่อน Deploy บน Cloud |
 
 ---
 
-### 1.3 สภาพแวดล้อมทดสอบ (Test Environment)
+### 1.3 Test Environment
 
-| รายการ         | เวอร์ชัน / ค่า                     |
-|----------------|------------------------------------|
-| OS             | Windows 11 
-| Node.js        | 24.14.0                             |
-| npm            | 11.9.0               |
-| Docker         | 29.2.1               |
-| PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | Chrome           |
-| Newman         | 6.2.2              |
-
----
-
-### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
-
-#### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
-- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [x] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
-
-#### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
-- Newman Pass Rate ≥ **80%** ถือว่าพร้อมติดตั้ง
-- ไม่มี Bug ระดับ **Critical** ที่ยังไม่ได้แก้ไข
-- Smoke Test ผ่านทุก 4 Feature หลักบน Production
+| Item | Value |
+|------|-------|
+| OS | Windows 11 |
+| Node.js | v24.22.0 |
+| npm | 11.19.1 |
+| Docker | Client 29.6.1; Engine API returned permission denied |
+| PostgreSQL | Local loopback database; version not verified |
+| Browser | Google Chrome; existing screenshots in repository |
+| Newman | 6.2.3 |
 
 ---
+### 1.4 Entry / Exit Criteria
 
+#### Entry Criteria
+- [x] Backend and frontend production builds pass.
+- [x] Local test database is available and seeded.
+- [x] GET /api/health returns HTTP 200 with status ok.
+- [x] Postman collection runs successfully with Newman.
+
+#### Exit Criteria
+- [x] Newman local pass rate is 100% (26/26 assertions; threshold 80%).
+- [x] No unresolved Critical bug or Critical dependency vulnerability was found.
+- [ ] Production smoke test passes all 4 features; production URLs are not configured, so this remains unverified.
+
+---
 ### 1.5 ความเสี่ยงเชิงธุรกิจ (Business Risk)
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | Payment (ชำระเงิน)      | ร้านไม่สามารถรับเงินได้ ลูกค้ารอนาน เสียรายได้โดยตรง | Critical |
-| 2 | Order (รับออเดอร์)      | ออเดอร์ไม่ถึงครัว อาหารไม่ถูกจัดเตรียม ลูกค้าไม่พอใจ | High |
-|3	Menu Management	ข้อมูลราคาผิดพลาดหรือสินค้าหมดแต่ยังสั่งได้ ทำให้ขาดทุนหรือบริการสะดุด	High
-4	Sales Reports	รายงานยอดขายไม่ตรงกับความเป็นจริง ส่งผลต่อการวางแผนสต็อกและบัญชีผิดพลาด	Medium
+| 1 | Payment (ชำระเงิน)      | ร้านไม่สามารถรับเงินได้ ลูกค้ารอนาน หรือเงินทอนติดลบทำให้ร้านเสียรายได้โดยตรง | Critical |
+| 2 | Order (รับออเดอร์)      | ออเดอร์ไม่ถึงครัว เปิดโต๊ะซ้ำซ้อน อาหารไม่ถูกจัดเตรียม ลูกค้าไม่พอใจ | High |
+| 3 | Menu Management        | ข้อมูลราคาผิดพลาดหรือสินค้าหมดแต่ยังสั่งได้ ทำให้ขาดทุนหรือบริการสะดุด | High |
+| 4 | Sales Reports          | รายงานยอดขายไม่ตรงกับความเป็นจริง ส่งผลต่อการวางแผนสต็อกและบัญชีผิดพลาด | Medium |
 ---
 
 ## Test Cases & Results
 
-> **ส่วนที่ 2 — กรณีทดสอบ (8 คะแนน)**
+> Newman was run against the local test database on 20 October 2026. The 21-request suite completed with 26/26 assertions passing.
 
-### กรณีทดสอบทั้งหมด (≥ 10 กรณี)
+| TC-ID | Type | Feature | Scenario | Input | Expected | Actual | Result |
+|-------|------|---------|----------|-------|----------|--------|--------|
+| TC-001 | Positive | Health | API health check | GET /api/health | 200, status ok | 200, status ok | Pass |
+| TC-002 | Positive | Auth | Admin login | Admin credentials | 200 + JWT | 200 + JWT | Pass |
+| TC-003 | Positive | Auth | Cashier login | Cashier credentials | 200 + JWT | 200 + JWT | Pass |
+| TC-004 | Positive | Auth | Waiter login | Waiter credentials | 200 + JWT | 200 + JWT | Pass |
+| TC-005 | Negative | Auth | Wrong password | Admin + invalid password | 401 | 401 | Pass |
+| TC-006 | Edge | Auth | Missing credentials | Empty body | 400 | 400 | Pass |
+| TC-007 | Security | Auth | Request without token | GET /api/menu | 401 | 401 | Pass |
+| TC-008 | Positive | Menu | List menu | Admin token | 200 + array | 200 + array | Pass |
+| TC-009 | Positive | Menu | Search menu | search=Pad Thai | 200 + results | 200 + results | Pass |
+| TC-010 | Security | Menu | SQL injection search | search=' OR '1'='1 | No data leak | 200 + empty results | Pass |
+| TC-011 | Security | Menu | Waiter changes price | PUT /api/menu/1 | 403 | 403 | Pass |
+| TC-012 | Positive | Menu | Admin adds item | Test Dish, price 99 | 201 | 201 | Pass |
+| TC-013 | Security | Menu | Waiter adds item | Waiter token | 403 | 403 | Pass |
+| TC-014 | Positive | Order | Open order | tableId=2 | 201 | 201 | Pass |
+| TC-015 | Negative | Order | Duplicate open order | tableId=2 again | 409 | 409 | Pass |
+| TC-016 | Positive | Order | Add two menu items | menu item from TC-012, quantity=2 | 201 | 201 | Pass |
+| TC-017 | Positive | Order | Confirm order | Order from TC-014 | 200 | 200 | Pass |
+| TC-018 | Edge | Order | Missing table ID | Empty body | 400 | 400 | Pass |
+| TC-020 | Negative | Payment | Underpayment | amountPaid=1, below total | 400, insufficient payment | 400, insufficient payment | Pass |
+| TC-019 | Positive | Payment | Exact payment | amountPaid equals total | 201, change=0 | 201, change=0 | Pass |
+| TC-021 | Security | Payment | Payment without token | No Authorization header | 401 | 401 | Pass |
 
-| TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
-|---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | สามารถเข้าและใช้งานได้ | pass        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   | -7ho 201 + ข้อมูลที่จะเพิ่ม | pass        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |รับและชำระเงินถูกต้อง | pass        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |ไม่สามารถเข้าใช้งานได้ | pass      |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message | ดูจำนวนสินค้าไม่ได้ | fail        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |ยอดเงินติดลบ | pass        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    | ขี้นว่า 401 Unauthorized แล้วและมีข้อความขึ้นว่า "error": "Access token required" | pass        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       | หน้าเว็บขึ้น 403 Forbidden และมีข้อความขึ้นว่า "error": "Insufficient permission"  | pass        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | หน้าเว็บขึ้น 401 Unauthorizedและมีข้อความ error": "Invalid credentials | pass        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message | 400 Bad Request + "error": "tabeld required" | pass        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    | เงินทอนถูกต้อง | pass        |
-| <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
-
-**สรุปผล:** ผ่าน 10 / 11 กรณี (90.9%)
+**Summary:** 21/21 requests completed; 26/26 assertions passed; 0 failed; pass rate 100%.
 
 ---
-
 ## Test Reports
 
-> **ส่วนที่ 3 (ต่อ) — ผลการรัน Newman**
+> Newman E2E run against the local test database
 
-### Newman E2E Test Summary
+- Collection: RMS-68030265-TestSuite
+- Run date: 20 October 2026 (Asia/Bangkok)
+- Iterations: 1
+- Requests: 21; failed: 0
+- Test scripts: 21; failed: 0
+- Assertions: 26 passed; 0 failed
+- Total duration: 2.4 seconds
+- Average response time: 32 ms
+- Pass rate: 100%
 
-```
-Collection: RMS-[68030265]-TestSuite
-Run Date:   2569-05-15 19:57
+![Newman local run summary](./tests/reports/newman-summary.png)
 
-┌─────────────────────────┬──────────────────┐
-│                         │         executed │
-├─────────────────────────┼──────────────────┤
-│              iterations │                1 │
-│                requests │               21 │
-│            test-scripts │               21 │
-│      prerequest-scripts │                0 │
-│              assertions │               26 │
-├─────────────────────────┴──────────────────┤
-│ total run duration:     6.2ms              │
-│ total data received:    1.47kB             │
-│ average response time:  263ms              │
-└────────────────────────────────────────────┘
-```
+[Open detailed Newman HTML report](./tests/reports/newman-report.html)
 
-**Pass Rate:** 69 / 17 (75.36%)  
-**Newman Report (HTML):** `./tests/reports/newman-report.html`
-
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+The JSON summary excludes request bodies and authorization tokens: [newman-run.json](./tests/reports/newman-run.json)
 
 ---
-
 ## Security Scan Report
 
-> **ส่วนที่ 3.4 — npm audit Security Scan**
+ตรวจ npm audit วันที่ 20 ตุลาคม 2569 หลังอัปเดต dependency ที่แก้ได้ภายใน major version
 
 ### Backend Security Scan
 
-```bash
-# คำสั่งที่รัน:
-cd backend && npm audit --audit-level=moderate
-```
+คำสั่ง: npm audit --audit-level=moderate
 
 | Severity | จำนวน |
-|----------|--------|
-| Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
-| Low      | 0      |
-| **รวม**  | **0**  |
+|----------|-------|
+| Critical | 0 |
+| High | 0 |
+| Moderate | 0 |
+| Low | 0 |
+| **รวม** | **0** |
 
-#### รายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป
-
-| Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
-|---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
-
-**แก้ไขด้วย:**
-```bash
-npm audit fix
-```
-
----
+อัปเดต Vitest และ @vitest/coverage-v8 เป็น 4.1.12 และใช้ qs 6.16.1 ผ่าน npm overrides เพื่อแก้รายการเดิม ผล audit ล่าสุดไม่พบช่องโหว่
 
 ### Frontend Security Scan
 
-```bash
-# คำสั่งที่รัน:
-cd frontend && npm audit --audit-level=moderate
-```
+คำสั่ง: npm audit --audit-level=moderate
 
-| Severity | จำนวน |
-|----------|--------|
-| Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
-| Low      | 0      |
-| **รวม**  | **0**  |
+| Severity | จำนวน package records |
+|----------|-----------------------|
+| Critical | 0 |
+| High | 5 |
+| Moderate | 2 |
+| Low | 0 |
+| **รวม** | **7** |
+
+รายการที่ยังเหลืออยู่ใน dependency tree ของ Tailwind CSS 3.4.19:
+
+| Package / Advisory | Severity | ช่วงที่มีปัญหา | สถานะ |
+|--------------------|----------|----------------|-------|
+| braces — [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) | High | <= 3.0.3 | อยู่ใน Tailwind 3 dependency tree; npm ระบุทางแก้เป็น Tailwind CSS 4.3.3 ซึ่งเป็น major upgrade |
+| chokidar, fast-glob, micromatch, tailwindcss | High | ตาม dependency tree ที่ audit รายงาน | รวมเป็น 5 high package records ใน Tailwind CSS 3.4.19 |
+| postcss-selector-parser — [GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf) | Moderate | < 7.1.6 | อยู่ใน postcss-nested/Tailwind 3 dependency tree |
+| postcss-nested | Moderate | ตาม dependency tree ที่ audit รายงาน | npm ต้องอัปเกรด Tailwind ข้าม major เพื่อแก้โดยอัตโนมัติ |
+
+อัปเดต Vite เป็น 8.3.4, @vitejs/plugin-react เป็น 6.1.2 และ React Router เป็น 7.18.4 แล้ว โดย frontend build ผ่าน ยังไม่อัปเกรด Tailwind 4 เพราะเป็นการเปลี่ยน major ที่อาจกระทบ CSS และ configuration
+
+![สรุปผล npm audit](./tests/reports/security-audit-summary.png)
 
 ---
-
 ## Bug Reports
 
-> **ส่วนที่ 3 — รายงานข้อบกพร่อง (≥ 2 Bug)**
+### BUG-001: ระบบเคยยอมรับการชำระเงินต่ำกว่ายอดรวม
 
----
-
-### BUG-001: [ข้อมูลยังแสดงผลอยู่ทั้งที่ JWT Token หมดอายุไปแล้ว]
-
-**Severity:**  Medium  
-**Priority:** P2
-**Feature:** Development Server (Build Tools) 
-**Status:** Open
+- **Severity:** High
+- **Priority:** P1
+- **Feature:** Payment
+- **Status:** Fixed; verified with Newman TC-020 and Vitest
 
 #### Steps to Reproduce
-1. ใช้ Command Line เข้าไปที่โฟลเดอร์ frontend
-2. รันคำสั่ง npm audit --audit-level=moderate
-3. ตรวจสอบรายงานในส่วนของแพ็กเกจ esbuild
+1. เปิดและยืนยันออเดอร์ที่มียอดมากกว่า 1
+2. ส่ง POST /api/payments ด้วย amountPaid ที่ต่ำกว่ายอดรวม
 
 #### Expected Result
-> แพ็กเกจ esbuild ควรเป็นเวอร์ชันที่ปลอดภัย และไม่ยอมให้เว็บไซต์ภายนอกส่งคำขอเข้ามาอ่านข้อมูลใน Development Server ได้
+ระบบปฏิเสธการชำระเงินและตอบ HTTP 400 พร้อมข้อความ Insufficient payment amount
 
 #### Actual Result
-> พบช่องโหว่ใน esbuild <=0.24.2 ซึ่งยินยอมให้เว็บไซต์ใดๆ ส่งคำขอ (Requests) มายังเครื่องเซิร์ฟเวอร์ที่ใช้พัฒนา และสามารถอ่านข้อมูลการตอบกลับ (Response) ได้
+ก่อนแก้ไข ระบบอาจคำนวณเงินทอนติดลบและบันทึกรายการชำระเงินได้
 
-#### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+#### Fix and Evidence
+ตรวจ amountPaid เทียบกับ totalAmount ก่อนสร้าง payment; Newman TC-020 ได้ HTTP 400 และข้อความตามคาด
+
+![ผลทดสอบ BUG-001 จาก Newman](./tests/reports/bug-001-underpayment.png)
 
 #### Business Impact
-> ข้อมูลซอร์สโค้ดหรือข้อมูลจำลองในระหว่างการพัฒนาอาจรั่วไหลไปยังเว็บไซต์ไม่พึงประสงค์ได้ หากผู้พัฒนาเปิดหน้าเว็บอื่นทิ้งไว้ในขณะที่รันโปรเจกต์
+ร้านอาจรับเงินไม่ครบและยอดบัญชีคลาดเคลื่อน
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: โต๊ะเดียวกันเปิดออเดอร์สถานะ open ซ้ำได้
 
-**Severity:** Medium
-**Priority:** P2
-**Feature:** Frontend Framework Tooling (Vite)
-**Status:** Open
+- **Severity:** High
+- **Priority:** P1
+- **Feature:** Order
+- **Status:** Fixed; verified with Newman TC-015
 
 #### Steps to Reproduce
-1. รันคำสั่ง npm audit ในโปรเจกต์
-2. ตรวจสอบความเชื่อมโยง (Dependency Tree) ของแพ็กเกจ vite
+1. เปิดออเดอร์สถานะ open ให้โต๊ะหนึ่ง
+2. ส่งคำขอเปิดออเดอร์ใหม่ด้วย tableId เดิม
 
 #### Expected Result
-> แพ็กเกจ vite ซึ่งเป็นเครื่องมือหลักในการรัน Frontend ควรจะใช้ส่วนประกอบที่ปลอดภัยทั้งหมด
+ปฏิเสธคำขอซ้ำด้วย HTTP 409 และแจ้งว่าโต๊ะมีออเดอร์เปิดอยู่แล้ว
 
 #### Actual Result
-> แพ็กเกจ vite <=6.4.1 มีการเรียกใช้งาน (Depends on) esbuild เวอร์ชันที่มีช่องโหว่ ทำให้ตัว vite เองได้รับผลกระทบด้านความปลอดภัยไปด้วยโดยปริยาย
+ก่อนแก้ไข ระบบไม่ได้ตรวจสอบ open order เดิมก่อนสร้างออเดอร์ใหม่
 
-#### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+#### Fix and Evidence
+เพิ่มการตรวจสอบ open order ของโต๊ะก่อนสร้างรายการ; Newman TC-015 ได้ HTTP 409 และข้อความ Table already has an open order
+
+![ผลทดสอบ BUG-002 จาก Newman](./tests/reports/bug-002-double-booking.png)
 
 #### Business Impact
-> เนื่องจาก vite คือเครื่องมือหลักที่ใช้รันระบบร้านอาหารในฝั่ง Frontend หากตัวเครื่องมือมีช่องโหว่ อาจทำให้สภาพแวดล้อมการทำงานทั้งหมดไม่ปลอดภัย และเสี่ยงต่อการถูกโจมตีผ่านเบราว์เซอร์
+ออเดอร์ซ้ำอาจทำให้อาหารถูกเตรียมซ้ำและยอดขายหรือสถานะโต๊ะไม่ตรงกัน
 
 ---
-
 ## Deployment Guide
 
 > **ส่วนที่ 4 & 5 — คู่มือการติดตั้ง**
@@ -301,96 +289,73 @@ cd frontend && npm audit --audit-level=moderate
 
 > **ส่วนที่ 4.1 — การติดตั้งบนเครื่องตนเองในรูปแบบ On-Premises Server (8 คะแนน)**
 
-#### ขั้นตอนการติดตั้ง
+#### Installation Steps
 
-```bash
-# 1. Clone Repository
-git clone https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git
-cd Restaurant-Management-System-Exam-2025
+PowerShell commands for Windows:
 
-# 2. ตั้งค่า Environment Variables (Backend)
-cp backend/.env.example backend/.env
-# แก้ไข backend/.env ให้มีค่า:
-#   DATABASE_URL=postgresql://...
-#   JWT_SECRET=your-secret
-#   CORS_ORIGIN=http://localhost:5173
-#   NODE_ENV=development
+    git clone https://github.com/68030265/Restaurant-Management-System-Exam-2025.git
+    Set-Location Restaurant-Management-System-Exam-2025
 
-# 3. รัน Backend (Port 3001)
-cd backend
-npm install
-npm run dev
+    Copy-Item backend/.env.example backend/.env
+    Copy-Item frontend/.env.example frontend/.env.local
+    docker compose up -d db
 
-# 4. รัน Frontend (Port 5173) — เปิด terminal ใหม่
-cd frontend
-npm install
-npm run dev
-```
+    # Terminal 1: backend
+    Set-Location backend
+    npm ci
+    npx prisma db push
+    npx tsx prisma/seed.ts
+    npm run dev
 
-#### ผลการทดสอบ (Smoke Test — On-Premises)
+    # Terminal 2: frontend
+    Set-Location frontend
+    npm ci
+    npm run dev
+#### Results (On-Premises)
 
-| ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
-|-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Test | URL | Result | Status |
+|------|-----|--------|--------|
+| Backend Health | http://localhost:3001/api/health | HTTP 200, status ok (verified this run) | Pass |
+| Frontend Login | http://localhost:5173 | Existing dashboard screenshot; current build passes, UI not reopened this run | Existing evidence |
 
-#### หลักฐาน (On-Premises)
+![Backend health check](./image.png)
 
-> 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
-> 
-> ![alt text](image.png)
-
-> 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
->
-> ![alt text](image-1.png)
-
----
-
+![Dashboard after login](./image-1.png)
 ### Staging Environment (Docker Compose)
 
-> **ส่วนที่ 4.2 — การติดตั้งด้วย Docker Compose (8 คะแนน)**
+The docker-compose.yml configuration was reviewed, but containers could not be started again because the Docker Engine API returned permission denied.
 
-#### สิ่งที่แก้ไขใน `docker-compose.yml`
+#### Configuration Review
 
-- [x] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [x] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [x] เพิ่ม Health Check สำหรับ backend service
-- [x] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [x] Database, backend and frontend services are defined.
+- [x] Required environment variables and port mappings are configured.
+- [x] Backend health check is configured.
+- [x] Frontend waits for the backend health check.
 
-#### คำสั่งรัน Staging
+#### Staging Smoke Test
 
-```bash
-docker compose up --build
-```
+| Test | URL | Result | Status |
+|------|-----|--------|--------|
+| Backend Health | http://localhost:3001/api/health | Local API returned HTTP 200; this does not verify the container | API only |
+| Frontend | http://localhost:80 | Not tested because Docker Engine was unavailable | Unverified |
 
-#### ผลการทดสอบ (Smoke Test — Staging)
+![Staging Docker Compose status](./tests/reports/staging-status.png)
 
-| ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
-|-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
-
-#### หลักฐาน (Staging)
-
-> 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
->
-> ![alt text](image-2.png)
+The existing image-2.png shows an API health response, not docker compose ps, so it is not evidence that containers were running.
 
 ---
-
 ### Neon.tech Database Setup
 
-> **ส่วนที่ 5.1**
+The following steps are deployment guidance for a future production database. This run verified only a local loopback database; no Neon connection or production database setup was confirmed.
 
-#### ขั้นตอน
-1. ไปที่ https://console.neon.tech → Create Project → เลือก PostgreSQL 16
-2. คัดลอก Connection String (format: `postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require`)
-3. ใช้เป็นค่า `DATABASE_URL` ใน Backend
+#### Steps
+1. Create a PostgreSQL project in Neon.
+2. Set DATABASE_URL in the backend environment using the Neon connection string.
+3. Verify connectivity and migrations before deployment.
 
-**Connection String:** `postgresql://[user]:[pass]@[host].neon.tech/[db]?sslmode=require`
+**Current status:** Neon connection not verified. Connection strings and credentials are not included in this report.
 
 ---
-
 ### Render + Vercel Deployment Steps
 
 > **ส่วนที่ 5.2 & 5.3**
@@ -418,54 +383,56 @@ Build Command:  npm run build
 |---------------|-----------|------------------------------------------------|
 | `DATABASE_URL` | Backend  | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
 | `JWT_SECRET`   | Backend  | random string ที่ปลอดภัย (≥ 32 ตัวอักษร)       |
-| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://[app].vercel.app` |
+| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://rms-frontend.example` |
 | `NODE_ENV`     | Backend  | `production`                                    |
-| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://[api].onrender.com` |
+| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://rms-api.example/api` |
 
 ---
 
 ### Smoke Test Results
 
-> **ส่วนที่ 5.4 — ทดสอบ 4 Feature หลักบน Production**
+Production smoke tests were not run because no working Production URLs are configured in the report.
 
-| # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
-|---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| # | Feature | Expected | Status |
+|---|---------|----------|--------|
+| 1 | Health Check | HTTP 200, status ok | Not tested on Production |
+| 2 | Login | Admin login succeeds | Not tested on Production |
+| 3 | Open Order & Add | Order is saved | Not tested on Production |
+| 4 | Payment | Correct change is returned | Not tested on Production |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production smoke tests verified: 0 / 4. This means untested, not failed.**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+![Production smoke test status](./tests/reports/production-smoke-status.png)
+
+The local Newman run covering health, login, orders and payment is reported separately.
 
 ---
-
 ## CI/CD Pipeline + Newman Pass Rate
 
-> **ส่วนที่ 5.5**
+Workflow configuration is present in .github/workflows/ci.yml and .github/workflows/cicd.yml. No verified GitHub Actions run artifact was available during this review.
 
-### สิ่งที่แก้ไขใน `.github/workflows/cicd.yml`
+### Configuration Review
 
-- [x] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [x] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
-- [x] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [x] เพิ่ม step ติดตั้งและรัน Newman
-- [x] เพิ่ม step `npm audit --audit-level=high` ทุกครั้งที่ push
+- [x] Push and pull request triggers for main/master are configured.
+- [x] Node.js 22 setup is configured.
+- [x] Backend unit tests and frontend/backend build steps are configured.
+- [x] Newman install and run steps are configured.
+- [x] npm audit step is configured.
+- [ ] A successful GitHub Actions run and screenshot have not been verified.
+- [ ] Frontend audit in ci.yml uses || true, so vulnerabilities do not fail the job.
 
-### Newman Pass Rate (จาก CI/CD Pipeline)
+### Newman Pass Rate (GitHub Actions)
 
-| Metric          | ค่า    |
-|-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Metric | Value |
+|--------|-------|
+| Total Tests | N/A; no confirmed Actions run |
+| Tests Passed | N/A |
+| Tests Failed | N/A |
+| **Pass Rate** | **N/A** |
 
-> 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
->
-> (วางภาพที่นี่)
+![GitHub Actions evidence status](./tests/reports/ci-status.png)
 
+Local Newman result is separate: 21 requests, 26/26 assertions, 100% pass rate.
 ---
 
 *Template สร้างจากข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ — PRIME-BSD Model*

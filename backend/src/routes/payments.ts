@@ -6,8 +6,8 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
+// BUG-001 fixed: underpayments are rejected before a payment is created.
+// TC-020 verifies HTTP 400 for an underpayment.
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
@@ -32,10 +32,11 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
+    // BUG-001 Fixed: Reject underpayment with HTTP 400
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' }); return
+    }
 
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
     const change = paid - totalAmount
 
     const [payment] = await prisma.$transaction([

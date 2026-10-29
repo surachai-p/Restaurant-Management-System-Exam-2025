@@ -7,18 +7,25 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // GET /api/menu  — list / search
-// ⚠️ BUG-003 [SQL Injection]: Raw query with string interpolation
-// Students should test: ?search=' OR '1'='1
+// BUG-003 fixed: menu search uses Prisma parameterized filters.
+// TC-010 verifies search input cannot expose all menu records.
 router.get('/', authenticate, async (req, res) => {
   try {
     const { search, category } = req.query as { search?: string; category?: string }
 
     if (search) {
-      // ⚠️ BUG-003: Parameterized query NOT used — SQL Injection vulnerability
-      // Fix would be: prisma.$queryRaw`SELECT * FROM menu_items WHERE name ILIKE ${'%' + search + '%'}`
-      const results = await prisma.$queryRawUnsafe(
-        `SELECT * FROM menu_items WHERE (name ILIKE '%${search}%' OR description ILIKE '%${search}%') AND "isAvailable" = true`
-      )
+      // BUG-003 Fixed: Parameterized query using Prisma findMany with case-insensitive search
+      const results = await prisma.menuItem.findMany({
+        where: {
+          isAvailable: true,
+          ...(category ? { category: category as any } : {}),
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+        orderBy: [{ category: 'asc' }, { name: 'asc' }],
+      })
       res.json(results); return
     }
 
@@ -63,9 +70,8 @@ router.post('/', authenticate, requireRole('admin'), async (req, res) => {
   }
 })
 
-// PUT /api/menu/:id — ⚠️ BUG-004: requireRole('admin') is MISSING
-// Any authenticated user (waiter) can update menu prices!
-router.put('/:id', authenticate, async (req, res) => {
+// PUT /api/menu/:id — admin only (BUG-004 Fixed: added requireRole('admin'))
+router.put('/:id', authenticate, requireRole('admin'), async (req, res) => {
   try {
     const item = await prisma.menuItem.findUnique({ where: { id: Number(req.params.id) } })
     if (!item) { res.status(404).json({ error: 'Menu item not found' }); return }

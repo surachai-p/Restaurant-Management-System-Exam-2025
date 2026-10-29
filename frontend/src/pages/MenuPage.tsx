@@ -146,13 +146,12 @@ export default function MenuPage() {
                 <span className="text-lg font-bold text-green-600">฿{Number(item.price).toFixed(2)}</span>
               </div>
               <p className="font-semibold text-gray-900">{item.name}</p>
-              {item.description && <p className="text-xs text-gray-500 mt-1">{item.description}</p>}
-              <div className="flex gap-2 mt-3">
-                <button className="btn-warning btn-sm" onClick={() => openForm(item)}>Edit</button>
-                {user?.role === 'admin' && (
+              {user?.role === 'admin' && (
+                <div className="flex gap-2 mt-3">
+                  <button className="btn-warning btn-sm" onClick={() => openForm(item)}>Edit</button>
                   <button className="btn-danger btn-sm" onClick={() => handleDisable(item.id)}>Disable</button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
           {items.length === 0 && (

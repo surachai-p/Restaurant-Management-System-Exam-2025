@@ -1,0 +1,13 @@
+{
+  "collection": "RMS-68030265-TestSuite",
+  "runDate": "2026-10-20",
+  "environment": "local test database",
+  "requestsTotal": 21,
+  "requestsFailed": 0,
+  "assertionsTotal": 26,
+  "assertionsPassed": 26,
+  "assertionsFailed": 0,
+  "passRatePercent": 100,
+  "durationSeconds": 2.4,
+  "sensitiveRequestData": "excluded from HTML report"
+}

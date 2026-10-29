@@ -8,13 +8,13 @@
 }
 
 @layer components {
-  .btn        { @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm transition-opacity disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn        { @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed; }
   .btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700; }
   .btn-success { @apply btn bg-green-600 text-white hover:bg-green-700; }
   .btn-danger  { @apply btn bg-red-500  text-white hover:bg-red-600; }
   .btn-warning { @apply btn bg-amber-500 text-white hover:bg-amber-600; }
   .btn-ghost   { @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200; }
-  .btn-sm      { @apply btn px-2.5 py-1 text-xs; }
+  .btn-sm      { @apply btn px-3 py-1.5 text-xs min-h-[36px]; }
 
   .card { @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6; }
 

@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    name: Build, Test, Security Audit & E2E
     runs-on: ubuntu-latest
 
     services:
@@ -17,6 +18,8 @@ jobs:
           POSTGRES_DB: rms_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -24,35 +27,75 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    # 1. Setup Node.js 22 LTS
+    - name: Setup Node.js 22
       uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'npm'
         cache-dependency-path: 'backend/package-lock.json'
 
+    # 2. Backend Dependencies & Security Audit
     - name: Install backend dependencies
       run: cd backend && npm ci
+
+    - name: Run Backend Security Audit (High severity)
+      run: cd backend && npm audit --audit-level=high
 
     - name: Generate Prisma client
       run: cd backend && npx prisma generate
 
-    - name: Run backend tests
+    # 3. Unit & Integration Testing
+    - name: Run backend unit tests
       run: cd backend && npm test
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        JWT_SECRET: ci-test-secret-key-32chars-minimum-safe
 
-    - name: Setup Node.js for frontend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+    - name: Build backend
+      run: cd backend && npm run build
 
+    # 4. Frontend Build & Audit
     - name: Install frontend dependencies
-      run: cd frontend && npm ci
+      run: cd frontend && npm install --legacy-peer-deps
 
-    - name: Run frontend build
+    - name: Run Frontend Security Audit (High severity)
+      run: cd frontend && npm audit --audit-level=high || true
+
+    - name: Build frontend
       run: cd frontend && npm run build
+      env:
+        VITE_API_URL: http://localhost:3001/api
+
+    # 5. Start Backend and Run Newman E2E Tests
+    - name: Setup Database Schema & Seed Data
+      run: |
+        cd backend
+        npx prisma db push --skip-generate
+        npx tsx prisma/seed.ts
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+
+    - name: Start Backend API in Background
+      run: |
+        cd backend
+        nohup node dist/app.js > backend.log 2>&1 &
+        sleep 3
+        curl -s http://localhost:3001/api/health || exit 1
+      env:
+        PORT: 3001
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+        JWT_SECRET: ci-test-secret-key-32chars-minimum-safe
+        CORS_ORIGIN: '*'
+
+    - name: Install Newman & Reporters
+      run: npm install -g newman newman-reporter-htmlextra
+
+    - name: Run Newman E2E API Test Suite
+      run: |
+        newman run tests/postman/RMS-68030265-TestSuite.json \
+          --environment tests/postman/env-ci.json \
+          --reporters cli
