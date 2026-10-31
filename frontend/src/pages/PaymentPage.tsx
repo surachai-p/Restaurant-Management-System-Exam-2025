@@ -51,33 +51,36 @@ export default function PaymentPage() {
       <h1 className="text-2xl font-bold">💳 Payment — Order #{order.id}</h1>
 
       {result ? (
-        <div className="card text-center">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-xl font-bold mb-4">Payment Successful!</h2>
+        <div className="card text-center" id="receipt">
+          <div className="text-5xl mb-4">🧾</div>
+          <h2 className="text-xl font-bold mb-1">Receipt — Order #{order.id}</h2>
+          <p className="text-xs text-gray-400 mb-4">{new Date().toLocaleString()}</p>
           <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm text-left">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Total Amount</span>
-              <span className="font-semibold">฿{Number(result.payment.totalAmount).toFixed(2)}</span>
+            {order.items?.map(i => (
+              <div key={i.id} className="flex justify-between">
+                <span>{i.menuItem?.name} × {i.quantity}</span>
+                <span>฿{Number(i.subtotal).toFixed(2)}</span>
+              </div>
+            ))}
+            <div className="flex justify-between pt-2 border-t border-gray-200 font-semibold">
+              <span>Total Amount</span>
+              <span>฿{Number(result.payment.totalAmount).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Amount Paid</span>
+              <span>Amount Paid ({result.payment.method})</span>
               <span>฿{Number(result.payment.amountPaid).toFixed(2)}</span>
             </div>
-            <div className={`flex justify-between text-base font-bold pt-2 border-t ${
-              result.change < 0 ? 'text-red-600' : 'text-green-600'
-            }`}>
+            <div className="flex justify-between text-base font-bold pt-2 border-t border-gray-200 text-green-600">
               <span>Change</span>
-              <span>฿{Number(result.change).toFixed(2)}{result.change < 0 ? ' ⚠️' : ''}</span>
+              <span>฿{Number(result.change).toFixed(2)}</span>
             </div>
           </div>
-          {result.change < 0 && (
-            <div className="mt-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 text-left">
-              ⚠️ <strong>BUG-001 DETECTED:</strong> System accepted underpayment!
-              Change is negative (฿{Number(result.change).toFixed(2)}).
-              This should have returned HTTP 400.
-            </div>
-          )}
-          <button className="btn-primary mt-4" onClick={() => navigate('/orders')}>Back to Orders</button>
+          <div className="flex gap-3 mt-4">
+            <button className="btn-success flex-1 justify-center" onClick={() => window.print()}>
+              🖨️ Print Receipt
+            </button>
+            <button className="btn-ghost" onClick={() => navigate('/orders')}>Back to Orders</button>
+          </div>
         </div>
       ) : (
         <div className="card">
@@ -126,7 +129,7 @@ export default function PaymentPage() {
                 onChange={e => setAmount(e.target.value)} />
               {amountPaid && (
                 <p className={`text-sm mt-1 font-medium ${preview >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                  Change: ฿{preview.toFixed(2)}{preview < 0 ? ' (⚠️ Underpayment — BUG!)' : ''}
+                  Change: ฿{preview.toFixed(2)}{preview < 0 ? ' (⚠️ Insufficient — server will reject)' : ''}
                 </p>
               )}
             </div>

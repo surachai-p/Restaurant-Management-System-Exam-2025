@@ -3,6 +3,75 @@ import { useEffect, useState } from 'react'
 import api from '../services/api'
 import type { SalesReport } from '../types'
 
+interface MonthlyReport {
+  month: string
+  totalOrders: number
+  totalRevenue: number | string
+  bestSelling: { name: string; quantity: number; revenue: number }[]
+}
+
+function MonthlyReportCard() {
+  const [month, setMonth]   = useState('')
+  const [data, setData]     = useState<MonthlyReport | null>(null)
+  const [error, setError]   = useState('')
+
+  const load = async (m: string) => {
+    setError('')
+    try {
+      const [y, mo] = m.split('-')
+      const res = await api.get<MonthlyReport>('/reports/monthly', { params: { year: y, month: Number(mo) } })
+      setData(res.data)
+    } catch { setError('Failed to load monthly report') }
+  }
+
+  useEffect(() => {
+    const now = new Date()
+    const m = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    setMonth(m); load(m)
+  }, [])
+
+  return (
+    <div className="card">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 className="text-lg font-semibold">Monthly Summary</h2>
+        <div className="flex gap-2 items-end">
+          <input type="month" className="input w-40" value={month}
+            onChange={e => { setMonth(e.target.value); }} />
+          <button className="btn-primary" onClick={() => month && load(month)}>Load</button>
+        </div>
+      </div>
+      {error && <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+      {data && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">฿{Number(data.totalRevenue).toFixed(2)}</div>
+              <div className="text-xs text-gray-500 mt-1">Revenue ({data.month})</div>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{data.totalOrders}</div>
+              <div className="text-xs text-gray-500 mt-1">Orders Paid ({data.month})</div>
+            </div>
+          </div>
+          {data.bestSelling.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-400 mb-2">Best Selling (by quantity)</p>
+              <ul className="text-sm space-y-1">
+                {data.bestSelling.slice(0, 5).map(i => (
+                  <li key={i.name} className="flex justify-between">
+                    <span>{i.name}</span>
+                    <span className="text-gray-500">{i.quantity} sold · ฿{i.revenue.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ReportsPage() {
   const [data, setData]   = useState<SalesReport | null>(null)
   const [start, setStart] = useState('')
@@ -28,6 +97,8 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Sales Reports</h1>
 
+      <MonthlyReportCard />
+
       {/* Filter */}
       <div className="card py-4">
         <div className="flex gap-3 items-end flex-wrap">
@@ -39,9 +110,9 @@ export default function ReportsPage() {
           ))}
           <button className="btn-primary" onClick={load}>Generate</button>
         </div>
-        {start && (
-          <p className="mt-2 text-xs text-amber-600">
-            ⚠️ BUG-005: Orders from {start} 00:00:00 may be excluded (Op.gt instead of Op.gte).
+        {start && end && (
+          <p className="mt-2 text-xs text-gray-500">
+            Inclusive range: {start} 00:00:00 → {end} 23:59:59.
           </p>
         )}
       </div>

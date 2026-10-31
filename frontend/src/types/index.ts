@@ -20,6 +20,7 @@ export interface MenuItem {
   price: string | number
   category: Category
   isAvailable: boolean
+  stockQuantity: number
   imageUrl?: string
 }
 

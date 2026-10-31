@@ -22,7 +22,7 @@
 |----------|------------|
 | Frontend | React 18 + Vite + **TypeScript** + **Tailwind CSS** |
 | Backend  | Node.js 22 LTS + Express + **TypeScript** |
-| Database | PostgreSQL 16 (Neon.tech) |
+| Database | PostgreSQL 16 (Neon.tech **หรือ** Render PostgreSQL — ยังไม่ได้ตัดสิน, see Exam-Result.md §5.1 conflict note) |
 | ORM      | **Prisma** |
 | Testing  | **Vitest** + Supertest + Newman |
 | Deploy   | Vercel (FE) + Render (BE + DB) |
@@ -45,30 +45,30 @@
 
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
+- [x] Authentication (Login/Logout, JWT)
+- [x] Menu Management (CRUD + Role-based access + Stock)
+- [x] Order Management (Open/Add Items/Confirm/Cancel)
+- [x] Payment Processing (Cash; Card/QR recorded as method only)
+- [x] Sales Reports (Daily / Range / Monthly)
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**Out of Scope:** Performance Load Test (JMeter); real payment-gateway integration.
 
 ### Test Approach
 
 | ประเภท | เครื่องมือ | ครอบคลุม |
 |--------|-----------|----------|
-| Unit Testing | Vitest | Business Logic (Payment Calculation) |
-| API Testing | Postman / Newman | REST Endpoints ทั้งหมด |
-| Security Testing | Manual + Postman | Auth, SQL Injection, Role Check |
+| Unit Testing | Vitest | Business Logic (Payment) + API tests (mocked Prisma) — 38/38 pass |
+| API Testing | Postman / Newman | REST Endpoints ทั้งหมด — 30 requests / 38 assertions / 100% |
+| Security Testing | Manual + Postman + npm audit | Auth, SQL Injection, Role Check — backend audit clean |
 
 ### Test Environment
 
 | Component | Specification |
 |-----------|--------------|
-| Node.js   | 22 LTS |
-| PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Node.js   | 22 LTS runtime (build verified with v26) |
+| PostgreSQL | 16 (staged locally via Docker; cloud provider pending decision) |
+| Browser   | — |
+| OS        | Linux |
 
 ### Entry/Exit Criteria
 
@@ -90,28 +90,32 @@
 
 ### Vitest Results
 ```
-Run: npm test
-✓ Payment returns positive change when overpaid
-✗ [BUG-001] Should NOT allow negative change  ← reveals bug!
-...
+Run: npm test   (2026-10-31)
+Test Files  4 passed (4)
+Tests       38 passed (38)   — includes BUG-001 regression, RBAC, stock validation, SQLi login
 ```
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Total: 30 requests / 38 assertions  |  Passed: 38  |  Failed: 0  |  Pass Rate: 100%
+Evidence: tests/reports/newman-report.json (staging, docker compose, 2026-10-31)
 ```
 
 ### Test Case Table
 
 | TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
 |-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
+| TC-002 | Auth | Admin login | 200 + JWT | 200 + JWT | ✅ |
+| TC-005 | Auth | Wrong password | 401 | 401 | ✅ |
+| TC-007 | Security | No token | 401 | 401 | ✅ |
+| TC-010 | Security | SQL Injection (menu search) | No leak | 0 records, 200 | ✅ |
+| TC-011 | Security | Waiter update price | 403 | 403 | ✅ |
+| TC-013 | Security | Waiter create menu | 403 | 403 | ✅ |
+| TC-015 | Order | Double booking | 409 | 409 | ✅ |
+| TC-005 | Order | Out-of-stock item | 400 | 400 | ✅ |
+| TC-020b | Payment | Underpayment | 400 | 400 | ✅ |
+| TC-019 | Payment | Exact payment | 200 + change 0 | 200 + change 0 | ✅ |
+| TC-040 | Report | Monthly report | 200 + bestSelling | 200 | ✅ |
 
 ---
 
@@ -119,20 +123,100 @@ Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
 
 <!-- ส่วนที่ 3 -->
 
-## BUG-001: [ชื่อ Bug]
+## BUG-001: Underpayment accepted (negative change)
 
 **Severity:** Critical
 **Feature:** Payment
 **Endpoint:** `POST /api/payments`
+**Status:** **Fixed** (2026-10-31)
 
 ### Steps to Reproduce
-1. ...
+1. Confirm an order (total ฿600).
+2. `POST /api/payments {orderId, amountPaid: 100}`
 
 ### Expected / Actual Result
-...
+- Expected: HTTP 400 "Insufficient payment amount", no payment record.
+- Before fix: HTTP 201 with `change: -500` stored.
+- After fix: HTTP 400. Verified by Newman TC-020b + Vitest `tests/api/payments.test.ts`.
 
 ### Business Impact
-...
+บันทึกรายรับที่ไม่ได้เงินจริง — รายงานยอดขายผิดพลาด
+
+---
+
+## BUG-002: Table double booking
+
+**Severity:** High
+**Feature:** Order
+**Endpoint:** `POST /api/orders`
+**Status:** **Fixed** (2026-10-31)
+
+### Steps to Reproduce
+1. `POST /api/orders {tableId: X}` twice while the first open-order exists.
+
+### Expected / Actual Result
+- Expected: second request → 409 (checked inside the same transaction).
+- After fix: 409 "Table already has an open order" (Newman TC-015 + Vitest).
+
+### Business Impact
+จองโต๊ะซ้ำ — ลูกค้าชนกัน, สถานะโต๊ะไม่ตรง
+
+---
+
+## BUG-003: SQL Injection in menu search
+
+**Severity:** Critical
+**Feature:** Menu (API)
+**Endpoint:** `GET /api/menu?search=`
+**Status:** **Fixed** (2026-10-31)
+
+### Steps to Reproduce
+1. `GET /api/menu?search=' OR '1'='1`
+
+### Expected / Actual Result
+- Before fix: `$queryRawUnsafe` interpolated the payload → leaked all menu rows.
+- After fix: parameterized `$queryRaw` tagged template → 0 records (Newman TC-010).
+
+### Business Impact
+ก่อนแก้: ข้อมูลทั้งฐานข้อมูลอาจถูกอ่าน/แก้ไขจากพนักงานภายใน
+
+---
+
+## BUG-004: Waiter could update menu prices (RBAC missing)
+
+**Severity:** High
+**Feature:** Menu (RBAC)
+**Endpoint:** `PUT /api/menu/:id`
+**Status:** **Fixed** (2026-10-31)
+
+### Steps to Reproduce
+1. Login as waiter, `PUT /api/menu/1 {price: 1}`.
+
+### Expected / Actual Result
+- Before fix: 200 — update succeeded.
+- After fix: 403 (Newman TC-011 + Vitest).
+
+### Business Impact
+พนักงานแก้ราคาเมลูเองได้ — ความเสี่ยงขาดทุน
+
+---
+
+## BUG-005: Sales report excluded orders at midnight of startDate
+
+**Severity:** Medium
+**Feature:** Reports
+**Endpoint:** `GET /api/reports/sales`
+**Status:** **Fixed** (2026-10-31)
+
+### Steps to Reproduce
+1. `GET /api/reports/sales?startDate=YYYY-MM-DD`.
+
+### Expected / Actual Result
+- Before fix: `gt` (strictly after) excluded the midnight-of-startDate orders.
+- After fix: `gte` + start normalised to 00:00:00 (inclusive).
+
+### Business Impact
+รายงานยอดขายต่ำกว่าจริง
 
 ---
 
@@ -200,7 +284,47 @@ npm install && npm run dev
    - `CORS_ORIGIN`: frontend URL
 8. Deploy → Monitor logs
 
-หรือใช้ `render.yaml` สำหรับ auto-configuration:
+### Environment Variables (Backend)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string (Neon **หรือ** Render — pending decision) | `postgresql://user:pass@host/db?sslmode=require` |
+| `JWT_SECRET` | Random ≥32-char secret ( REQUIRED in production — server refuses to start without it when `NODE_ENV=production`) | *(not stored in repo)* |
+| `CORS_ORIGIN` | Frontend URL | `https://your-app.vercel.app` |
+
+### Database Hosting — PENDING DECISION
+
+⚠️ The documents disagree:
+- `Exam-Result.md` §5.1 says **Neon.tech**.
+- `README.md` says **Render PostgreSQL** (steps below).
+
+Both are valid for the app (Prisma `DATABASE_URL` + `sslmode=require`). **No cloud database has been provisioned yet.** Seed is guarded (no-op if users exist) and `prisma db push` only runs in the backend container start command — review this before pointing it at a production database.
+
+### Render PostgreSQL Database Setup
+1. ไปที่ https://dashboard.render.com → Databases → New PostgreSQL
+2. เลือก Free plan หรือ Paid ตามต้องการ
+3. Copy External Database URL → ใส่เป็น `DATABASE_URL`
+4. รัน `npx prisma db push` เพื่อสร้าง Schema (local หรือใน Render build)
+
+### Vercel Deployment (Frontend)
+1. Import repo → Root Directory: `frontend`
+2. Framework: Vite
+3. Env: `VITE_API_URL=https://your-backend.onrender.com/api`
+
+### Render Deployment (Backend + Database)
+1. สร้าง PostgreSQL database บน Render (ตามขั้นตอนด้านบน)
+2. New Web Service → Connect GitHub repo → เลือก branch
+3. Root Directory: (ว่าง) หรือ `backend` ถ้าใช้ Dockerfile แยก
+4. Environment: Docker
+5. Build Command: (ว่าง - ใช้ Dockerfile)
+6. Start Command: (ว่าง - ใช้ Dockerfile CMD)
+7. Add Environment Variables ใน Environment tab:
+   - `DATABASE_URL`: จาก database ที่สร้าง
+   - `JWT_SECRET`: random string
+   - `CORS_ORIGIN`: frontend URL
+8. Deploy → Monitor logs
+
+> **Note:** ตัว rename ไฟล์ config `render.yaml` ณ ปัจจุบันยังชื่อ `r.yxx` (ไฟล์ชื่อลับ) — เปลี่ยนชื่อเป็น `render.yaml` ก่อนใช้งาน และกำoshหน `disk` mount ออก<tool_call>delete
 - Push `render.yaml` ไป GitHub
 - ใน Render Dashboard → Settings → YAML → Enable
 

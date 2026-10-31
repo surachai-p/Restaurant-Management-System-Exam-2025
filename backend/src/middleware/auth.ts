@@ -2,7 +2,20 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-export const JWT_SECRET = process.env.JWT_SECRET ?? 'rms-secret-key-2024'
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    // Fail fast in production: a missing JWT secret must never silently fall
+    // back to a development default (that would allow token forgery).
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET must be set in production')
+    }
+    return 'rms-secret-key-2024'
+  }
+  return secret
+}
+
+export const JWT_SECRET = getJwtSecret()
 
 export interface JwtPayload {
   id: number

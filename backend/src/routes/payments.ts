@@ -6,8 +6,9 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
+// Validates underpayment (BUG-001 fixed), rejects non-positive amounts,
+// prevents duplicate payments via Payment.orderId @unique, and runs the
+// payment + order-status + table-release in a single transaction.
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
@@ -15,6 +16,11 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     }
     if (!orderId || amountPaid === undefined) {
       res.status(400).json({ error: 'orderId and amountPaid required' }); return
+    }
+
+    const paid = Number(amountPaid)
+    if (!Number.isFinite(paid) || paid <= 0) {
+      res.status(400).json({ error: 'Amount paid must be a positive number' }); return
     }
 
     const order = await prisma.order.findUnique({
@@ -30,38 +36,45 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
     }
 
     const totalAmount = Number(order.totalAmount)
-    const paid = Number(amountPaid)
+    if (paid < totalAmount) {
+      res.status(400).json({ error: 'Insufficient payment amount' }); return
+    }
 
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
-
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
     const change = paid - totalAmount
 
-    const [payment] = await prisma.$transaction([
-      prisma.payment.create({
+    const result = await prisma.$transaction(async (tx) => {
+      // Re-check inside the transaction so a concurrent payment cannot double-pay
+      const existing = await tx.payment.findUnique({ where: { orderId } })
+      if (existing) return null
+      const payment = await tx.payment.create({
         data: { orderId, cashierId: req.user!.id, totalAmount, amountPaid: paid, change, method: method ?? 'cash' },
-      }),
-      prisma.order.update({ where: { id: orderId }, data: { status: 'paid' } }),
-      prisma.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } }),
-    ])
+      })
+      await tx.order.update({ where: { id: orderId }, data: { status: 'paid' } })
+      await tx.restaurantTable.update({ where: { id: order.tableId }, data: { status: 'available' } })
+      return payment
+    })
 
-    res.status(201).json({ payment, change, message: 'Payment processed successfully' })
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
+    if (!result) {
+      res.status(409).json({ error: 'Payment already processed for this order' }); return
+    }
+
+    res.status(200).json({ payment: result, change, message: 'Payment processed successfully' })
+  } catch {
+    res.status(500).json({ error: 'Failed to process payment' })
   }
 })
 
-// GET /api/payments/:orderId
+// GET /api/payments/:orderId — receipt data
 router.get('/:orderId', authenticate, async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({
       where: { orderId: Number(req.params.orderId) },
+      include: { order: { include: { items: { include: { menuItem: true } }, table: true } } },
     })
     if (!payment) { res.status(404).json({ error: 'Payment not found' }); return }
     res.json(payment)
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch payment' })
   }
 })
 

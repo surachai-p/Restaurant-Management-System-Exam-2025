@@ -23,16 +23,16 @@ async function main() {
 
   await prisma.menuItem.createMany({
     data: [
-      { name: 'Pad Thai',          description: 'Classic Thai stir-fried noodles',  price: 80,  category: Category.food },
-      { name: 'Tom Yum Soup',      description: 'Spicy Thai soup with shrimp',       price: 120, category: Category.food },
-      { name: 'Green Curry',       description: 'Thai green curry with coconut milk',price: 110, category: Category.food },
-      { name: 'Fried Rice',        description: 'Thai-style fried rice with egg',    price: 75,  category: Category.food },
-      { name: 'Spring Rolls',      description: 'Crispy vegetable spring rolls (6)', price: 65,  category: Category.food },
-      { name: 'Mango Sticky Rice', description: 'Sweet dessert with fresh mango',    price: 60,  category: Category.dessert },
-      { name: 'Coconut Ice Cream', description: 'Homemade coconut ice cream',        price: 55,  category: Category.dessert },
-      { name: 'Fresh OJ',          description: '100% fresh squeezed orange juice',  price: 45,  category: Category.drink },
-      { name: 'Thai Iced Tea',     description: 'Sweetened tea with condensed milk', price: 40,  category: Category.drink },
-      { name: 'Singha Beer',       description: 'Thai lager 330ml',                  price: 70,  category: Category.drink },
+      { name: 'Pad Thai',          description: 'Classic Thai stir-fried noodles',  price: 80,  category: Category.food,    stockQuantity: 30 },
+      { name: 'Tom Yum Soup',      description: 'Spicy Thai soup with shrimp',       price: 120, category: Category.food,    stockQuantity: 25 },
+      { name: 'Green Curry',       description: 'Thai green curry with coconut milk',price: 110, category: Category.food,    stockQuantity: 25 },
+      { name: 'Fried Rice',        description: 'Thai-style fried rice with egg',    price: 75,  category: Category.food,    stockQuantity: 30 },
+      { name: 'Spring Rolls',      description: 'Crispy vegetable spring rolls (6)', price: 65,  category: Category.food,    stockQuantity: 40 },
+      { name: 'Mango Sticky Rice', description: 'Sweet dessert with fresh mango',    price: 60,  category: Category.dessert, stockQuantity: 15 },
+      { name: 'Coconut Ice Cream', description: 'Homemade coconut ice cream',        price: 55,  category: Category.dessert, stockQuantity: 15 },
+      { name: 'Fresh OJ',          description: '100% fresh squeezed orange juice',  price: 45,  category: Category.drink,   stockQuantity: 50 },
+      { name: 'Thai Iced Tea',     description: 'Sweetened tea with condensed milk', price: 40,  category: Category.drink,   stockQuantity: 50 },
+      { name: 'Singha Beer',       description: 'Thai lager 330ml',                  price: 70,  category: Category.drink,   stockQuantity: 24 },
     ],
   })
 

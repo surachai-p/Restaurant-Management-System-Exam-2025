@@ -20,7 +20,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<MenuItem | null>(null)
-  const [form, setForm]       = useState({ name: '', description: '', price: '', category: 'food' as Category })
+  const [form, setForm]           = useState({ name: '', description: '', price: '', stock: '', category: 'food' as Category })
   const [msg, setMsg]         = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const load = async () => {
@@ -40,19 +40,21 @@ export default function MenuPage() {
   const openForm = (item?: MenuItem) => {
     setEditing(item ?? null)
     setForm(item
-      ? { name: item.name, description: item.description ?? '', price: String(item.price), category: item.category }
-      : { name: '', description: '', price: '', category: 'food' })
+      ? { name: item.name, description: item.description ?? '', price: String(item.price), stock: String((item as any).stockQuantity ?? 0), category: item.category }
+      : { name: '', description: '', price: '', stock: '', category: 'food' })
     setShowForm(true); setMsg(null)
   }
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault()
     try {
+      const payload = { ...form, stockQuantity: Number(form.stock || 0) }
+      delete (payload as any).stock
       if (editing) {
-        await api.put(`/menu/${editing.id}`, form)
+        await api.put(`/menu/${editing.id}`, payload)
         setMsg({ type: 'success', text: 'Menu item updated' })
       } else {
-        await api.post('/menu', form)
+        await api.post('/menu', payload)
         setMsg({ type: 'success', text: 'Menu item added' })
       }
       setShowForm(false); load()
@@ -112,6 +114,11 @@ export default function MenuPage() {
               <input className="input" type="number" step="0.01" value={form.price} required
                 onChange={e => setForm(p => ({ ...p, price: e.target.value }))} />
             </div>
+            <div>
+              <label className="label">Stock Quantity</label>
+              <input className="input" type="number" step="1" min="0" value={form.stock}
+                onChange={e => setForm(p => ({ ...p, stock: e.target.value }))} />
+            </div>
             <div className="md:col-span-2">
               <label className="label">Description</label>
               <input className="input" value={form.description}
@@ -146,6 +153,10 @@ export default function MenuPage() {
                 <span className="text-lg font-bold text-green-600">฿{Number(item.price).toFixed(2)}</span>
               </div>
               <p className="font-semibold text-gray-900">{item.name}</p>
+              <p className="text-xs text-gray-500">
+                Stock: {(item as any).stockQuantity ?? '—'}
+                {!item.isAvailable && ' · Unavailable'}
+              </p>
               {item.description && <p className="text-xs text-gray-500 mt-1">{item.description}</p>}
               <div className="flex gap-2 mt-3">
                 <button className="btn-warning btn-sm" onClick={() => openForm(item)}>Edit</button>

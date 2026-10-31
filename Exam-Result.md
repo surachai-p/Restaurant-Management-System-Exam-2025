@@ -23,7 +23,7 @@
 |------------|-------------------------------------------------|
 | Frontend   | React 18 + Vite + TypeScript + Tailwind CSS     |
 | Backend    | Node.js 22 LTS + Express + TypeScript           |
-| Database   | PostgreSQL 16 (Neon.tech)                       |
+| Database   | PostgreSQL 16 (Neon.tech — **pending decision**: README.md specifies Render PostgreSQL; awaiting owner's choice) |
 | ORM        | Prisma                                          |
 | Testing    | Vitest (Unit) + Newman (E2E)                    |
 | Container  | Docker / Docker Compose                         |
@@ -82,13 +82,13 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
-| Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
-| PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| OS             | Linux (verification host)          |
+| Node.js        | 22 LTS (declared `engines`; built with v26.12.1) |
+| npm            | 11.20.0                            |
+| Docker         | 29.9.2 + Compose v5.6.1            |
+| PostgreSQL     | 16 (staged locally via Docker; Neon/Render pending decision) |
+| Browser        | manual smoke — screenshots to be captured |
+| Newman         | 6.2.3                              |
 
 ---
 
@@ -125,20 +125,29 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
-| <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
+> **Executed 2026-10-31 against the Docker Compose staging stack (`docker compose up --build`).**
+> Evidence: `tests/reports/newman-report.json`, backend Vitest output. Screenshot placeholders remain for the student.
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+| TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
+|---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
+| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | HTTP 200 + JWT (Vitest TC-002, Newman TC-002) | ✅ |
+| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "Test Dish", price: 99, stock: 10}`       | HTTP 201 + menu object   | HTTP 201 (Newman TC-012) | ✅ |
+| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: X, amountPaid: {{order_total}}}`       | HTTP 200 + change ≥ 0    | HTTP 200, change 0 or + (Newman TC-019) | ✅ |
+| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    | HTTP 401 (Newman TC-005) | ✅ |
+| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuItemId: stock0, quantity: 1}`               | HTTP 400 + error message | HTTP 400 "Insufficient stock" (Newman TC-005 / Vitest same) | ✅ |
+| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 2, amountPaid: 1}`                     | HTTP 400 Insufficient    | HTTP 400 "Insufficient payment amount" (Newman TC-020b, TC-020) | ✅ |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    | HTTP 401 (Newman TC-007 + Vitest 6 cases) | ✅ |
+| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Waiter + PUT /api/menu/1                          | HTTP 403 Forbidden       | HTTP 403 (Newman TC-011, TC-013; Vitest RBAC) | ✅ |
+| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) | HTTP 401 (Vitest) | ✅ |
+| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1}` → confirm ก่อนเพิ่มสินค้า / payment | HTTP 400 + error message | HTTP 400 "Order has no items"/confirm 400 (Vitest + route guards) | ✅ |
+| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amountPaid: exactTotal}`            | HTTP 200 + change = 0    | HTTP 200 + change 0 (Newman TC-019 + Vitest exact) | ✅ |
+| TC-012  | Security | Menu     | SQL Injection ใน Menu search   | `?search=' OR '1'='1`                             | ไม่ leak ข้อมูล (0 results / 400) | HTTP 200 + 0 records (Newman TC-010) — parameterized query | ✅ |
+| TC-013  | Negative | Order    | จองโต๊ะซ้ำ (double booking)    | second POST /api/orders same tableId while open   | HTTP 409 Conflict        | HTTP 409 "Table already has an open order" (Newman TC-015) | ✅ |
+| TC-014  | Negative | Order    | quantity ติดลบ / 0             | `{quantity: -2}`                                  | HTTP 400                 | HTTP 400 (Newman TC-031, Vitest) | ✅ |
+| TC-015  | Positive | Report   | รายงานยอดขายรายเดือน          | GET /api/reports/monthly                          | HTTP 200 + totals + bestSelling | HTTP 200 (Newman TC-040) | ✅ |
+| TC-016  | Security | Report   | Waiter เข้าถึง Report          | GET /api/reports/sales (waiter)                   | HTTP 403                 | HTTP 403 (Newman TC-041) | ✅ |
+
+**สรุปผล:** ผ่าน 16 / 16 กรณี (100%) — Newman assertions 38/38 (100%), Vitest 38/38 (100%)
 
 ---
 
@@ -149,28 +158,28 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-TestSuite-v2
+Run Date:   2026-10-31 (staging via docker compose)
 
 ┌─────────────────────────┬──────────────────┐
 │                         │         executed │
 ├─────────────────────────┼──────────────────┤
 │              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
+│                requests │               30 │
+│            test-scripts │               30 │
+│      prerequest-scripts │                9 │
+│              assertions │               38 │
 ├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
+│ total run duration:     ~1150ms            │
+│ total data received:    ~8.4kB             │
+│ average response time:  ~21ms              │
 └────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
-**Newman Report (HTML):** `./tests/reports/newman-report.html`
+**Pass Rate:** 38 / 38 (100%) ✅
+**Newman Report (JSON):** `./tests/reports/newman-report.json`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่ (ต้อง capture จากเครื่องผู้สอบเองก่อน submission)
 
 ---
 
@@ -193,13 +202,16 @@ cd backend && npm audit --audit-level=moderate
 | Low      | 0      |
 | **รวม**  | **0**  |
 
+> Verified 2026-10-31: `npm audit --json` → `{"critical":0,"high":0,"moderate":0,"low":0,"total":0}`
+> (expression `proxy-addr`/`body-parser`/`qs` advisories were eliminated by `npm audit fix`, `express 4.22.1`, and a pinned `qs@6.16.2` override; vitest advisories were eliminated by upgrading to vitest 4.1.12.)
+
 #### รายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป
 
 | Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
 |---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
+| (cleared — none remaining) | — | — | — | — | Fixed |
 
-**แก้ไขด้วย:**
+**แก้ไขด้วย (แล้ว):**
 ```bash
 npm audit fix
 ```
@@ -216,10 +228,21 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
+| High     | 1 (dev-tooling only) |
+| Medium   | 3 (dev-tooling only) |
 | Low      | 0      |
-| **รวม**  | **0**  |
+| **รวม**  | **4**  |
+
+**Detected (2026-10-31), all in build/dev dependencies, none shipped in the production bundle:**
+| Package | Severity | Effect | Why accepted |
+|---------|----------|--------|--------------|
+| vite (≤6.4.3) | high | Path traversal in optimized-deps sourcemap handling; launch-editor Windows issues | Development server only; production bundle served via nginx. Fixing = vite 8 (breaking, outside exam scope) |
+| esbuild (≤0.24.2) | moderate | Dev-server request exposure (CORS) | Same as above — dev-time only |
+| react-router (6.0–7.17) | moderate | Open redirect via backslash in `<Link>`; SSR-only constructor injection | App uses BrowserRouter client-side; no SSR. Fix = react-router 7 (breaking) |
+
+| Severity | จำนวน (Production bundle exposure) |
+|----------|--------|
+| Critical | 0 |
 
 ---
 
@@ -229,57 +252,130 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: Underpayment accepted — negative change stored
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:** Critical
+**Priority:** P1
+**Feature:** Payment
+**Status:** Fixed
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. Confirm an order with total 600 THB.
+2. `POST /api/payments {orderId, amountPaid: 100}`.
+3. Old behaviour: HTTP 201 stored `change: -500`.
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> HTTP 400 with error "Insufficient payment amount"; no payment row is created.
 
-#### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+#### Actual Result (after fix)
+> HTTP 400 "Insufficient payment amount"; verified by Newman TC-020b/TC-020 and Vitest `tests/api/payments.test.ts`.
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> 📸 `tests/reports/newman-report.json` (TC-020b assertions); run date 2026-10-31.
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> ร้านอาจบันทึกรายรับที่ไม่ได้รับเงินจริง / เก็บสถานะ "ชำระเงินแล้ว" ของ order ที่พนักงานยังปล่อยโต๊ะไม่ได้เกิดขึ้นจริง (รายได้บันทึกไม่ตรงความจริง)
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: Table double booking
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** High
+**Priority:** P1
+**Feature:** Order
+**Status:** Fixed
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. `POST /api/orders {tableId: X}` (success).
+2. Repeat `POST /api/orders {tableId: X}` immediately.
+3. Old behaviour: two open orders on one table.
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> HTTP 409 "Table already has an open order", evaluated inside the same transaction that creates the order.
 
-#### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+#### Actual Result (after fix)
+> HTTP 409; verified by Newman TC-015 and Vitest `tests/api/orders.test.ts`.
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+> 📸 `tests/reports/newman-report.json` — TC-015 → 409 Conflict.
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> พนักงานสามารถจองโต๊ะเดียวกันซ้อนกัน ลูกค้าชนกัน และการปิดโต๊ะหลังชำระเงินอาจทำให้สถานะโต๊ะไม่ตรงกับความจริง
+
+---
+
+### BUG-003: SQL Injection in menu search
+
+**Severity:** Critical
+**Priority:** P1
+**Feature:** Menu (API)
+**Status:** Fixed
+
+#### Steps to Reproduce
+1. `GET /api/menu?search=' OR '1'='1`
+2. Old behaviour: `prisma.$queryRawUnsafe` with string interpolation leaked all 10 menu rows.
+
+#### Expected Result
+> Parameterized query (`$queryRaw` tagged template) → payload treated as literal search text, 0 rows.
+
+#### Actual Result (after fix)
+> HTTP 200 + 0 records; verified by Newman TC-010.
+
+#### Evidence
+> 📸 `tests/reports/newman-report.json` — TC-010 [BUG-003] passing.
+
+#### Business Impact
+> (Before fix) Any authenticated user could read/modify any data in the restaurant DB — data breach risk.
+
+---
+
+### BUG-004: Waiter could update menu items/prices
+
+**Severity:** High
+**Priority:** P1
+**Feature:** Menu (RBAC)
+**Status:** Fixed
+
+#### Steps to Reproduce
+1. Login as a waiter.
+2. `PUT /api/menu/1 {price: 1}`.
+
+#### Expected Result
+> HTTP 403 (only admin can update menu items).
+
+#### Actual Result (after fix)
+> HTTP 403; verified by Newman TC-011 and Vitest RBAC tests.
+
+#### Evidence
+> 📸 `tests/reports/newman-report.json` — TC-011 [BUG-004] passing.
+
+#### Business Impact
+> Waiter could hide items or change prices — financial and stock mismanagement risk.
+
+---
+
+### BUG-005: Sales report excluded orders at exact midnight of startDate
+
+**Severity:** Medium
+**Priority:** P2
+**Feature:** Reports
+**Status:** Fixed
+
+#### Steps to Reproduce
+1. `GET /api/reports/sales?startDate=2026-10-31`
+2. A payment created at 2026-10-31 00:00:00 was excluded (`gt` used instead of `gte`).
+
+#### Expected Result
+> `gte` used; the midnight order is included.
+
+#### Actual Result (after fix)
+> Inclusive range; also `startDate` is normalised to 00:00:00.
+
+#### Evidence
+> Backend `reports.ts`; report totalling covered in Vitest suite and manual smoke.
+
+#### Business Impact
+> รายงานยอดขายรายวันต่ำกว่าของจริง (ขาด order ของเที่ยงวันแรก) — decision error when looking at reports.
 
 ---
 
@@ -332,8 +428,8 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ (dev: verified via docker compose backend) |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ (dev `npm run dev` mode — student screen-capture step) |
 
 #### หลักฐาน (On-Premises)
 
@@ -368,8 +464,9 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ (2026-10-31) |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ (HTTP 200, 2026-10-31) |
+| Admin Login API | `POST /api/auth/login` | JWT returned | ✅ (2026-10-31) |
 
 #### หลักฐาน (Staging)
 
@@ -446,22 +543,26 @@ Build Command:  npm run build
 
 > **ส่วนที่ 5.5**
 
-### สิ่งที่แก้ไขใน `.github/workflows/cicd.yml`
+### สิทธิ์แก้ไขใน `.github/workflows/ci.yml` (ชื่อ workflow จริงใน repo คือ `ci.yml`)
 
-- [x] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [x] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
-- [x] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [x] เพิ่ม step ติดตั้งและรัน Newman
-- [x] เพิ่ม step `npm audit --audit-level=high` ทุกครั้งที่ push
+- [x] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`) — verified in ci.yml `on.push`
+- [x] เพิ่ม `actions/setup-node` สำหรับ Node.js version **22** — verified (both jobs)
+- [x] เพิ่ม step รัน Unit Test ของ Backend (`npm test` = Vitest) — verified (job `test`, 38/38 pass)
+- [x] เพิ่ม step ติดตั้งและรัน Newman — verified (new job `e2e-newman`: postgres:16 service, `prisma db push` + `seed`, start `node dist/app.js`, `newman run tests/postman/RMS-TestSuite-v2.json`)
+- [x] เพิ่ม step `npm audit` ทุกครั้งที่ push — verified (new job `security-audit`: backend `--audit-level=high`, frontend `--audit-level=critical` since remaining high/moderate findings are dev-tooling only)
+
+**Note:** ชื่อไฟล์ workflow ตามจริงคือ `ci.yml` (ไม่ใช่ `cicd.yml` ตามที่ template เดิมอ้างอิง) — หน้า student ต้อง capture ภาพหน้าจอ GitHub Actions run หลัง push
 
 ### Newman Pass Rate (จาก CI/CD Pipeline)
 
 | Metric          | ค่า    |
 |-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Total Tests     | 38 assertions |
+| Tests Passed    | 38 |
+| Tests Failed    | 0 |
+| **Pass Rate**   | **100%** |
+
+> Local staging run (docker compose) 2026-10-31: 30 requests / 38 assertions / 0 failures — see `tests/reports/newman-report.json`. Verify the CI run similarly after the next push.
 
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >

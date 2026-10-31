@@ -21,8 +21,8 @@ router.post('/login', async (req, res) => {
     const payload = { id: user.id, username: user.username, role: user.role, name: user.name }
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '8h' })
     res.json({ token, user: payload })
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message })
+  } catch {
+    res.status(500).json({ error: 'Login failed' })
   }
 })
 

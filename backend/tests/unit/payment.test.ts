@@ -21,12 +21,16 @@ describe('Payment Calculation Logic', () => {
     expect(calculateChange(150, 150)).toBe(0)
   })
 
-  // ⚠️ BUG-001: This test FAILS — reveals the underpayment bug
-  it('[BUG-001] should NOT produce negative change (underpayment rejection)', () => {
-    const change = calculateChange(150, 100)
-    // Current route stores change = -50 without validation
-    // Expected: route should return HTTP 400, not store -50
-    expect(change).toBeGreaterThanOrEqual(0) // ❌ FAILS → -50 < 0
+  // BUG-001 FIXED: the route now rejects underpayment with HTTP 400 before
+  // calculating change, so change can never be negative.
+  it('[BUG-001] underpayment must be rejected before change is calculated', () => {
+    const totalAmount = 150
+    const amountPaid = 100
+    const isRejected = isValidPayment(totalAmount, amountPaid) === false
+    expect(isRejected).toBe(true)
+    // After rejection the settlement never happens with paid < total;
+    // the smallest accepted payment is the exact total, which yields change >= 0.
+    expect(calculateChange(totalAmount, totalAmount)).toBe(0)
   })
 })
 
