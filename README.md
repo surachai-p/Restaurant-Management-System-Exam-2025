@@ -324,19 +324,19 @@ Both are valid for the app (Prisma `DATABASE_URL` + `sslmode=require`). **No clo
    - `CORS_ORIGIN`: frontend URL
 8. Deploy → Monitor logs
 
-> **Note:** ตัว rename ไฟล์ config `render.yaml` ณ ปัจจุบันยังชื่อ `r.yxx` (ไฟล์ชื่อลับ) — เปลี่ยนชื่อเป็น `render.yaml` ก่อนใช้งาน และกำoshหน `disk` mount ออก<tool_call>delete
-- Push `render.yaml` ไป GitHub
-- ใน Render Dashboard → Settings → YAML → Enable
+> **Note:** the Render auto-config file currently sits under the dead filename `r.yxx` — rename it to `render.yaml` and remove its `disk` mount (a Docker pserv on Render doesn't need, and likely rejects, a disk mount) before enabling it:
+- Push `render.yaml` to GitHub
+- In Render Dashboard → Settings → YAML → Enable
 
 ### Smoke Test Results
 
 | Test | URL | Result |
 |------|-----|--------|
-| Health | GET /api/health | ✅/❌ |
-| Login | POST /api/auth/login | ✅/❌ |
-| Add Menu | POST /api/menu | ✅/❌ |
-| Open Order | POST /api/orders | ✅/❌ |
-| Payment | POST /api/payments | ✅/❌ |
+| Health | GET /api/health | ✅ `{"status":"ok"}` (staging, 2026-10-31) |
+| Login | POST /api/auth/login | ✅ JWT returned (staging) |
+| Add Menu | POST /api/menu | ✅ 201 (Newman TC-012) |
+| Open Order | POST /api/orders | ✅ 201 + double-booking 409 (Newman TC-014/015) |
+| Payment | POST /api/payments | ✅ 200, correct change (Newman TC-019; underpayment now 400) |
 
 ---
 
