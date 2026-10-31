@@ -1,0 +1,148 @@
+
+name: RMS CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+jobs:
+  newman-tests:
+    name: Backend Tests and Newman E2E
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://rms_test:rms_test_password@localhost:5432/rms_test?schema=public
+      JWT_SECRET: rms_ci_only_test_secret_not_for_production_2026
+      NODE_ENV: test
+      PORT: "3001"
+      CORS_ORIGIN: http://localhost:5173
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: rms_test
+          POSTGRES_PASSWORD: rms_test_password
+          POSTGRES_DB: rms_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rms_test -d rms_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # 1. Download source code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js 22
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # 3. Install root dependencies (Newman)
+      - name: Install Newman Dependencies
+        run: npm ci
+
+      # 4. Install backend dependencies
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      # 5. Generate Prisma Client
+      - name: Generate Prisma Client
+        working-directory: ./backend
+        run: npm run db:generate
+
+      # 6. Prepare CI database
+      - name: Create Database Tables
+        working-directory: ./backend
+        run: npm run db:push
+
+      # 7. Seed test data
+      - name: Seed Test Database
+        working-directory: ./backend
+        run: npm run db:seed
+
+      # 8. Backend Unit Tests
+      - name: Run Backend Unit Tests
+        working-directory: ./backend
+        run: npm test
+
+      # 9. Backend TypeScript Build
+      - name: Build Backend
+        working-directory: ./backend
+        run: npm run build
+
+      # 10. Install frontend dependencies
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      # 11. Backend Security Audit
+      - name: Backend Security Audit
+        working-directory: ./backend
+        run: npm audit --audit-level=high
+
+      # 12. Frontend Security Audit
+      - name: Frontend Security Audit
+        working-directory: ./frontend
+        run: npm audit --audit-level=high
+
+      # 13. Start backend for E2E tests
+      - name: Start Backend Server
+        working-directory: ./backend
+        run: |
+          nohup npm start > /tmp/rms-backend.log 2>&1 &
+          echo $! > /tmp/rms-backend.pid
+
+      # 14. Wait for backend readiness
+      - name: Wait for Backend Health
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://localhost:3001/api/health; then
+              echo ""
+              echo "Backend is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Backend failed to start"
+          cat /tmp/rms-backend.log
+          exit 1
+
+      # 15. Run Newman E2E tests
+      - name: Run Newman E2E Tests
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          CASHIER_PASSWORD: ${{ secrets.CASHIER_PASSWORD }}
+          WAITER_PASSWORD: ${{ secrets.WAITER_PASSWORD }}
+        run: |
+          npx --no-install newman run \
+            ./tests/postman/RMS-68030310-TestSuite.postman_collection.json \
+            -e ./tests/postman/env-ci.json \
+            --env-var "admin_password=$ADMIN_PASSWORD" \
+            --env-var "cashier_password=$CASHIER_PASSWORD" \
+            --env-var "waiter_password=$WAITER_PASSWORD" \
+            --env-var "invalid_password=InvalidPasswordForCI2026" \
+            --reporters cli
+
+      # 16. Show backend logs on failure
+      - name: Show Backend Logs on Failure
+        if: failure()
+        run: |
+          if [ -f /tmp/rms-backend.log ]; then
+            cat /tmp/rms-backend.log
+          fi

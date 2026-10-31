@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** นางสาวอธิชนัน ประวันจะ
+**รหัสนักศึกษา:** 68030310
+**วันที่สอบ:** 16 ต.ค. 2569 สอบแก้
 
 ---
 
@@ -45,13 +45,16 @@
 
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
+- [ / ] Authentication (Login/Logout, JWT)
+- [ / ] Menu Management (CRUD + Role-based access)
+- [ / ] Order Management (Open/Add Items/Confirm/Cancel)
+- [ / ] Payment Processing (Cash/Card/QR)
+- [ / ] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**Out of Scope:**
+-การทดสอบ Performance/Load Testing แบบพร้อมกันจำนวนเกิน 1,000 requests/sec
+-ระบบชำระเงินผ่าน Payment Gateway ภายนอกของจริง (เช่น Omise, Stripe)
+-ฮาร์ดแวร์ภายนอก (เช่น เครื่องพิมพ์ใบเสร็จความร้อน, ลิ้นชักเก็บเงิน)
 
 ### Test Approach
 
@@ -67,8 +70,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   |Microsoft Edge|
+| OS        |Windows 11 |
 
 ### Entry/Exit Criteria
 
@@ -79,8 +82,9 @@
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
+| คำนวณเงินทอนผิดพลาด (ทอนเงินติดลบหรือเกิน) |ร้านค้าสูญเสียรายได้ และเกิดความขัดแย้งกับลูกค้า | P1 |
+| การข้ามสิทธิ์ Auth/Role (Waiter แก้ไขราคาเมนูได้) | ถูกแก้ไขข้อมูลการเงินโดยผู้ไม่มีสิทธิ์ ส่งผลให้เกิดการทุจริต | P1 |
+|ช่องโหว่ SQL Injection / No Token Access|ถูกโจมตีและเข้าถึงข้อมูลลูกค้ารวมถึงยอดขายโดยไม่ได้รับอนุญาต|P2|
 
 ---
 
@@ -93,25 +97,25 @@
 Run: npm test
 ✓ Payment returns positive change when overpaid
 ✗ [BUG-001] Should NOT allow negative change  ← reveals bug!
-...
+✓ Order total calculation with vat/discount
 ```
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Total: 21  |  Passed: 19  |  Failed: 2  |  Pass Rate: 90..48%
 ```
 
 ### Test Case Table
 
 | TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
 |-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
+| TC-002 | Auth | Admin login | 200 + JWT |200 OK + JWT  |Pass |
+| TC-005 | Auth | Wrong password | 401 |401 Unauthorized | Pass|
+| TC-007 | Security | No token | 401 |401 Unauthorized |Pass |
+| TC-010 | Security | SQL Injection | Empty/400 | 200 OK| Fail|
+| TC-011 | Security | Waiter update price | 403 |403 | Pass|
+| TC-015 | Order | Double booking | 409 | 409 Conflict| Pass|
+| TC-020 | Payment | Underpayment | 400 |200 OK | Fail|
 
 ---
 
