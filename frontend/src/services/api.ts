@@ -1,9 +1,11 @@
 /// <reference types="vite/client" />
-/// <reference types="vite/client" />
 // src/services/api.ts
 import axios from 'axios'
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+const rawBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/+$/, '')
+const BASE = rawBase
+  ? (rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`)
+  : '/api'
 
 const api = axios.create({ baseURL: BASE })
 
