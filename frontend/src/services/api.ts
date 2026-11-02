@@ -2,14 +2,12 @@
 // src/services/api.ts
 import axios from 'axios'
 
-const defaultBase = import.meta.env.PROD
-  ? 'https://rms-backend-52xr.onrender.com/api'
-  : '/api'
+const envUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/+$/, '')
+const isValidProdUrl = envUrl && envUrl.startsWith('https://rms-backend-52xr.onrender.com')
 
-const rawBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/+$/, '')
-const BASE = rawBase
-  ? (rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`)
-  : defaultBase
+const BASE = import.meta.env.PROD
+  ? (isValidProdUrl ? (envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`) : 'https://rms-backend-52xr.onrender.com/api')
+  : (envUrl || '/api')
 
 const api = axios.create({ baseURL: BASE })
 
