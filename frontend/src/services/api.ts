@@ -2,10 +2,14 @@
 // src/services/api.ts
 import axios from 'axios'
 
+const defaultBase = import.meta.env.PROD
+  ? 'https://rms-backend-52xr.onrender.com/api'
+  : '/api'
+
 const rawBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/+$/, '')
 const BASE = rawBase
   ? (rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`)
-  : '/api'
+  : defaultBase
 
 const api = axios.create({ baseURL: BASE })
 
