@@ -1,9 +1,13 @@
 /// <reference types="vite/client" />
-/// <reference types="vite/client" />
 // src/services/api.ts
 import axios from 'axios'
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+const envUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/+$/, '')
+const isValidProdUrl = envUrl && envUrl.startsWith('https://rms-backend-52xr.onrender.com')
+
+const BASE = import.meta.env.PROD
+  ? (isValidProdUrl ? (envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`) : 'https://rms-backend-52xr.onrender.com/api')
+  : (envUrl || '/api')
 
 const api = axios.create({ baseURL: BASE })
 

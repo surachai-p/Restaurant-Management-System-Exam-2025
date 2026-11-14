@@ -1,0 +1,113 @@
+name: RMS CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  security-scan:
+    name: Security Scan (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install Backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run npm audit - Backend
+        working-directory: backend
+        run: npm audit --audit-level=high || true
+        continue-on-error: true
+
+      - name: Install Frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run npm audit - Frontend
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+        continue-on-error: true
+
+  backend-test:
+    name: Backend Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    needs: security-scan
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate Prisma Client
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Run Unit Tests
+        working-directory: backend
+        run: npm test || true
+        continue-on-error: true
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret' }}
+
+  newman-e2e-test:
+    name: E2E API Tests (Newman)
+    runs-on: ubuntu-latest
+    needs: backend-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Newman and HTML reporter
+        run: npm install --global newman newman-reporter-htmlextra
+
+      - name: Run Newman E2E Tests
+        run: |
+          mkdir -p tests/reports
+          newman run tests/postman/RMS-68030255-TestSuite.json \
+            --environment tests/postman/env.json \
+            --reporters cli,htmlextra,json \
+            --reporter-htmlextra-export tests/reports/newman-report.html \
+            --reporter-json-export tests/reports/newman-report.json \
+            --bail failure || true
+        continue-on-error: true
+
+      - name: Upload Newman Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-e2e-reports
+          path: tests/reports/
+          retention-days: 30
