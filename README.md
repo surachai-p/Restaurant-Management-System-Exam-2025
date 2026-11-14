@@ -2,7 +2,7 @@
 
 > **ข้อสอบปฏิบัติ** — รายวิชาการออกแบบและพัฒนาซอฟต์แวร์ 1 | KMITL
 
-[![CI](https://github.com/rarekk/Restaurant-Management-System-Exam-2025/actions/workflows/ci.yml/badge.svg)](https://github.com/rarekk/Restaurant-Management-System-Exam-2025/actions)
+[![CI](https://github.com/rarekk/Restaurant-Management-System-Exam-2025/actions/workflows/cicd.yml/badge.svg)](https://github.com/rarekk/Restaurant-Management-System-Exam-2025/actions)
 
 ---
 
@@ -12,7 +12,7 @@
 
 **นักศึกษา:** นายวรปรัชญ์ บุญมี
 **รหัสนักศึกษา:** 68030255
-**วันที่สอบ:** 2 พฤศจิกายน 2569
+**วันที่สอบ:** 14 พฤศจิกายน 2569
 
 ---
 
@@ -33,7 +33,7 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://restaurant-management-system-exam-2025.vercel.app |
+| Frontend    | https://restaurant-management-system-exam-2025-rarekk.vercel.app |
 | Backend API | https://rms-backend-52xr.onrender.com |
 | Health Check| https://rms-backend-52xr.onrender.com/api/health |
 
@@ -177,7 +177,7 @@ npm install && npm run dev
 |----------|-------------|---------|
 | `DATABASE_URL` | Supabase PostgreSQL Pooler URL | `postgresql://postgres.dtuzbmsbcsdkaeibtpeq:***@aws-1-eu-central-1.pooler.supabase.com:5432/postgres` |
 | `JWT_SECRET` | Random secret string | *(ไม่ระบุ)* |
-| `CORS_ORIGIN` | Frontend URL | `https://restaurant-management-system-exam-2025.vercel.app` |
+| `CORS_ORIGIN` | Frontend URL | `https://restaurant-management-system-exam-2025-rarekk.vercel.app` |
 
 ### Supabase PostgreSQL Database Setup
 1. ไปที่ https://supabase.com/dashboard → สร้างโปรเจกต์ `rms-database`

@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | _กรอกชื่อ-นามสกุล_ |
-| รหัสนักศึกษา | _กรอกรหัสนักศึกษา_ |
-| วันที่สอบ | 2 พฤศจิกายน 2569 |
+| ชื่อ-นามสกุล | นายวรปรัชญ์ บุญมี |
+| รหัสนักศึกษา | 68030255 |
+| วันที่สอบ | 14 พฤศจิกายน 2569 |
 
 ---
 
@@ -42,7 +42,7 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | `https://restaurant-management-system-exam-2025.vercel.app` | ✅ |
+| Frontend (Vercel) | `https://restaurant-management-system-exam-2025-rarekk.vercel.app` *(Vercel Project URL; Deployment Protection/SSO active)* | ✅ |
 | Backend (Render) | `https://rms-backend-52xr.onrender.com` | ✅ |
 | API Health Check (`/api/health`) | `https://rms-backend-52xr.onrender.com/api/health` | ✅ |
 | Database (Supabase connection string) | `postgresql://postgres.dtuzbmsbcsdkaeibtpeq:***@aws-1-eu-central-1.pooler.supabase.com:5432/postgres` | ✅ |
@@ -99,11 +99,11 @@
 |--------|---------------|
 | OS | Windows 11 (x64) |
 | Node.js | v24.21.0 (Runtime) / v22 LTS (Docker & CI) |
-| npm | 10.x |
-| Docker | Docker Engine v27+ / Compose v2+ |
-| PostgreSQL | PostgreSQL 17 (Supabase `eu-central-1`) |
+| npm | 11.19.0 |
+| Docker | 29.8.1 (build 4a63305) |
+| PostgreSQL | PostgreSQL 17 (Supabase `eu-central-1` — `rms-database`) |
 | Browser | Google Chrome (Latest) |
-| Newman | 6.x |
+| Newman | 6.2.3 |
 
 ---
 
@@ -178,8 +178,8 @@
 
 | รายการ | ค่าจริง |
 |--------|--------|
-| Collection Name | `RMS-TestSuite-v2` |
-| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-TestSuite-v2.json` |
+| Collection Name | `RMS-68030255-TestSuite` |
+| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-68030255-TestSuite.json` |
 | ไฟล์ Environment | `tests/postman/env.json` |
 
 #### Environment Variables ที่ต้องตั้งค่าใน Postman
@@ -224,11 +224,11 @@
 
 **รูปที่ 1 — Postman Collection และ Environment Variables (แสดง `base_url`, `token`, `admin_token` ครบ)**
 
-`![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)`
+![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)
 
 **รูปที่ 2 — ผล Postman Collection Run (แสดง Pass/Fail ทุก Request)**
 
-`![Postman Run Result](./tests/reports/postman-run-result.png)`
+![Postman Run Result](./tests/reports/postman-run-result.png)
 
 ---
 
@@ -241,18 +241,19 @@
 npm install -g newman newman-reporter-htmlextra
 
 # รัน Collection
-newman run tests/postman/RMS-TestSuite-v2.json \
+newman run tests/postman/RMS-68030255-TestSuite.json \
     --environment tests/postman/env.json \
-    --reporters cli,htmlextra \
-    --reporter-htmlextra-export tests/reports/newman-report.html
+    --reporters cli,htmlextra,json \
+    --reporter-htmlextra-export tests/reports/newman-report.html \
+    --reporter-json-export tests/reports/newman-report.json
 ```
 
-#### ผลการรัน Newman (Local)
+#### ผลการรัน Newman (Local → Production Render API)
 
 ```
 newman
 
-RMS-TestSuite-v2
+RMS-68030255-TestSuite
 
 → Health & System
   GET https://rms-backend-52xr.onrender.com/api/health [200 OK]
@@ -289,6 +290,9 @@ RMS-TestSuite-v2
   ✓  TC-019: payment → 201
   ✗  TC-020 [BUG-001]: Underpayment should → 400
   ✓  TC-021: no auth → 401
+
+Summary: 21 requests | 26 assertions (22 passed, 4 failed = 84.6%)
+Duration: 23.9s | Avg Response Time: 1053ms | Request Pass Rate: 17 / 21 (81.0%)
 ```
 
 **✏️ กรอกตัวเลขจริงจาก Newman output:**
@@ -296,13 +300,15 @@ RMS-TestSuite-v2
 | Metric | ค่าจริง |
 |--------|--------|
 | Total Requests | 21 |
-| Tests Passed | 17 |
-| Tests Failed | 4 |
-| Pass Rate | 81.0% |
+| Requests Passed | 17 |
+| Requests Failed (Detected Bugs) | 4 |
+| Total Assertions | 26 (22 passed / 4 failed = 84.6%) |
+| Run Duration / Avg Response | 23.9s / 1053ms |
+| Request Pass Rate | 81.0% |
 
 **รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
-`![Newman Run Result](./tests/reports/newman-cli-result.png)`
+![Newman Run Result](./tests/reports/newman-cli-result.png)
 
 ---
 
@@ -311,16 +317,16 @@ RMS-TestSuite-v2
 
 | รายการ | สถานะ |
 |--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ |
-| `.github/workflows/ci.yml` / `cicd-2.yml` มี step ติดตั้งและรัน Test | ✅ |
-| GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ✅ |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ (`tests/postman/RMS-68030255-TestSuite.json`) |
+| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Test | ✅ |
+| GitHub Actions Workflow พร้อมทำงานเมื่อ Push | ✅ |
 | Newman Pass Rate บันทึกอยู่ใน Pipeline log | ✅ |
 
-**✏️ Newman Pass Rate จาก CI/CD:** 17 / 21 (81.0%)
+**✏️ Newman Pass Rate จาก CI/CD:** 17 / 21 Requests (81.0%) | 22 / 26 Assertions (84.6%)
 
-**รูปที่ 4 — GitHub Actions Pipeline สำเร็จ (แสดง Newman step และ Pass Rate)**
+**รูปที่ 4 — GitHub Actions Pipeline (แสดง Newman step และ Pass Rate)**
 
-`![CI Pipeline Newman](./tests/reports/ci-pipeline-newman.png)`
+![CI Pipeline Newman](./tests/reports/ci-pipeline-newman.png)
 
 ---
 
@@ -336,19 +342,26 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | 0 |
-| High | 0 |
-| Medium | 0 |
-| Low | 0 |
-| **รวม** | **0** |
+| Critical | 1 |
+| High | 6 |
+| Moderate | 4 |
+| Low | 1 |
+| **รวม** | **12** |
 
-| Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
-|---------|--------|----------|--------------------|--------------------|--------------| 
-| ไม่พบช่องโหว่ระดับ High ขึ้นไป | — | — | — | — | ปลอดภัย |
+| Package | Advisory ID | Severity | เวอร์ชันที่มีปัญหา | แนวทางแก้ไข | สถานะ |
+|---------|-------------|----------|--------------------|-------------|-------|
+| `proxy-addr` | `GHSA-jqcg-44mw-7w3h` | Critical | `1.1.0 - 2.0.7` | อัปเดต Express/proxy-addr ผ่าน `npm audit fix` | Reported in CI |
+| `body-parser` | `GHSA-v422-hmwv-36x6`, `GHSA-27r3-jxmh-p828` | High | `<=1.20.8` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `form-data` | `GHSA-hmw2-7cc7-3qxx` | High | `4.0.0 - 4.0.5` | อัปเดต transitive dependency | Reported in CI |
+| `nanoid` | `GHSA-28wg-ghj8-5hjv`, `GHSA-2v37-7h3g-55p8` | High | `<=3.3.17` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `postcss` | `GHSA-fxqj-rqcc-2cmp`, `GHSA-r28c-9q8g-f849` | High | `<=8.5.22` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `source-map-js` | `GHSA-68fv-2mgg-jv7q` | High | `1.0.0 - 1.2.1` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `vite` | `GHSA-v6wh-96g9-6wx3`, `GHSA-9jrq-w75r-8gcw` | High | `8.0.0 - 8.1.5` | อัปเดต dev dependency (`vitest`/`vite`) | Reported in CI |
+| `@vitest/mocker`, `qs` | `GHSA-82fw-gwwq-j7x9`, `GHSA-q8mj-m7cp-5q26` | Moderate | `<=4.1.11`, `2.2.5 - 6.16` | อัปเดต package (`npm audit fix`) | Reported in CI |
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+![Backend npm audit](./tests/reports/npm-audit-backend.png)
 
 ---
 
@@ -361,14 +374,26 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|-------|
 | Critical | 0 |
-| High | 0 |
-| Medium | 0 |
-| Low | 0 |
-| **รวม** | **0** |
+| High | 8 |
+| Moderate | 6 |
+| Low | 1 |
+| **รวม** | **15** |
+
+| Package | Advisory ID | Severity | เวอร์ชันที่มีปัญหา | แนวทางแก้ไข | สถานะ |
+|---------|-------------|----------|--------------------|-------------|-------|
+| `axios` | `GHSA-3w6x-2g7m-8v23`, `GHSA-q8qp-cvcw-x6jj` | High | `1.0.0 - 1.19.0` | อัปเดต `axios` เป็นเวอร์ชันล่าสุด | Reported in CI |
+| `browserslist` | `GHSA-c83g-rgw3-j3cx`, `GHSA-73wf-gq98-2v4g` | High | `<=4.28.6` | อัปเดต build dependency | Reported in CI |
+| `follow-redirects` | `GHSA-q3jh-wrc6-jgq8`, `GHSA-8r9p-f939-6h3c` | High | `1.16.0 - 1.16.1` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `form-data` | `GHSA-hmw2-7cc7-3qxx` | High | `4.0.0 - 4.0.5` | อัปเดต transitive dependency | Reported in CI |
+| `nanoid` | `GHSA-28wg-ghj8-5hjv`, `GHSA-xwg4-73v4-xw9w` | High | `<=3.3.17` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `postcss` | `GHSA-6g55-p6wh-862q`, `GHSA-fxqj-rqcc-2cmp` | High | `<=8.5.22` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `source-map-js` | `GHSA-68fv-2mgg-jv7q` | High | `1.0.0 - 1.2.1` | อัปเดต package (`npm audit fix`) | Reported in CI |
+| `vite` | `GHSA-67mh-4wv8-2f99` | High / Mod | `<=6.4.3` | อัปเดต Vite / esbuild | Reported in CI |
+| `@remix-run/router`, `postcss-selector-parser` | `GHSA-2j2x-hqr9-3h42`, `GHSA-w9m9-85wc-3x92` | Moderate | `1.3.0 - 1.23.2`, `<=6.1.4` | อัปเดต package (`npm audit fix`) | Reported in CI |
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+![Frontend npm audit](./tests/reports/npm-audit-frontend.png)
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -376,7 +401,7 @@ cd frontend && npm audit --audit-level=moderate
 
 **รูปที่ 7 — GitHub Actions แสดง npm audit step รันสำเร็จ**
 
-`![CI Security Scan](./tests/reports/ci-security-scan.png)`
+![CI Security Scan](./tests/reports/ci-security-scan.png)
 
 ---
 
@@ -396,49 +421,52 @@ cd frontend && npm audit --audit-level=moderate
 | **Status** | Open |
 
 #### Steps to Reproduce
-1. เข้าสู่ระบบด้วย `waiter1` เปิดโต๊ะ เพิ่มรายการอาหาร (เช่น ยอดรวม 160 บาท) และกดยืนยันออเดอร์ (`PUT /api/orders/:id/confirm`)
-2. เข้าสู่ระบบด้วย `cashier1` แล้วส่งคำขอ `POST /api/payments` ด้วยข้อมูล `{"orderId": 1, "amountPaid": 100, "method": "cash"}`
+1. เข้าสู่ระบบด้วย `waiter1` เปิดโต๊ะ 10 (`Order #5`) เพิ่มรายการอาหาร Pad Thai x2 (ยอดรวม `"totalAmount": "160"`) และกดยืนยันออเดอร์ (`PUT /api/orders/5/confirm`)
+2. เข้าสู่ระบบด้วย `cashier1` แล้วส่งคำขอ `POST /api/payments` ด้วยข้อมูล `{"orderId": 5, "amountPaid": 100, "method": "cash"}`
 3. สังเกตผลลัพธ์จาก API
 
 #### Expected Result
 > ระบบต้องตรวจสอบว่า `amountPaid >= totalAmount` หากน้อยกว่าต้องปฏิเสธด้วย HTTP `400 Bad Request` (`{"error": "Insufficient payment amount"}`)
 
 #### Actual Result
-> ระบบบันทึกการชำระเงินสำเร็จและตอบกลับ HTTP `201 Created` พร้อมคำนวณเงินทอนติดลบ (`"change": -60`) และเปลี่ยนสถานะออเดอร์เป็น `paid`
+> ระบบบันทึกการชำระเงินสำเร็จ (`payment.id: 4`) และตอบกลับ HTTP `201 Created` พร้อมคำนวณเงินทอนติดลบ (`"change": -60`) และเปลี่ยนสถานะออเดอร์เป็น `paid`
 
 #### Evidence
 
-`![BUG-001](./tests/reports/bug-001.png)`
+![BUG-001](./tests/reports/bug-001.png)
 
 #### Business Impact
 > ส่งผลกระทบโดยตรงต่อรายได้ของร้านอาหาร เนื่องจากแคชเชียร์อาจคีย์จำนวนเงินผิดหรือรับเงินไม่ครบแต่ระบบปิดบิลให้ผ่าน ทำให้เกิดยอดขาดทุนและยอดเงินในลิ้นชักไม่ตรงกับรายงานยอดขาย
 
 ---
 
-### BUG-002: ช่องโหว่ SQL Injection ในการค้นหาเมนู (`GET /api/menu`) และการไม่จำกัดสิทธิ์แก้ไขราคาเมนู (`PUT /api/menu/:id`)
+### BUG-002 / BUG-003 / BUG-004: การเปิดโต๊ะซ้ำซ้อน (`Double Booking`), ช่องโหว่ SQL Injection (`GET /api/menu`) และการไม่จำกัดสิทธิ์แก้ไขราคาเมนู (`PUT /api/menu/:id`)
 
 | รายการ | ค่า |
 |--------|-----|
 | **Severity** | Critical |
 | **Priority** | P1 |
-| **Feature** | Menu & Security (`GET /api/menu`, `PUT /api/menu/:id`) |
+| **Feature** | Orders & Menu Security (`POST /api/orders`, `GET /api/menu`, `PUT /api/menu/:id`) |
 | **Status** | Open |
 
 #### Steps to Reproduce
-1. **SQL Injection (BUG-003):** ส่งคำขอ `GET /api/menu?search=' OR '1'='1` พร้อม Token ใดก็ได้ ระบบใช้ `prisma.$queryRawUnsafe` ต่อ String โดยตรง
-2. **Broken Access Control (BUG-004):** เข้าสู่ระบบด้วยบัญชี `waiter1` (`role: waiter`) แล้วส่งคำขอ `PUT /api/menu/1` พร้อม Body `{"price": 1}`
+1. **Double Booking (BUG-002 / TC-015):** ส่งคำขอ `POST /api/orders` ด้วย `{"tableId": 2}` ซ้ำบนโต๊ะที่มีออเดอร์สถานะเปิดอยู่แล้ว
+2. **SQL Injection (BUG-003 / TC-010):** ส่งคำขอ `GET /api/menu?search=' OR '1'='1` พร้อม Token ใดก็ได้ ระบบใช้ `prisma.$queryRawUnsafe` ต่อ String โดยตรง
+3. **Broken Access Control (BUG-004 / TC-011):** เข้าสู่ระบบด้วยบัญชี `waiter1` (`role: waiter`) แล้วส่งคำขอ `PUT /api/menu/4` พร้อม Body `{"price": 1}` *(ทดสอบแล้วจึงคืนราคาเดิม 75 บาทด้วยสิทธิ์ Admin)*
 
 #### Expected Result
-> 1. การค้นหาด้วยอักขระพิเศษต้องใช้ Parameterized Query และไม่คืนข้อมูลทั้งหมดออกมา
-> 2. Endpoint `PUT /api/menu/:id` ต้องมี Middleware `requireRole('admin')` และปฏิเสธ `waiter` ด้วย HTTP `403 Forbidden`
+> 1. **BUG-002:** ระบบต้องปฏิเสธการเปิดโต๊ะซ้ำด้วย HTTP `409 Conflict`
+> 2. **BUG-003:** การค้นหาด้วยอักขระพิเศษต้องใช้ Parameterized Query และไม่คืนข้อมูลทั้งหมดออกมา
+> 3. **BUG-004:** Endpoint `PUT /api/menu/:id` ต้องมี Middleware `requireRole('admin')` และปฏิเสธ `waiter` ด้วย HTTP `403 Forbidden`
 
 #### Actual Result
-> 1. คำสั่ง SQL Injection ทำงานสำเร็จและดึงรายการเมนูทั้งหมดออกมา (`200 OK`)
-> 2. พนักงานเสิร์ฟ (`waiter1`) สามารถแก้ไขราคาอาหารเป็น `1` บาทได้สำเร็จ (`200 OK`)
+> 1. **BUG-002:** ระบบยอมให้สร้างออเดอร์ซ้ำบนโต๊ะเดียวกันสำเร็จ (`201 Created`)
+> 2. **BUG-003:** คำสั่ง SQL Injection ทำงานสำเร็จและดึงรายการเมนูทั้งหมด 10 รายการออกมา (`200 OK`)
+> 3. **BUG-004:** พนักงานเสิร์ฟ (`waiter1`) สามารถแก้ไขราคาอาหารเป็น `1` บาทได้สำเร็จ (`200 OK`, `"price": "1"`)
 
 #### Evidence
 
-`![BUG-002](./tests/reports/bug-002.png)`
+![BUG-002](./tests/reports/bug-002.png)
 
 #### Business Impact
 > ผู้ไม่หวังดีสามารถเจาะฐานข้อมูลผ่านช่องโหว่ SQL Injection ได้ และพนักงานระดับปฏิบัติการสามารถทุจริตแก้ไขราคาอาหารให้ถูกลงก่อนคิดเงินลูกค้า ทำให้ร้านอาหารสูญเสียรายได้และเกิดความเสียหายด้านความปลอดภัยของข้อมูล
@@ -505,11 +533,11 @@ cd frontend && npm install && npm run dev
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)
 
 ---
 
@@ -542,7 +570,7 @@ cd frontend && npm install && npm run dev
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
-`![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)`
+![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)
 
 #### Volume Mapping (Rubric 2.5 ข้อ 4)
 
@@ -573,7 +601,7 @@ docker compose up --build
 
 **รูปที่ 11 — `docker compose ps` แสดงทุก Container สถานะ `running`**
 
-`![Docker Compose PS](./tests/reports/staging-docker-ps.png)`
+![Docker Compose PS](./tests/reports/staging-docker-ps.png)
 
 ---
 
@@ -621,7 +649,7 @@ Build Command:  npm run build
 | `PORT` | Backend (Render) | `10000` |
 | `DATABASE_URL` | Backend (Render) | `postgresql://postgres.dtuzbmsbcsdkaeibtpeq:***@aws-1-eu-central-1.pooler.supabase.com:5432/postgres` |
 | `JWT_SECRET` | Backend (Render) | (ตั้งค่าแล้ว — ไม่ระบุ) |
-| `CORS_ORIGIN` | Backend (Render) | `*` (หรือ `https://restaurant-management-system-exam-2025.vercel.app`) |
+| `CORS_ORIGIN` | Backend (Render) | `*` (หรือ `https://restaurant-management-system-exam-2025-rarekk.vercel.app`) |
 | `NODE_ENV` | Backend (Render) | `production` |
 | `VITE_API_URL` | Frontend (Vercel) | `https://rms-backend-52xr.onrender.com/api` |
 
@@ -635,27 +663,27 @@ Build Command:  npm run build
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
 | 1 | Health Check | GET `https://rms-backend-52xr.onrender.com/api/health` | `{"status":"ok","version":"2.0.0"}` | ✅ ผ่าน |
-| 2 | Login | Login ด้วย `admin` / `Admin@123` | เข้าระบบสำเร็จ ได้รับ JWT Token | ✅ ผ่าน |
-| 3 | Open Order & Add Item | เปิดโต๊ะ 10 → เพิ่ม Pad Thai x2 → Confirm | ออเดอร์ถูกบันทึก (`status: "confirmed"`, `totalAmount: 160`) | ✅ ผ่าน |
-| 4 | Payment | ชำระเงินสด 200 บาท → ตรวจสอบ `change` | คำนวณเงินทอนถูกต้อง (`change: 40`) | ✅ ผ่าน |
+| 2 | Login | Login ด้วย `admin` / `Admin@123` | เข้าระบบสำเร็จ ได้รับ JWT Token (`200 OK`) | ✅ ผ่าน |
+| 3 | Open Order & Add Item | เปิดโต๊ะ 10 (`Order #4`) → เพิ่ม Pad Thai x2 → Confirm | ออเดอร์ถูกบันทึก (`id: 4`, `status: "confirmed"`, `totalAmount: "160"`) | ✅ ผ่าน |
+| 4 | Payment | ชำระเงินสด 200 บาท สำหรับ `Order #4` → ตรวจสอบ `change` | บันทึกชำระเงินสำเร็จ (`201 Created`, `"amountPaid": "200"`, `"change": 40`) | ✅ ผ่าน |
 
 **✏️ Production Smoke Test ผ่าน:** 4 / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+![Smoke Test Health](./tests/reports/smoke-1-health.png)
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+![Smoke Test Login](./tests/reports/smoke-2-login.png)
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+![Smoke Test Order](./tests/reports/smoke-3-order.png)
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
-`![Smoke Test Payment](./tests/reports/smoke-4-payment.png)`
+![Smoke Test Payment](./tests/reports/smoke-4-payment.png)
 
 ---
 
@@ -675,14 +703,15 @@ Build Command:  npm run build
 
 | Metric | ค่าจริง |
 |--------|--------|
-| Total Tests | 21 |
-| Tests Passed | 17 |
-| Tests Failed | 4 |
-| **Pass Rate** | **81.0%** |
+| Total Requests | 21 |
+| Requests Passed | 17 |
+| Requests Failed | 4 |
+| Total Assertions | 26 (22 passed / 4 failed = 84.6%) |
+| **Request Pass Rate** | **81.0%** |
 
 **รูปที่ 16 — GitHub Actions Pipeline สำเร็จ (แสดง Newman Pass Rate ใน log)**
 
-`![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)`
+![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)
 
 ---
 
