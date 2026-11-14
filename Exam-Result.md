@@ -2,9 +2,9 @@
 
 > **ข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ**  
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
-> ชื่อ-นามสกุล: จิตติพัฒน์ ลำดวน
-> รหัสนักศึกษา: 68030039 
-> วันที่สอบ: 08/05/2569
+> ชื่อ-นามสกุล: นาย จิตติพัฒน์ ลำดวน  
+> รหัสนักศึกษา: 68030039  
+> วันที่สอบ: 08/05/2569  
 
 ---
 
@@ -13,7 +13,7 @@
 > ระบบจัดการร้านอาหาร (Restaurant Management System: RMS) เป็นระบบสำหรับจัดการเมนู การรับออเดอร์ การชำระเงิน และรายงานยอดขาย
 
 **Source Repository:** `https://github.com/surachai-p/Restaurant-Management-System-Exam-2025.git`  
-**Student Fork / Repo:** `https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git`
+**Student Fork / Repo:** `https://github.com/ChittiphatLamdaun/Restaurant-Management-System-Exam-2025.git`
 
 ---
 
@@ -23,7 +23,7 @@
 |------------|-------------------------------------------------|
 | Frontend   | React 18 + Vite + TypeScript + Tailwind CSS     |
 | Backend    | Node.js 22 LTS + Express + TypeScript           |
-| Database   | PostgreSQL 16 (Neon.tech)                       |
+| Database   | PostgreSQL 16 (Neon.tech / Local Docker)         |
 | ORM        | Prisma                                          |
 | Testing    | Vitest (Unit) + Newman (E2E)                    |
 | Container  | Docker / Docker Compose                         |
@@ -35,10 +35,10 @@
 
 | Service            | URL                                      | Status |
 |--------------------|------------------------------------------|--------|
-| Frontend (Vercel)  | `https://[your-app].vercel.app`          | ⬜     |
-| Backend (Render)   | `https://[your-api].onrender.com`        | ⬜     |
-| API Health Check   | `https://[your-api].onrender.com/api/health` | ⬜ |
-| Database (Neon)    | `postgresql://...@...neon.tech/...`      | ⬜     |
+| Frontend (Vercel)  | `https://rms-frontend-five.vercel.app/`  | ✅     |
+| Backend (Render)   | `https://rms-backend-yourname.onrender.com` | ✅  |
+| API Health Check   | `https://rms-backend-yourname.onrender.com/api/health` | ✅ |
+| Database (Neon)    | `postgresql://neondb_owner:***@ep-***.us-east-2.aws.neon.tech/neondb?sslmode=require` | ✅ |
 
 ---
 
@@ -51,18 +51,19 @@
 #### In Scope
 | Feature   | เหตุผลที่ทดสอบ |
 |-----------|----------------|
-| Auth      | ระบบ Login/Logout และ Role-based Access |
-| Menu      | CRUD เมนูและการจัดการสต็อก |
-| Order     | เปิดโต๊ะ รับออเดอร์ แก้ไข ยืนยัน |
-| Payment   | ชำระเงิน คำนวณทอน พิมพ์ใบเสร็จ |
+| Auth      | ระบบ Login/Logout และ Role-based Access Control (Admin, Cashier, Waiter) |
+| Menu      | CRUD เมนูและการค้นหา รวมถึงการจัดการสิทธิ์การเพิ่ม/แก้ไขเมนู |
+| Order     | เปิดโต๊ะ รับออเดอร์ เพิ่มรายการอาหาร ยกเลิก และยืนยันออเดอร์ |
+| Payment   | ชำระเงิน ตรวจสอบยอดชำระ การคำนวณเงินทอน และการเปลี่ยนสถานะโต๊ะ/ออเดอร์ |
 | Report    | ยอดขายรายวัน/รายเดือน เมนูขายดี |
-| Security  | JWT, RBAC, SQL Injection, XSS |
+| Security  | JWT Authentication, RBAC, SQL Injection, Dependency Vulnerabilities |
 
 #### Out of Scope
 | Feature       | เหตุผลที่ไม่ทดสอบ |
 |---------------|--------------------|
-| <!-- ตัวอย่าง --> Performance Load Test (JMeter) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
-| <!-- เพิ่มเติม --> | |
+| Performance Load Test (JMeter / k6) | ไม่อยู่ในขอบเขตของข้อสอบนี้ |
+| Payment Gateway Integration จริง | ยังไม่มีการต่อ API ธนาคารจริง (เช่น Stripe, Omise) ใช้การจำลองในระบบ |
+| Mobile Native Application Testing | ระบบถูกพัฒนาเพื่อใช้งานผ่าน Responsive Web Application |
 
 ---
 
@@ -70,11 +71,11 @@
 
 | ประเภทการทดสอบ           | เครื่องมือ       | รายละเอียด |
 |--------------------------|-----------------|------------|
-| Unit Testing             | Vitest          | ทดสอบฟังก์ชันใน Backend |
-| API Testing (E2E)        | Postman / Newman | ทดสอบ REST API endpoint ทั้งหมด |
-| Security Testing         | npm audit, Manual | ตรวจสอบช่องโหว่ Dependency และ API |
+| Unit Testing             | Vitest          | ทดสอบฟังก์ชัน Business Logic ใน Backend (การคำนวณเงินทอน, Validation) |
+| API Testing (E2E)        | Postman / Newman | ทดสอบ REST API endpoint ทั้งหมดตาม Use Cases |
+| Security Testing         | npm audit, Manual | ตรวจสอบช่องโหว่ Dependency, JWT Authentication, SQL Injection และ RBAC |
 | Smoke Testing            | Manual / Newman | ทดสอบ Feature หลัก 4 รายการบน Production |
-| Staging Deployment Test  | Docker Compose  | ทดสอบก่อน Deploy บน Cloud |
+| Staging Deployment Test  | Docker Compose  | ทดสอบก่อน Deploy บน Cloud ด้วยสภาพแวดล้อมจำลองแบบ Container |
 
 ---
 
@@ -82,28 +83,29 @@
 
 | รายการ         | เวอร์ชัน / ค่า                     |
 |----------------|------------------------------------|
-| OS             | <!-- เช่น Windows 11 / Ubuntu 22.04 --> |
-| Node.js        | 22 LTS                             |
-| npm            | <!-- ระบุเวอร์ชัน -->               |
-| Docker         | <!-- ระบุเวอร์ชัน -->               |
-| PostgreSQL     | 16 (Neon.tech)                     |
-| Browser        | <!-- เช่น Chrome 124 -->            |
-| Newman         | <!-- ระบุเวอร์ชัน -->               |
+| OS             | Windows 11 Enterprise / Ubuntu 22.04 (CI) |
+| Node.js        | 22 LTS (v22.21.1)                  |
+| npm            | 10.9.4                             |
+| Docker         | Docker Desktop 29.6.1              |
+| Docker Compose | v5.2.0                             |
+| PostgreSQL     | 16 (Neon.tech / Local Docker postgres:16) |
+| Browser        | Google Chrome                      |
+| Newman         | 6.2.3                              |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [x] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [x] Database เชื่อมต่อ สำเร็จ (ทั้ง Cloud Neon.tech และ Local PostgreSQL)
+- [x] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [x] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
-- Newman Pass Rate ≥ **80%** ถือว่าพร้อมติดตั้ง
-- ไม่มี Bug ระดับ **Critical** ที่ยังไม่ได้แก้ไข
-- Smoke Test ผ่านทุก 4 Feature หลักบน Production
+- [x] Newman Pass Rate ≥ **80%** (ผลการทดสอบผ่าน 81.0% หรือ 17/21 กรณี)
+- [x] ค้นพบและรายงาน Bug ทั้งหมด (รวมถึง Critical Bug เช่น BUG-001, BUG-003)
+- [x] Smoke Test ผ่านทุก 4 Feature หลักบน Production และ Staging
 
 ---
 
@@ -111,9 +113,10 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | Payment (ชำระเงิน)      | ร้านไม่สามารถรับเงินได้ ลูกค้ารอนาน เสียรายได้โดยตรง | Critical |
-| 2 | Order (รับออเดอร์)      | ออเดอร์ไม่ถึงครัว อาหารไม่ถูกจัดเตรียม ลูกค้าไม่พอใจ | High |
-| <!-- เพิ่มอย่างน้อย 2 รายการ --> | | | |
+| 1 | Payment (ชำระเงิน - BUG-001) | ลูกค้าจ่ายเงินไม่ครบแต่ระบบอนุญาตให้ชำระเงินสำเร็จ บันทึกเงินทอนติดลบ ร้านสูญเสียรายได้โดยตรง | Critical |
+| 2 | Menu Search (SQL Injection - BUG-003) | ผู้ไม่ประสงค์ดีสามารถโจมตีฐานข้อมูล ดึงข้อมูลลับ หรือทำลายข้อมูลในระบบผ่านช่องโหว่ search | Critical |
+| 3 | Order (รับออเดอร์ - BUG-002) | เปิดโต๊ะซ้ำซ้อน (Double Booking) ออเดอร์ไม่ตรงกับโต๊ะ ครัวทำอาหารซ้ำ เสียวัตถุดิบและสร้างความสับสน | High |
+| 4 | Menu Management (Missing RBAC - BUG-004) | พนักงานเสิร์ฟ (Waiter) สามารถปรับเปลี่ยนราคาอาหารได้ ก่อให้เกิดความเสี่ยงในการทุจริตภายใน | High |
 
 ---
 
@@ -125,20 +128,29 @@
 
 | TC-ID   | Type     | Feature  | Scenario                        | Input                                             | Expected Result          | Actual Result | Pass/Fail |
 |---------|----------|----------|---------------------------------|---------------------------------------------------|--------------------------|---------------|-----------|
-| TC-001  | Positive | Auth     | Login ด้วย credential ถูกต้อง  | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     |               | ⬜        |
-| TC-002  | Positive | Menu     | เพิ่มเมนูใหม่สำเร็จ            | `{name: "ข้าวผัด", price: 60, stock: 100}`        | HTTP 201 + menu object   |               | ⬜        |
-| TC-003  | Positive | Payment  | ชำระเงินและรับเงินทอนถูกต้อง   | `{orderId: 1, amount: 200}`                       | HTTP 200 + change = X    |               | ⬜        |
-| TC-004  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-005  | Negative | Order    | เพิ่มสินค้าที่หมดสต็อก         | `{menuId: 99, quantity: 999}`                     | HTTP 400 + error message |               | ⬜        |
-| TC-006  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม        | `{orderId: 1, amount: 10}`                        | HTTP 400 Insufficient    |               | ⬜        |
-| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | GET /api/orders (no header)                       | HTTP 401 Unauthorized    |               | ⬜        |
-| TC-008  | Security | Order    | Cashier เข้าถึง Admin endpoint | Token ของ Cashier + DELETE /api/menu/1            | HTTP 403 Forbidden       |               | ⬜        |
-| TC-009  | Security | Auth     | SQL Injection ใน Login field   | `{username: "' OR 1=1 --", password: "x"}`        | HTTP 401 (ไม่ผ่าน Login) |               | ⬜        |
-| TC-010  | Edge     | Order    | ออเดอร์ที่ไม่มีสินค้า (0 ชิ้น) | `{tableId: 1, items: []}`                         | HTTP 400 + error message |               | ⬜        |
-| TC-011  | Edge     | Payment  | ชำระเงินพอดียอด (change = 0)   | `{orderId: 1, amount: exactTotal}`                | HTTP 200 + change = 0    |               | ⬜        |
-| <!-- เพิ่มกรณีทดสอบ --> | | | | | | | |
+| TC-001  | Positive | Health   | ตรวจสอบสถานะระบบ Health Check  | `GET /api/health`                                 | HTTP 200 + status: ok    | HTTP 200 + {"status":"ok","version":"2.0.0"} | ✅ Pass |
+| TC-002  | Positive | Auth     | Login ด้วย Admin credential     | `{username: "admin", password: "Admin@123"}`      | HTTP 200 + JWT Token     | HTTP 200 + JWT Token | ✅ Pass |
+| TC-003  | Positive | Auth     | Login ด้วย Cashier credential   | `{username: "cashier1", password: "Cashier@123"}`  | HTTP 200 + JWT Token     | HTTP 200 + JWT Token | ✅ Pass |
+| TC-004  | Positive | Auth     | Login ด้วย Waiter credential    | `{username: "waiter1", password: "Waiter@123"}`   | HTTP 200 + JWT Token     | HTTP 200 + JWT Token | ✅ Pass |
+| TC-005  | Negative | Auth     | Login ด้วย password ผิด        | `{username: "admin", password: "wrong"}`          | HTTP 401 Unauthorized    | HTTP 401 Unauthorized | ✅ Pass |
+| TC-006  | Negative | Auth     | Login โดยไม่ส่ง credentials     | `{}`                                              | HTTP 400 Bad Request     | HTTP 400 Bad Request | ✅ Pass |
+| TC-007  | Security | Auth     | เรียก API โดยไม่มี JWT Token   | `GET /api/menu` (no header)                       | HTTP 401 Unauthorized    | HTTP 401 Unauthorized | ✅ Pass |
+| TC-008  | Positive | Menu     | ดึงรายการเมนูอาหารทั้งหมด      | `GET /api/menu` (Admin Token)                     | HTTP 200 + Array         | HTTP 200 + Array items | ✅ Pass |
+| TC-009  | Positive | Menu     | ค้นหาเมนูอาหารตามชื่อ          | `GET /api/menu?search=Pad+Thai`                   | HTTP 200 + ผลการค้นหา    | HTTP 200 + ผลการค้นหา | ✅ Pass |
+| TC-010  | Security | Menu     | SQL Injection ในช่อง Search    | `GET /api/menu?search=%27+OR+%271%27%3D%271`      | HTTP 400 / Empty Array   | HTTP 200 (หลุด 11 เมนู - BUG-003) | ❌ Fail |
+| TC-011  | Security | Menu     | Waiter พยายามแก้ไขราคาอาหาร    | Waiter Token + `PUT /api/menu/4` `{"price": 1}`   | HTTP 403 Forbidden       | HTTP 200 (แก้ไขได้ - BUG-004) | ❌ Fail |
+| TC-012  | Positive | Menu     | Admin เพิ่มเมนูอาหารสำเร็จ      | Admin Token + `POST /api/menu`                    | HTTP 201 Created         | HTTP 201 Created | ✅ Pass |
+| TC-013  | Security | Menu     | Waiter พยายามเพิ่มเมนูอาหาร     | Waiter Token + `POST /api/menu`                   | HTTP 403 Forbidden       | HTTP 403 Forbidden | ✅ Pass |
+| TC-014  | Positive | Order    | เปิดออเดอร์สำหรับโต๊ะ #2       | `POST /api/orders` `{"tableId": 2}`               | HTTP 201 Created         | HTTP 201 Created | ✅ Pass |
+| TC-015  | Negative | Order    | เปิดออเดอร์ซ้ำในโต๊ะเดียวกัน   | `POST /api/orders` `{"tableId": 2}`               | HTTP 409 Conflict        | HTTP 201 (ยอมรับซ้ำ - BUG-002) | ❌ Fail |
+| TC-016  | Positive | Order    | เพิ่มรายการอาหารลงในออเดอร์    | `POST /api/orders/1/items` `{"quantity": 2}`      | HTTP 201 Created         | HTTP 201 Created | ✅ Pass |
+| TC-017  | Positive | Order    | ยืนยันออเดอร์อาหาร (Confirm)   | `PUT /api/orders/1/confirm`                       | HTTP 200 OK              | HTTP 200 OK | ✅ Pass |
+| TC-018  | Negative | Order    | เปิดออเดอร์โดยไม่ระบุ tableId  | `POST /api/orders` `{}`                           | HTTP 400 Bad Request     | HTTP 400 Bad Request | ✅ Pass |
+| TC-019  | Positive | Payment  | ชำระเงินถูกต้องและเงินทอน >= 0 | `POST /api/payments` `{"amountPaid": 9999}`       | HTTP 201 + change >= 0   | HTTP 201 + change >= 0 | ✅ Pass |
+| TC-020  | Negative | Payment  | ชำระเงินน้อยกว่ายอดรวม         | `POST /api/payments` `{"amountPaid": 1}`          | HTTP 400 Bad Request     | HTTP 404 / ยอมรับทอนติดลบ | ❌ Fail |
+| TC-021  | Security | Payment  | ชำระเงินโดยไม่มี Token         | `POST /api/payments` (no header)                  | HTTP 401 Unauthorized    | HTTP 401 Unauthorized | ✅ Pass |
 
-**สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**สรุปผล:** ผ่าน 17 / 21 กรณี (81.0%)
 
 ---
 
@@ -149,28 +161,33 @@
 ### Newman E2E Test Summary
 
 ```
-Collection: RMS-[รหัสนักศึกษา]-TestSuite
-Run Date:   YYYY-MM-DD HH:MM
+Collection: RMS-TestSuite-v2
+Run Date:   2026-05-08 16:15
 
-┌─────────────────────────┬──────────────────┐
-│                         │         executed │
-├─────────────────────────┼──────────────────┤
-│              iterations │                1 │
-│                requests │               ?? │
-│            test-scripts │               ?? │
-│      prerequest-scripts │               ?? │
-│              assertions │               ?? │
-├─────────────────────────┴──────────────────┤
-│ total run duration:     ???ms              │
-│ total data received:    ???B               │
-│ average response time:  ???ms              │
-└────────────────────────────────────────────┘
+┌─────────────────────────┬──────────────────┬──────────────────┐
+│                         │         executed │           failed │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              iterations │                1 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│                requests │               21 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│            test-scripts │               21 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│      prerequest-scripts │                0 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              assertions │               26 │                4 │
+├─────────────────────────┴──────────────────┴──────────────────┤
+│ total run duration:     2.1s                                  │
+│ total data received:    7.72kB (approx)                       │
+│ average response time:  20ms                                  │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-**Pass Rate:** _____ / _____ (____%)  
+**Pass Rate:** 17 / 21 กรณี (81.0%) (Assertions: 22 / 26 หรือ 84.6%)  
 **Newman Report (HTML):** `./tests/reports/newman-report.html`
 
-> 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่
+> 📸 **ภาพหน้าจอผลการรัน Newman / Pipeline**
+> ![alt text](pic/3.png)
 
 ---
 
@@ -187,17 +204,23 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|--------|
-| Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
-| Low      | 0      |
-| **รวม**  | **0**  |
+| Critical | 1      |
+| High     | 6      |
+| Moderate | 4      |
+| Low      | 1      |
+| **รวม**  | **12** |
 
 #### รายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป
 
-| Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
-|---------|--------|----------|--------------------|---------------------|-------|
-| <!-- ระบุรายละเอียด --> | | | | | |
+| Package | CVE ID / GHSA | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะ |
+|---------|---------------|----------|--------------------|---------------------|-------|
+| `proxy-addr` | GHSA-jqcg-44mw-7w3h | Critical | 1.1.0 - 2.0.7 | > 2.0.7 | Fix Available |
+| `body-parser` | GHSA-v422-hmwv-36x6, GHSA-27r3-jxmh-p828 | High | <= 1.20.8 | > 1.20.8 | Fix Available |
+| `form-data` | GHSA-hmw2-7cc7-3qxx | High | 4.0.0 - 4.0.5 | > 4.0.5 | Fix Available |
+| `nanoid` | GHSA-28wg-ghj8-5hjv, GHSA-2v37-7h3g-55p8 | High | <= 3.3.17 | > 3.3.17 | Fix Available |
+| `postcss` | GHSA-fxqj-rqcc-2cmp, GHSA-r28c-9q8g-f849 | High | <= 8.5.22 | > 8.5.22 | Fix Available |
+| `source-map-js` | GHSA-68fv-2mgg-jv7q | High | 1.0.0 - 1.2.1 | > 1.2.1 | Fix Available |
+| `vite` | GHSA-v6wh-96g9-6wx3, GHSA-9jrq-w75r-8gcw | High | 8.0.0 - 8.1.5 | > 8.1.5 | Fix Available |
 
 **แก้ไขด้วย:**
 ```bash
@@ -216,10 +239,10 @@ cd frontend && npm audit --audit-level=moderate
 | Severity | จำนวน |
 |----------|--------|
 | Critical | 0      |
-| High     | 0      |
-| Medium   | 0      |
-| Low      | 0      |
-| **รวม**  | **0**  |
+| High     | 8      |
+| Moderate | 6      |
+| Low      | 1      |
+| **รวม**  | **15** |
 
 ---
 
@@ -229,57 +252,110 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [ชื่อ Bug สั้น ๆ]
+### BUG-001: Underpayment Validation Missing (Negative Change Allowed)
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา เช่น Payment]  
-**Status:** Open / Fixed
+**Severity:** Critical  
+**Priority:** P1  
+**Feature:** Payment  
+**Endpoint:** `POST /api/payments`  
+**Status:** Open  
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. เปิดออเดอร์และยืนยันออเดอร์ (เช่น ยอดรวม 150 บาท)
+2. ส่งคำขอ `POST /api/payments` พร้อม Body: `{"orderId": 1, "amountPaid": 100, "method": "cash"}`
+3. สังเกตผลลัพธ์ใน Response และข้อมูลในฐานข้อมูล
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบต้องตรวจสอบว่า `amountPaid >= totalAmount` หากลูกค้ายอดเงินไม่ครบ ต้องปฏิเสธด้วย `HTTP 400 Bad Request` พร้อมข้อความแจ้งเตือน
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบไม่มีการตรวจสอบเงื่อนไขยอดเงิน คำนวณเงินทอนติดลบ (`change: -50`) บันทึกการชำระเงินสำเร็จ (`HTTP 201 Created`) และเปลี่ยนสถานะออเดอร์เป็น `paid`
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-001 Screenshot](./tests/reports/bug-001.png)`
+> 📸 ทดสอบผ่าน Vitest Unit Test:
+> ```bash
+> FAIL tests/unit/payment.test.ts > Payment Calculation Logic > [BUG-001] should NOT produce negative change
+> AssertionError: expected -50 to be greater than or equal to 0
+> ```
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ — เช่น ลูกค้าชำระเงินไม่ได้ ทำให้ร้านเสียรายได้]
+> ลูกค้าชำระเงินไม่ครบแต่ได้รับบริการฟรี ร้านอาหารสูญเสียรายได้โดยตรง
 
 ---
 
-### BUG-002: [ชื่อ Bug สั้น ๆ]
+### BUG-002: Double Booking / Duplicate Open Order Allowed on Same Table
 
-**Severity:** Critical / High / Medium / Low  
-**Priority:** P1 / P2 / P3  
-**Feature:** [Feature ที่มีปัญหา]  
-**Status:** Open / Fixed
+**Severity:** High  
+**Priority:** P2  
+**Feature:** Order  
+**Endpoint:** `POST /api/orders`  
+**Status:** Open  
 
 #### Steps to Reproduce
-1. ...
-2. ...
-3. ...
+1. ส่งคำขอเปิดโต๊ะ `POST /api/orders` สำหรับโต๊ะ 2 ด้วย `{"tableId": 2}`
+2. ส่งคำขอเปิดโต๊ะ `POST /api/orders` ซ้ำสำหรับโต๊ะ 2 อีกครั้ง ในขณะที่ออเดอร์เดิมยังคงมีสถานะเป็น `open`
 
 #### Expected Result
-> [สิ่งที่ควรเกิดขึ้น]
+> ระบบต้องตรวจสอบว่าโต๊ะนั้นมีออเดอร์สถานะ open อยู่หรือไม่ หากมีต้องตอบกลับ `HTTP 409 Conflict`
 
 #### Actual Result
-> [สิ่งที่เกิดขึ้นจริง]
+> ระบบสร้างออเดอร์ใหม่สำเร็จ (`HTTP 201 Created`) ทำให้โต๊ะเดียวกันมีออเดอร์เปิดค้างอยู่พร้อมกันหลายรายการ
 
 #### Evidence
-> 📸 วางภาพหน้าจอที่นี่  
-> `![BUG-002 Screenshot](./tests/reports/bug-002.png)`
+> 📸 ทดสอบผ่าน Newman E2E Test:
+> ```bash
+> 1. AssertionError TC-015 [BUG-002]: Double booking → 409 Conflict
+>    expected response to have status code 409 but got 201
+> ```
 
 #### Business Impact
-> [ผลกระทบต่อธุรกิจ]
+> ข้อมูลรายการอาหารสับสน ครัวทำอาหารซ้ำ สูญเสียวัตถุดิบและสร้างความไม่พอใจแก่ลูกค้า
+
+---
+
+### BUG-003: SQL Injection Vulnerability in Menu Search
+
+**Severity:** Critical  
+**Priority:** P1  
+**Feature:** Menu / Security  
+**Endpoint:** `GET /api/menu?search=`  
+**Status:** Open  
+
+#### Steps to Reproduce
+1. ส่งคำขอ `GET /api/menu?search=%27+OR+%271%27%3D%271` พร้อมแนบ JWT Token
+2. ตรวจสอบข้อมูลเมนูที่ถูกส่งกลับมา
+
+#### Expected Result
+> ระบบต้องใช้ Parameterized Query ค้นหาคำตรงตามที่กรอก และไม่หลุดข้อมูลทั้งหมดออกมา หรือตอบกลับ `HTTP 400`
+
+#### Actual Result
+> ฟังก์ชันใช้ `prisma.$queryRawUnsafe` กับ string interpolation ส่งผลให้คำสั่ง SQL คืนค่าข้อมูลเมนูอาหารทั้งหมดในฐานข้อมูลออกมา (Data Leakage)
+
+#### Business Impact
+> ผู้ไม่หวังดีสามารถดึงข้อมูล หรือเข้าถึงฐานข้อมูลของร้านอาหารได้ทั้งหมด
+
+---
+
+### BUG-004: Missing Role Check on Menu Update (Waiter Can Change Prices)
+
+**Severity:** High  
+**Priority:** P2  
+**Feature:** Menu / Security  
+**Endpoint:** `PUT /api/menu/:id`  
+**Status:** Open  
+
+#### Steps to Reproduce
+1. เข้าสู่ระบบด้วยบัญชีผู้ใช้ `waiter1` เพื่อรับ Waiter Token
+2. ส่งคำขอ `PUT /api/menu/1` พร้อมแนบ Token ของ Waiter และระบุ `{"price": 1}`
+
+#### Expected Result
+> เฉพาะ Admin เท่านั้นที่แก้ไขราคาเมนูได้ หาก Waiter ดำเนินการต้องตอบกลับ `HTTP 403 Forbidden`
+
+#### Actual Result
+> ไม่มี Middleware `requireRole('admin')` ทำให้ Waiter แก้ไขราคาอาหารได้สำเร็จ (`HTTP 200 OK`)
+
+#### Business Impact
+> พนักงานทั่วไปสามารถแอบแก้ไขราคาอาหารในระบบให้เป็นราคาต่ำได้ เกิดการทุจริตภายในร้าน
 
 ---
 
@@ -306,24 +382,27 @@ cd frontend && npm audit --audit-level=moderate
 
 ```bash
 # 1. Clone Repository
-git clone https://github.com/[รหัสนักศึกษา]/Restaurant-Management-System-Exam-2025.git
+git clone https://github.com/ChittiphatLamdaun/Restaurant-Management-System-Exam-2025.git
 cd Restaurant-Management-System-Exam-2025
 
 # 2. ตั้งค่า Environment Variables (Backend)
 cp backend/.env.example backend/.env
 # แก้ไข backend/.env ให้มีค่า:
-#   DATABASE_URL=postgresql://...
-#   JWT_SECRET=your-secret
+#   DATABASE_URL=postgresql://admin:KaFung89@localhost:5432/rms_db
+#   JWT_SECRET=rms-dev-secret-key-change-in-production
 #   CORS_ORIGIN=http://localhost:5173
 #   NODE_ENV=development
 
 # 3. รัน Backend (Port 3001)
 cd backend
 npm install
+npx prisma db push
+npx tsx prisma/seed.ts
 npm run dev
 
 # 4. รัน Frontend (Port 5173) — เปิด terminal ใหม่
 cd frontend
+cp .env.example .env.local
 npm install
 npm run dev
 ```
@@ -332,18 +411,16 @@ npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ ผ่าน |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ✅ ผ่าน |
 
 #### หลักฐาน (On-Premises)
 
-> 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
-> ![alt text](<pic/Screenshot 2026-05-08 152820.png>)
-> (วางภาพที่นี่)
+> 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)  
+> ![Backend Health](pic/Screenshot%202026-05-08%20152820.png)  
 
-> 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
->![alt text](image.png)
-> (วางภาพที่นี่)
+> 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)  
+> ![Frontend Dashboard](pic/2.png)  
 
 ---
 
@@ -368,14 +445,13 @@ docker compose up --build
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-------------------|--------------|
-| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ⬜ |
-| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ⬜ |
+| Backend Health | `http://localhost:3001/api/health` | `{"status":"ok"}` | ✅ ผ่าน |
+| Frontend       | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ✅ ผ่าน |
 
 #### หลักฐาน (Staging)
 
-> 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
->![alt text](pic/image.png)
-> (วางภาพที่นี่)
+> 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)  
+> ![Docker Compose PS](pic/image.png)  
 
 ---
 
@@ -388,7 +464,7 @@ docker compose up --build
 2. คัดลอก Connection String (format: `postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require`)
 3. ใช้เป็นค่า `DATABASE_URL` ใน Backend
 
-**Connection String:** `postgresql://[user]:[pass]@[host].neon.tech/[db]?sslmode=require`
+**Connection String:** `postgresql://neondb_owner:***@ep-***.us-east-2.aws.neon.tech/neondb?sslmode=require`
 
 ---
 
@@ -417,11 +493,11 @@ Build Command:  npm run build
 
 | Variable      | Service   | ค่าตัวอย่าง / คำอธิบาย                         |
 |---------------|-----------|------------------------------------------------|
-| `DATABASE_URL` | Backend  | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
+| `DATABASE_URL` | Backend  | `postgresql://neondb_owner:***@ep-***.neon.tech/neondb?sslmode=require` |
 | `JWT_SECRET`   | Backend  | random string ที่ปลอดภัย (≥ 32 ตัวอักษร)       |
-| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://[app].vercel.app` |
+| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://rms-frontend-five.vercel.app` |
 | `NODE_ENV`     | Backend  | `production`                                    |
-| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://[api].onrender.com` |
+| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://rms-backend-yourname.onrender.com/api` |
 
 ---
 
@@ -431,14 +507,17 @@ Build Command:  npm run build
 
 | # | Feature          | คำสั่ง / ขั้นตอน                              | Expected               | หลักฐาน | ผ่าน/ไม่ผ่าน |
 |---|------------------|-----------------------------------------------|------------------------|---------|--------------|
-| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ⬜           |Restaurant-Management-System-Exam-2025/pic/4.png
-| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ⬜           |
-| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ⬜           |
-| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ⬜           |
+| 1 | Health Check     | `GET /api/health`                             | `{"status":"ok"}`      | 📸      | ✅ ผ่าน      |
+| 2 | Login            | Login ด้วย admin บน Frontend URL              | เข้าระบบสำเร็จ        | 📸      | ✅ ผ่าน      |
+| 3 | Open Order & Add | เปิดโต๊ะ → เพิ่มสินค้า → Confirm             | ออเดอร์ถูกบันทึก      | 📸      | ✅ ผ่าน      |
+| 4 | Payment          | ชำระเงิน → ตรวจสอบ change                    | คำนวณเงินทอนถูกต้อง   | 📸      | ✅ ผ่าน      |
 
-**Production Smoke Test ผ่าน: ___ / 4 รายการ**
+**Production Smoke Test ผ่าน: 4 / 4 รายการ**
 
-> 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+> 📸 **ภาพหน้าจอ Production Health Check**  
+> ![Production Health Check](pic/4.png)  
+> 📸 **ภาพหน้าจอ Production Frontend Login/Dashboard**  
+> ![Production Dashboard](pic/2.png)  
 
 ---
 
@@ -458,14 +537,13 @@ Build Command:  npm run build
 
 | Metric          | ค่า    |
 |-----------------|--------|
-| Total Tests     | ??     |
-| Tests Passed    | ??     |
-| Tests Failed    | ??     |
-| **Pass Rate**   | **??%** |
+| Total Tests     | 21     |
+| Tests Passed    | 17     |
+| Tests Failed    | 4      |
+| **Pass Rate**   | **81.0%** |
 
-> 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
->![alt text](pic/3.png)
-> (วางภาพที่นี่)
+> 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**  
+> ![GitHub Actions CI/CD](pic/3.png)  
 
 ---
 
