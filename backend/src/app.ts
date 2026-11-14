@@ -21,6 +21,16 @@ app.use('/api/orders',   orderRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/reports',  reportRoutes)
 
+app.get('/', (_req, res) =>
+  res.json({
+    service: 'Restaurant Management System (RMS) API',
+    status: 'ok',
+    version: '2.0.0',
+    health: '/api/health',
+    timestamp: new Date(),
+  })
+)
+
 app.get('/api/health', (_req, res) =>
   res.json({ status: 'ok', timestamp: new Date(), version: '2.0.0' })
 )
