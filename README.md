@@ -10,9 +10,9 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** ณภัทร สิงห์ตุ้ย
+**รหัสนักศึกษา:** 68030080
+**วันที่สอบ:** 14/11/2026
 
 ---
 
@@ -33,9 +33,9 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Frontend    | https://restaurant-management-system-exam-2-psi.vercel.app |
+| Backend API | https://rms-backend-68030080.onrender.com |
+| Health Check| https://rms-backend-68030080.onrender.com/api/health |
 
 ---
 
@@ -67,8 +67,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   | Google Chrome |
+| OS        | Windows 11 |
 
 ### Entry/Exit Criteria
 
@@ -79,7 +79,7 @@
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
+| ระบบยืนยันตัวตน (Authentication / Login) หรือการเชื่อมต่อฐานข้อมูล PostgreSQL ล้มเหลว | ผู้ใช้งาน (`admin` และ `cashier1`) ไม่สามารถเข้าสู่ระบบเพื่อใช้งานหรือบันทึกข้อมูลรายการขายได้ ทำให้การให้บริการหน้าร้านหยุดชะงัก | P1 |
 | _กรอก_ | _กรอก_ | P2 |
 
 ---

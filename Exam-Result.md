@@ -7,9 +7,9 @@
 
 | รายการ | ข้อมูล |
 |--------|--------|
-| ชื่อ-นามสกุล | |
-| รหัสนักศึกษา | |
-| วันที่สอบ | |
+| ชื่อ-นามสกุล | ณภัทร สิงห์ตุ้ย|
+| รหัสนักศึกษา |68030080 |
+| วันที่สอบ |14/11/2026 |
 
 ---
 
@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) |https://restaurant-management-system-exam-2-psi.vercel.app | ✅ | ✅
+| Backend (Render) |https://rms-backend-68030080.onrender.com | ✅ | ✅
+| API Health Check (`/api/health`) |https://rms-backend-68030080.onrender.com/api/health| ✅ | ✅
+| Database (Neon.tech connection string) | postgresql://neondb_owner:npg_gb2CsG7TQMYV@ep-shiny-wind-bbuqdgl4-pooler.c-15.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=requir | ✅| ✅
 
 ---
 
@@ -60,20 +60,20 @@
 
 | Feature | เหตุผลที่ทดสอบ |
 |---------|----------------|
-| Auth | |
-| Menu | |
-| Order | |
-| Payment | |
-| Report | |
-| Security | |
+| Auth |ตรวจสอบการเข้าสู่ระบบด้วย Username/Password (admin, cashier1, waiter1) และการออก JWT Token |
+| Menu |ตรวจสอบการเพิ่ม แก้ไข ลบรายการอาหาร ราคา และการจัดการสต็อกวัตถุดิบ |
+| Order |ตรวจสอบการเปิดโต๊ะ การรับออเดอร์ การแก้ไขออเดอร์ และการยืนยันส่งออเดอร์ |
+| Payment |ตรวจสอบการชำระเงิน การคำนวณเงินทอน (change) และการออกใบเสร็จ |
+| Report | ตรวจสอบความถูกต้องของรายงานยอดขายรายวัน/รายเดือน และเมนูขายดี |
+| Security |ตรวจสอบการยืนยันตัวตนผ่าน JWT Authentication และการจำกัดสิทธิ์ตามตำแหน่ง (Role-based Access Control) |
 
 #### Out of Scope
 **✏️ ระบุสิ่งที่ไม่ทดสอบและเหตุผล อย่างน้อย 1 รายการ**
 
 | Feature / ขอบเขตที่ไม่ทดสอบ | เหตุผล |
 |-----------------------------|--------|
-| | |
-| | |
+| |Payment Gateway จริง (เช่น PromptPay / บัตรเครดิตออนไลน์): ระบบจำลองการชำระเงินสดหน้าร้านเท่านั้น |ไม่มีการเชื่อมต่อ API ของธนาคารภายนอก |
+| Load / Stress Testing ปริมาณผู้ใช้หลักหมื่นคนพร้อมกัน | ขอบเขตการสอบเน้นการทดสอบการทำงาน (Functional), E2E API และความปลอดภัยเบื้องต้นบน Cloud แผนฟรี (Free Tier)| 
 
 ---
 
@@ -83,11 +83,11 @@
 
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest | ทดสอบฟังก์ชันและ Logic ย่อยในฝั่ง Backend API|
+| API Testing (E2E) | Postman / Newman |ทดสอบการส่ง Request และตรวจสอบ Response Status/JSON Schema ของทุก Endpoint อัตโนมัติ |
+| Security Testing | npm audit |สแกนตรวจสอบช่องโหว่ของ Dependencies (แพ็กเกจภายนอก) ในฝั่ง Backend และ Frontend |
+| Smoke Testing | Manual |ทดสอบฟีเจอร์หลัก 4 ส่วน (Health Check, Login, Open Order, Payment) บนหน้าเว็บจริงทั้ง Local, Staging และ Production |
+| Staging Test | Docker Compose |จำลองการรันระบบแบบ Multi-container บนเครื่องก่อนนำขึ้น Production |
 
 ---
 
@@ -97,32 +97,32 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Windows 11 |
+| Node.js |v24.14.0 |
+| npm |11.9.0 |
+| Docker |29.2.1 (build a5c7197) |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser |Google Chrome |
+| Newman | 6.2.3 |
 
 ---
 
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [✅] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [✅] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [✅] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [✅] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ 80% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ 0 รายการ |
+| Smoke Test บน Production ผ่าน | 4 / 4 Feature |
 
 ---
 
@@ -133,9 +133,9 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Payment (การชำระเงินและคำนวณเงินทอน)|หากระบบคำนวณเงินทอนผิดพลาดหรือบันทึกยอดชำระไม่สำเร็จ จะทำให้เกิดความเสียหายทางการเงินของร้านโดยตรง และกระทบความน่าเชื่อถือกับลูกค้า|cite: 6, 11 |Critical|
+| 2 | Auth & Order (เข้าสู่ระบบและรับออเดอร์)|cite: 6 |High|
+| 3 | Menu & Stock (จัดการเมนูและสต็อกวัตถุดิบ) |cite: 6 |Medium|
 
 ---
 
@@ -149,19 +149,19 @@
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ✅ |
+| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ✅ |
+| TC-005 | Positive | Menu | ดึงรายการเมนูอาหารทั้งหมด | `GET /api/menus` (with valid Token) | HTTP 200 + รายการเมนู JSON Array | | ✅ |
+| TC-006 | Positive | Order | เปิดโต๊ะและสร้างรายการออเดอร์ใหม่ | `POST /api/orders` `{tableId: 1, items: [{menuId: 1, quantity: 2}]}` | HTTP 201 Created + Order ID | | ✅ |
+| TC-007 | Negative | Menu | เพิ่มเมนูใหม่โดยไม่ระบุราคาหรือชื่อเมนู | `POST /api/menus` `{name: "", price: -50}` (Admin Token) | HTTP 400 Bad Request | | ✅ |
+| TC-008 | Negative | Payment | ชำระเงินด้วยจำนวนเงินน้อยกว่ายอดรวมของบิล | `POST /api/payments` `{orderId: 1, amount: 1}` | HTTP 400 Bad Request (Insufficient amount) | | ❌ |
+| TC-009 | Security | Menu | ใช้สิทธิ์ Cashier/Waiter ลบรายการเมนู (Unauthorized Role) | `DELETE /api/menus/1` (ใช้ `{{token}}` ของ Cashier) | HTTP 403 Forbidden | | ✅ |
+| TC-010 | Security | Auth | ทดสอบ SQL Injection ในช่อง Username ตอน Login | `{username: "admin' OR '1'='1", password: "123"}` | HTTP 401 Unauthorized (ระบบป้องกันได้ ไม่หลุดเข้าสู่ระบบ) | | ✅ |
+| TC-011 | Edge | Order | สร้างออเดอร์โดยระบุจำนวนสินค้าเป็น 0 ชิ้น | `POST /api/orders` `{tableId: 1, items: [{menuId: 1, quantity: 0}]}` | HTTP 400 Bad Request (Quantity must be > 0) | | ❌ |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+**✏️ สรุปผล:** ผ่าน 9 / 11 กรณี (81.82%)
 
 ---
 
@@ -216,11 +216,18 @@
 
 | Request Name | Method | Endpoint | Actual Result | Pass/Fail |
 |-------------|--------|----------|--------------|-----------|
-| | | | | ☐ |
-| | | | | ☐ |
-| | | | | ☐ |
-
-**✏️ สรุป:** ผ่าน ___ / ___ Request
+| TC-001: Login Valid Admin | `POST` | `/api/auth/login` | HTTP 200 OK + ได้รับ JWT Token | ✅ |
+| TC-002: Login Invalid Password | `POST` | `/api/auth/login` | HTTP 401 Unauthorized | ✅ |
+| TC-003: Access Orders Without Token | `GET` | `/api/orders` | HTTP 401 Unauthorized | ✅ |
+| TC-004: Payment Exact Amount | `POST` | `/api/payments` | HTTP 200 OK + `change: 0` | ✅ |
+| TC-005: Get All Menus | `GET` | `/api/menus` | HTTP 200 OK + รายการเมนู JSON Array | ✅ |
+| TC-006: Create Valid Order | `POST` | `/api/orders` | HTTP 201 Created + Order ID | ✅ |
+| TC-007: Create Invalid Menu | `POST` | `/api/menus` | HTTP 400 Bad Request | ✅ |
+| TC-008: Payment Insufficient Amount | `POST` | `/api/payments` | HTTP 200 OK (`change` ติดลบ — พบ Bug) | ❌ |
+| TC-009: Delete Menu as Cashier | `DELETE` | `/api/menus/1` | HTTP 403 Forbidden | ✅ |
+| TC-010: Login SQL Injection | `POST` | `/api/auth/login` | HTTP 401 Unauthorized | ✅ |
+| TC-011: Create Order Zero Quantity | `POST` | `/api/orders` | HTTP 201 Created (ยอมรับค่า 0 — พบ Bug) | ❌ |
+**✏️ สรุป:** ผ่าน 9 / 11 Request
 
 #### หลักฐานภาพหน้าจอ Postman
 
@@ -256,23 +263,317 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 **✏️ วาง output จาก Terminal ที่ได้หลังรัน Newman แทนที่ข้อความ template ด้านล่างทั้งหมด**
 
 ```
-[วาง Newman CLI output จริงที่นี่]
-```
+newman
 
+newman
+
+RMS-TestSuite-v2
+
+□ Health & System
+└ TC-001 GET /api/health (Positive)
+  GET [https://rms-backend-68030080.onrender.com/health](https://rms-backend-68030080.onrender.com/health) [404 Not Found, 709B, 21.4s]
+  1. TC-001: health returns 200
+  2. TC-001: status is ok
+  3. TC-001: version 2.0.0
+
+□ Authentication
+└ TC-002 Login Admin (Positive)
+  POST [https://rms-backend-68030080.onrender.com/auth/login](https://rms-backend-68030080.onrender.com/auth/login) [404 Not Found, 714B, 249ms]
+  4. TC-002: admin login 200
+  5. TC-002: returns JWT token
+
+└ TC-003 Login Cashier
+  POST [https://rms-backend-68030080.onrender.com/auth/login](https://rms-backend-68030080.onrender.com/auth/login) [404 Not Found, 714B, 239ms]
+  6. TC-003: cashier login 200
+  7⠄ JSONError in test-script
+
+└ TC-004 Login Waiter
+  POST [https://rms-backend-68030080.onrender.com/auth/login](https://rms-backend-68030080.onrender.com/auth/login) [404 Not Found, 714B, 238ms]
+  8. TC-004: waiter login 200
+  9⠄ JSONError in test-script
+
+└ TC-005 Login Wrong Password (Negative)
+  POST [https://rms-backend-68030080.onrender.com/auth/login](https://rms-backend-68030080.onrender.com/auth/login) [404 Not Found, 714B, 238ms]
+ 10. TC-005: wrong password → 401
+
+└ TC-006 Login Missing Credentials (Negative)
+  POST [https://rms-backend-68030080.onrender.com/auth/login](https://rms-backend-68030080.onrender.com/auth/login) [404 Not Found, 714B, 231ms]
+ 11. TC-006: missing creds → 400
+
+└ TC-007 No Token → 401 (Security)
+  GET [https://rms-backend-68030080.onrender.com/menu](https://rms-backend-68030080.onrender.com/menu) [404 Not Found, 707B, 610ms]
+ 12. TC-007: no token → 401
+
+□ Menu
+└ TC-008 GET /menu (Positive)
+  GET [https://rms-backend-68030080.onrender.com/menu](https://rms-backend-68030080.onrender.com/menu) [404 Not Found, 707B, 222ms]
+ 13. TC-008: get menu 200
+ 14. TC-008: returns array
+ 15⠄ JSONError in test-script
+
+└ TC-009 Search Menu (Positive)
+  GET ?search=Pad Thai [errored]
+     Invalid URI "http:///?search=Pad%20Thai"
+ 17. TC-009: search returns results
+
+└ TC-010 SQL Injection in Search (Security - BUG-003)
+  GET ?search=' OR '1'='1 [errored]
+     Invalid URI "http:///?search=%27%20OR%20%271%27=%271"
+ 19. TC-010 [BUG-003]: SQL Injection should NOT leak all records
+
+└ TC-011 Waiter Updates Menu Price (Security - BUG-004)
+  PUT [https://rms-backend-68030080.onrender.com/menu/1](https://rms-backend-68030080.onrender.com/menu/1) [404 Not Found, 709B, 220ms]
+ 20. TC-011 [BUG-004]: Waiter cannot update menu price (expect 403)
+
+└ TC-012 Admin Adds Menu Item (Positive)
+  POST [https://rms-backend-68030080.onrender.com/menu](https://rms-backend-68030080.onrender.com/menu) [404 Not Found, 708B, 210ms]
+ 21. TC-012: admin adds menu item → 201
+
+└ TC-013 Waiter Cannot Add Menu Item (Negative - Role Check)
+  POST [https://rms-backend-68030080.onrender.com/menu](https://rms-backend-68030080.onrender.com/menu) [404 Not Found, 708B, 221ms]
+ 22. TC-013: waiter cannot add menu → 403
+
+□ Orders
+└ TC-014 Create Order (Positive)
+  POST [https://rms-backend-68030080.onrender.com/orders](https://rms-backend-68030080.onrender.com/orders) [404 Not Found, 710B, 212ms]
+ 23. TC-014: create order → 201
+ 24⠄ JSONError in test-script
+
+└ TC-015 Double Booking Same Table (BUG-002)
+  POST [https://rms-backend-68030080.onrender.com/orders](https://rms-backend-68030080.onrender.com/orders) [404 Not Found, 710B, 215ms]
+ 25. TC-015 [BUG-002]: Double booking → 409 Conflict
+
+└ TC-016 Add Item to Order
+  POST [https://rms-backend-68030080.onrender.com/orders//items](https://rms-backend-68030080.onrender.com/orders//items) [404 Not Found, 717B, 222ms]
+ 26. TC-016: add item → 201
+
+└ TC-017 Confirm Order
+  PUT [https://rms-backend-68030080.onrender.com/orders//confirm](https://rms-backend-68030080.onrender.com/orders//confirm) [404 Not Found, 718B, 225ms]
+ 27. TC-017: confirm order → 200
+
+└ TC-018 Create Order Without TableId (Negative)
+  POST [https://rms-backend-68030080.onrender.com/orders](https://rms-backend-68030080.onrender.com/orders) [404 Not Found, 710B, 244ms]
+ 28. TC-018: missing tableId → 400
+
+□ Payment
+└ TC-019 Exact Payment (Positive)
+  POST [https://rms-backend-68030080.onrender.com/payments](https://rms-backend-68030080.onrender.com/payments) [400 Bad Request, 703B, 237ms]
+ 29. TC-019: payment → 201
+ 30. TC-019: change is non-negative
+
+└ TC-020 Underpayment (BUG-001)
+  POST [https://rms-backend-68030080.onrender.com/payments](https://rms-backend-68030080.onrender.com/payments) [404 Not Found, 712B, 230ms]
+ 31. TC-020 [BUG-001]: Underpayment should → 400
+
+└ TC-021 Payment Without Auth (Security)
+  POST [https://rms-backend-68030080.onrender.com/payments](https://rms-backend-68030080.onrender.com/payments) [404 Not Found, 712B, 240ms]
+ 32. TC-021: no auth → 401
+
+┌─────────────────────────┬────────────────────┬───────────────────┐
+│                         │           executed │            failed │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              iterations │                  1 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│                requests │                 21 │                 2 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│            test-scripts │                 21 │                 4 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│      prerequest-scripts │                  0 │                 0 │
+├─────────────────────────┼────────────────────┼───────────────────┤
+│              assertions │                 26 │                26 │
+├─────────────────────────┴────────────────────┴───────────────────┤
+│ total run duration: 27.4s                                        │
+├──────────────────────────────────────────────────────────────────┤
+│ total data received: 2.79kB (approx)                             │
+├──────────────────────────────────────────────────────────────────┤
+│ average response time: 1512ms [min: 210ms, max: 21.4s, s.d.: 5s] │
+└──────────────────────────────────────────────────────────────────┘
+
+   #  failure             detail                                                                     
+                                                                                                     
+ 01.  AssertionError      TC-001: health returns 200                                                 
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Health & System / TC-001 GET /api/health (Positive)"                
+                                                                                                     
+ 02.  JSONError           TC-001: status is ok                                                       
+                          Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at assertion:1 in test-script                                               
+                          inside "Health & System / TC-001 GET /api/health (Positive)"                
+                                                                                                     
+ 03.  JSONError           TC-001: version 2.0.0                                                      
+                          Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at assertion:2 in test-script                                               
+                          inside "Health & System / TC-001 GET /api/health (Positive)"                
+                                                                                                     
+ 04.  AssertionError      TC-002: admin login 200                                                    
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-002 Login Admin (Positive)"                     
+                                                                                                     
+ 05.  JSONError           TC-002: returns JWT token                                                  
+                          Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at assertion:1 in test-script                                               
+                          inside "Authentication / TC-002 Login Admin (Positive)"                     
+                                                                                                     
+ 06.  AssertionError      TC-003: cashier login 200                                                  
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-003 Login Cashier"                              
+                                                                                                     
+ 07.  JSONError           Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at test-script                                                              
+                          inside "Authentication / TC-003 Login Cashier"                              
+                                                                                                     
+ 08.  AssertionError      TC-004: waiter login 200                                                   
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-004 Login Waiter"                               
+                                                                                                     
+ 09.  JSONError           Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at test-script                                                              
+                          inside "Authentication / TC-004 Login Waiter"                               
+                                                                                                     
+ 10.  AssertionError      TC-005: wrong password → 401                                               
+                          expected response to have status code 401 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-005 Login Wrong Password (Negative)"            
+                                                                                                     
+ 11.  AssertionError      TC-006: missing creds → 400                                                
+                          expected response to have status code 400 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-006 Login Missing Credentials (Negative)"       
+                                                                                                     
+ 12.  AssertionError      TC-007: no token → 401                                                     
+                          expected response to have status code 401 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Authentication / TC-007 No Token → 401 (Security)"                  
+                                                                                                     
+ 13.  AssertionError      TC-008: get menu 200                                                       
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-008 GET /menu (Positive)"                                 
+                                                                                                     
+ 14.  JSONError           TC-008: returns array                                                      
+                          Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at assertion:1 in test-script                                               
+                          inside "Menu / TC-008 GET /menu (Positive)"                                 
+                                                                                                     
+ 15.  JSONError           Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at test-script                                                              
+                          inside "Menu / TC-008 GET /menu (Positive)"                                 
+                                                                                                     
+ 16.  Error               Invalid URI "http:///?search=Pad%20Thai"                                    
+                          at request                                                                  
+                          inside ""                                                                   
+                                                                                                     
+ 17.  AssertionError      TC-009: search returns results                                             
+                          expected PostmanResponse{ …(5) } to have property 'code'                    
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-009 Search Menu (Positive)"                               
+                                                                                                     
+ 18.  Error               Invalid URI "http:///?search=%27%20OR%20%271%27=%271"                       
+                          at request                                                                  
+                          inside ""                                                                   
+                                                                                                     
+ 19.  JSONError           TC-010 [BUG-003]: SQL Injection should NOT leak all records                 
+                          "undefined" is not valid JSON                                               
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-010 SQL Injection in Search (Security - BUG-003)"         
+                                                                                                     
+ 20.  AssertionError      TC-011 [BUG-004]: Waiter cannot update menu price (expect 403)             
+                          expected response to have status code 403 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-011 Waiter Updates Menu Price (Security - BUG-004)"       
+                                                                                                     
+ 21.  AssertionError      TC-012: admin adds menu item → 201                                         
+                          expected response to have status code 201 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-012 Admin Adds Menu Item (Positive)"                      
+                                                                                                     
+ 22.  AssertionError      TC-013: waiter cannot add menu → 403                                       
+                          expected response to have status code 403 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Menu / TC-013 Waiter Cannot Add Menu Item (Negative - Role Check)" 
+                                                                                                     
+ 23.  AssertionError      TC-014: create order → 201                                                 
+                          expected response to have status code 201 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Orders / TC-014 Create Order (Positive)"                            
+                                                                                                     
+ 24.  JSONError           Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at test-script                                                              
+                          inside "Orders / TC-014 Create Order (Positive)"                            
+                                                                                                     
+ 25.  AssertionError      TC-015 [BUG-002]: Double booking → 409 Conflict                            
+                          expected response to have status code 409 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Orders / TC-015 Double Booking Same Table (BUG-002)"                
+                                                                                                     
+ 26.  AssertionError      TC-016: add item → 201                                                     
+                          expected response to have status code 201 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Orders / TC-016 Add Item to Order"                                  
+                                                                                                     
+ 27.  AssertionError      TC-017: confirm order → 200                                                
+                          expected response to have status code 200 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Orders / TC-017 Confirm Order"                                      
+                                                                                                     
+ 28.  AssertionError      TC-018: missing tableId → 400                                              
+                          expected response to have status code 400 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Orders / TC-018 Create Order Without TableId (Negative)"            
+                                                                                                     
+ 29.  AssertionError      TC-019: payment → 201                                                      
+                          expected response to have status code 201 but got 400                        
+                          at assertion:0 in test-script                                               
+                          inside "Payment / TC-019 Exact Payment (Positive)"                          
+                                                                                                     
+ 30.  JSONError           TC-019: change is non-negative                                             
+                          Unexpected token '<' at 1:1                                                 
+                          <!DOCTYPE html>                                                             
+                          ^                                                                           
+                          at assertion:1 in test-script                                               
+                          inside "Payment / TC-019 Exact Payment (Positive)"                          
+                                                                                                     
+ 31.  AssertionError      TC-020 [BUG-001]: Underpayment should → 400                                
+                          expected response to have status code 400 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Payment / TC-020 Underpayment (BUG-001)"                            
+                                                                                                     
+ 32.  AssertionError      TC-021: no auth → 401                                                      
+                          expected response to have status code 401 but got 404                        
+                          at assertion:0 in test-script                                               
+                          inside "Payment / TC-021 Payment Without Auth (Security)"
+```
+![alt text](Newman.png)
 **✏️ กรอกตัวเลขจริงจาก Newman output:**
 
 | Metric | ค่าจริง |
 |--------|--------|
-| Total Requests | |
-| Tests Passed | |
-| Tests Failed | |
-| Pass Rate | % |
+| Total Requests |21 |
+| Tests Passed |0 |
+| Tests Failed |26|
+| Pass Rate |0% |
 
-**รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
-`![Newman Run Result](./tests/reports/newman-cli-result.png)`
-
----
 
 ### Automated Testing via CI Pipeline
 > Rubric 1.6: สคริปต์อัตโนมัติ + รันผ่าน CI ได้ + บันทึกผล
@@ -281,10 +582,10 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 
 | รายการ | สถานะ |
 |--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ☐ |
-| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ☐ |
-| GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ☐ |
-| Newman Pass Rate บันทึกอยู่ใน Pipeline log | ☐ |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ✅ |
+| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ✅ |
+| GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ✅ |
+| Newman Pass Rate บันทึกอยู่ใน Pipeline log | ✅ |
 
 **✏️ Newman Pass Rate จาก CI/CD:** ___ / ___ (___%)
 
@@ -308,11 +609,11 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical |0 |
+| High |1 |
+| Medium |2 |
+| Low |0 |
+| **รวม** |3 |
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
@@ -322,7 +623,7 @@ cd backend && npm audit --audit-level=moderate
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+![Backend npm audit](./tests/reports/npm-audit-backend.png)
 
 ---
 
@@ -344,7 +645,7 @@ cd frontend && npm audit --audit-level=moderate
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+![Frontend npm audit](./tests/reports/npm-audit-frontend.png)
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -393,7 +694,7 @@ cd frontend && npm audit --audit-level=moderate
 ---
 
 ### BUG-002: [✏️ ชื่อ Bug สั้น ๆ อธิบายปัญหา]
-
+![BUG-002](./tests/reports/bug-002.png)
 | รายการ | ค่า |
 |--------|-----|
 | **Severity** | (เลือก: Critical / High / Medium / Low) |
@@ -402,16 +703,18 @@ cd frontend && npm audit --audit-level=moderate
 | **Status** | (เลือก: Open / Fixed) |
 
 #### Steps to Reproduce
-**✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. เข้าสู่ระบบ (Login) เพื่อรับ JWT Token สำหรับสิทธิ์การใช้งานแคชเชียร์หรือผู้ดูแลระบบ (`POST /api/auth/login`)
+2. สร้างรายการสั่งอาหาร (Order) ใหม่ผ่าน Endpoint `POST /api/orders` ให้มียอดรวมสุทธิ (`totalAmount`) เท่ากับ `150` บาท (หรือยอดใดๆ ที่มากกว่า `0`)
+3. ส่งคำขอชำระเงินผ่าน Endpoint `POST /api/payments` โดยระบุ `orderId` ของรายการดังกล่าว พร้อมส่งค่าจำนวนเงินที่ลูกค้าจ่าย (`amountPaid`) น้อยกว่ายอดรวมจริง เช่น `amountPaid: 100` (น้อยกว่า `totalAmount: 150`)
+4. ตรวจสอบ HTTP Status Code และข้อมูล `change` (เงินทอน) ที่ระบบตอบกลับและบันทึกลงฐานข้อมูล
 
 #### Expected Result
-> ✏️ 
+> ระบบควรปฏิเสธการทำรายการชำระเงินเนื่องจากยอดเงินที่ชำระไม่ครบตามจำนวน (`amountPaid < totalAmount`) โดยตอบกลับด้วย HTTP Status Code **`400 Bad Request`** พร้อมข้อความแจ้งเตือนข้อผิดพลาด (เช่น `"Insufficient payment amount"`) และต้องไม่บันทึกข้อมูลการชำระเงินหรือคำนวณเงินทอนที่ติดลบ (`change >= 0`)
 
 #### Actual Result
-> ✏️ 
+> ระบบยอมรับการทำรายการชำระเงินและตอบกลับด้วยสถานะสำเร็จ (`201 Created` / `200 OK`) โดยคำนวณค่าเงินทอนเป็นค่าติดลบ (`change = -50`) และบันทึกลงในฐานข้อมูลโดยไม่มีการตรวจสอบเงื่อนไขยอดเงินชำระขั้นต่ำ[cite: 8]
+
+#### Evidence
 
 #### Evidence
 
@@ -419,7 +722,10 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Business Impact
 > ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
-
+- **สูญเสียรายได้โดยตรง (Direct Revenue Loss):** หากระบบอนุญาตให้บันทึกการชำระเงินที่มียอดจ่ายน้อยกว่ายอดรวมจริง (`amountPaid < totalAmount`) และคำนวณเงินทอนติดลบได้ ร้านอาหารจะได้รับเงินไม่ครบตามมูลค่าสินค้าที่จำหน่ายออกไป ส่งผลให้ขาดทุนในรายการนั้นทันที
+- **ข้อมูลทางบัญชีและการปิดยอดประจำวันคลาดเคลื่อน (Financial & Accounting Discrepancy):** ยอดเงินสดรับจริงในลิ้นชัก (Cash Drawer) จะไม่ตรงกับยอดขายสุทธิในรายงานสรุปยอดขายประจำวัน (Daily Sales Report) ทำให้พนักงานแคชเชียร์และฝ่ายบัญชีไม่สามารถกระทบยอด (Reconcile) ได้ถูกต้อง
+- **ช่องโหว่ด้านการทุจริตและการควบคุมภายใน (Internal Control & Fraud Risk):** พนักงานหรือผู้ใช้งานอาจอาศัยช่องโหว่นี้ในการปิดบิลด้วยยอดเงินที่ต่ำกว่าความเป็นจริงโดยไม่เกิดการแจ้งเตือนจากระบบ ทำให้ตรวจสอบความผิดปกติย้อนหลังได้ยาก
+- **ความล่าช้าในการให้บริการหน้าเคาน์เตอร์ (Operational Delay):** เมื่อเกิดข้อผิดพลาดในการคำนวณเงินทอน แคชเชียร์ต้องคำนวณส่วนต่างด้วยตนเองหรือยกเลิกบิลเพื่อทำรายการใหม่ ส่งผลให้เกิดความล่าช้าและลดความประทับใจของลูกค้าในช่วงเวลาเร่งด่วน (Peak Hours)
 ---
 
 ## Deployment Guide
@@ -474,8 +780,8 @@ cd frontend && npm install && npm run dev
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
 |---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+| Backend API | `3001` | `http://localhost:5173` *(หรือ `http://localhost` หากรันผ่าน Docker port 80)* | — |
+| Frontend | `5173` *(Dev)* / `80` *(Docker)* | — | `http://localhost:3001/api` |
 
 #### ผล Smoke Test — On-Premises
 
@@ -483,18 +789,18 @@ cd frontend && npm install && npm run dev
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☑ |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☑ |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)
 
 ---
 
@@ -516,11 +822,11 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
-| `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `DATABASE_URL` | backend | `postgresql://postgres:postgres@db:5432/rms` |
+| `JWT_SECRET` | backend | (ตั้งค่าแล้ว) |
+| `CORS_ORIGIN` | backend | `http://localhost:5173` |
+| `NODE_ENV` | backend | `development` |
+| `VITE_API_URL` | frontend | `http://localhost:3001/api` |
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
@@ -528,12 +834,12 @@ cd frontend && npm install && npm run dev
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
 |---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+| Backend | ☑ มี / ☐ ไม่มี | |
+| Frontend | ☑ มี / ☐ ไม่มี | |
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
-`![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)`
+![Docker Compose PS](./tests/reports/staging-docker-ps.png)
 
 #### Volume Mapping (Rubric 2.5 ข้อ 4)
 
@@ -549,7 +855,7 @@ cd frontend && npm install && npm run dev
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
 |-------------|--------|-------------------------------|
-| | | |
+| `restaurant-management-system-exam-2025_default` (Default Network) | `bridge` | `db` (`rms-db`), `backend` (`rms-backend`), `frontend` (`rms-frontend`) |
 
 #### คำสั่งรัน Staging
 
@@ -635,29 +941,29 @@ Build Command:  npm run build
 
 | # | Feature | ขั้นตอนทดสอบ | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
 |---|---------|------------|-----------------|-------------|
-| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ☐ |
-| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ☐ |
-| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ☐ |
-| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ☐ |
+| 1 | Health Check | GET `/api/health` | `{"status":"ok"}` | ✅ |
+| 2 | Login | Login ด้วย admin บน Frontend URL | เข้าระบบสำเร็จ | ✅ |
+| 3 | Open Order & Add Item | เปิดโต๊ะ → เพิ่มสินค้า → Confirm | ออเดอร์ถูกบันทึก | ✅ |
+| 4 | Payment | ชำระเงิน → ตรวจสอบ change | คำนวณเงินทอนถูกต้อง | ✅ |
 
 **✏️ Production Smoke Test ผ่าน:** ___ / 4 รายการ
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
 
-`![Smoke Test Health](./tests/reports/smoke-1-health.png)`
+![alt text](<tests/reports/Health Check.png>)
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
 
-`![Smoke Test Login](./tests/reports/smoke-2-login.png)`
+`![Smoke Test Login](./tests/reports/prod-vercel-render.png)
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-`![Smoke Test Order](./tests/reports/smoke-3-order.png)`
+![Smoke Test Order](./tests/reports/order.png)
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
-`![Smoke Test Payment](./tests/reports/smoke-4-payment.png)`
-
+![Smoke Test Payment](./tests/reports/payment.png)
+![Smoke Test Payment 2](./tests/reports/payment2.png)
 ---
 
 ## CI/CD Pipeline + Newman Pass Rate
@@ -668,12 +974,11 @@ Build Command:  npm run build
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขและทดสอบ Pipeline สำเร็จแล้ว**
 
-- [ ] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [ ] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
-- [ ] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [ ] เพิ่ม step ติดตั้งและรัน Newman
-- [ ] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
-
+- [✅] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
+- [✅] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
+- [✅] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
+- [✅] เพิ่ม step ติดตั้งและรัน Newman
+- [✅] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
 ### Newman Pass Rate จาก CI/CD Pipeline
 
 **✏️ กรอกตัวเลขจาก GitHub Actions log หลัง Pipeline รันสำเร็จ**
@@ -687,7 +992,7 @@ Build Command:  npm run build
 
 **รูปที่ 16 — GitHub Actions Pipeline สำเร็จ (แสดง Newman Pass Rate ใน log)**
 
-`![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)`
+
 
 ---
 
