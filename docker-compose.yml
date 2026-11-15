@@ -1,24 +1,4 @@
-version: '3.9'
-
-services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: rms-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: rms_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-
+﻿services:
   backend:
     build:
       context: ./backend
@@ -30,17 +10,16 @@ services:
       PORT: 3001
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET:-rms-dev-secret-change-in-prod}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     ports:
       - "3001:3001"
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
-      interval: 15s
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+    networks:
+      - rms-network
 
   frontend:
     build:
@@ -55,6 +34,9 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - rms-network
 
-volumes:
-  # postgres_data:
+networks:
+  rms-network:
+    driver: bridge
