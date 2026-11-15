@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI/CD Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  test-and-security:
     runs-on: ubuntu-latest
 
     services:
@@ -17,6 +17,8 @@ jobs:
           POSTGRES_DB: rms_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -24,35 +26,51 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: 'backend/package-lock.json'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Install backend dependencies
-      run: cd backend && npm ci
+      - name: Install backend dependencies
+        run: cd backend && npm ci
 
-    - name: Generate Prisma client
-      run: cd backend && npx prisma generate
+      - name: Security Audit - Backend
+        run: cd backend && npm audit --audit-level=high
 
-    - name: Run backend tests
-      run: cd backend && npm test
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+      - name: Generate Prisma client
+        run: cd backend && npx prisma generate
 
-    - name: Setup Node.js for frontend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+      - name: Run Vitest (Unit & API Tests)
+        run: cd backend && npm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+          JWT_SECRET: ci-test-secret-key
 
-    - name: Install frontend dependencies
-      run: cd frontend && npm ci
+      - name: Setup Database & Run Newman E2E Tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_test
+          JWT_SECRET: ci-test-secret-key
+          PORT: 3001
+          CORS_ORIGIN: http://localhost:5173
+        run: |
+          cd backend
+          npx prisma db push
+          npx tsx prisma/seed.ts
+          npx tsx prisma/seed-test.ts
+          npm run build
+          npm start &
+          sleep 4
+          cd ..
+          npm install -g newman
+          newman run tests/postman/RMS-TestSuite-v2.json
 
-    - name: Run frontend build
-      run: cd frontend && npm run build
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Security Audit - Frontend
+        run: cd frontend && npm audit --audit-level=high
+
+      - name: Build frontend
+        run: cd frontend && npm run build

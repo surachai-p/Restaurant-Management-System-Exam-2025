@@ -1,8 +1,8 @@
-{
+﻿{
   "info": {
     "name": "RMS-TestSuite-v2",
     "_postman_id": "rms-v2-exam-2024",
-    "description": "Restaurant Management System v2 — TypeScript + Prisma API Test Collection",
+    "description": "Restaurant Management System v2 â€” TypeScript + Prisma API Test Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -81,7 +81,7 @@
             "body": { "mode": "raw", "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-005: wrong password → 401', () => pm.response.to.have.status(401));"
+            "pm.test('TC-005: wrong password â†’ 401', () => pm.response.to.have.status(401));"
           ]}}]
         },
         {
@@ -92,14 +92,14 @@
             "body": { "mode": "raw", "raw": "{}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-006: missing creds → 400', () => pm.response.to.have.status(400));"
+            "pm.test('TC-006: missing creds â†’ 400', () => pm.response.to.have.status(400));"
           ]}}]
         },
         {
-          "name": "TC-007 No Token → 401 (Security)",
+          "name": "TC-007 No Token â†’ 401 (Security)",
           "request": { "method": "GET", "url": "{{base_url}}/menu" },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-007: no token → 401', () => pm.response.to.have.status(401));"
+            "pm.test('TC-007: no token â†’ 401', () => pm.response.to.have.status(401));"
           ]}}]
         }
       ]
@@ -124,7 +124,7 @@
           "name": "TC-009 Search Menu (Positive)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=Pad+Thai", "query": [{ "key": "search", "value": "Pad Thai" }] },
+            "url": "{{base_url}}/menu?search=Pad+Thai",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -138,7 +138,7 @@
           "name": "TC-010 SQL Injection in Search (Security - BUG-003)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271", "query": [{ "key": "search", "value": "' OR '1'='1" }] },
+            "url": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -180,7 +180,7 @@
             "body": { "mode": "raw", "raw": "{\"name\":\"Test Dish\",\"price\":99,\"category\":\"food\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-012: admin adds menu item → 201', () => pm.response.to.have.status(201));"
+            "pm.test('TC-012: admin adds menu item â†’ 201', () => pm.response.to.have.status(201));"
           ]}}]
         },
         {
@@ -194,7 +194,7 @@
             "body": { "mode": "raw", "raw": "{\"name\":\"Waiter Dish\",\"price\":50,\"category\":\"food\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-013: waiter cannot add menu → 403', () => pm.response.to.have.status(403));"
+            "pm.test('TC-013: waiter cannot add menu â†’ 403', () => pm.response.to.have.status(403));"
           ]}}]
         }
       ]
@@ -213,7 +213,7 @@
             "body": { "mode": "raw", "raw": "{\"tableId\": 2}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-014: create order → 201', () => pm.response.to.have.status(201));",
+            "pm.test('TC-014: create order â†’ 201', () => pm.response.to.have.status(201));",
             "pm.collectionVariables.set('order_id', pm.response.json().id);"
           ]}}]
         },
@@ -228,7 +228,7 @@
             "body": { "mode": "raw", "raw": "{\"tableId\": 2}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-015 [BUG-002]: Double booking → 409 Conflict', () => {",
+            "pm.test('TC-015 [BUG-002]: Double booking â†’ 409 Conflict', () => {",
             "  pm.response.to.have.status(409);",
             "});"
           ]}}]
@@ -245,7 +245,7 @@
             "body": { "mode": "raw", "raw": "{\"menuItemId\": {{menu_item_id}}, \"quantity\": 2}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-016: add item → 201', () => pm.response.to.have.status(201));"
+            "pm.test('TC-016: add item â†’ 201', () => pm.response.to.have.status(201));"
           ]}}]
         },
         {
@@ -256,7 +256,7 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{waiter_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-017: confirm order → 200', () => pm.response.to.have.status(200));"
+            "pm.test('TC-017: confirm order â†’ 200', () => pm.response.to.have.status(200));"
           ]}}]
         },
         {
@@ -270,7 +270,7 @@
             "body": { "mode": "raw", "raw": "{}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-018: missing tableId → 400', () => pm.response.to.have.status(400));"
+            "pm.test('TC-018: missing tableId â†’ 400', () => pm.response.to.have.status(400));"
           ]}}]
         }
       ]
@@ -289,7 +289,7 @@
             "body": { "mode": "raw", "raw": "{\"orderId\": {{order_id}}, \"amountPaid\": 9999, \"method\": \"cash\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-019: payment → 201', () => pm.response.to.have.status(201));",
+            "pm.test('TC-019: payment â†’ 201', () => pm.response.to.have.status(201));",
             "pm.test('TC-019: change is non-negative', () => {",
             "  pm.expect(pm.response.json().change).to.be.above(-1);",
             "});"
@@ -306,7 +306,7 @@
             "body": { "mode": "raw", "raw": "{\"orderId\": 9999, \"amountPaid\": 1, \"method\": \"cash\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
+            "pm.test('TC-020 [BUG-001]: Underpayment should â†’ 400', () => {",
             "  pm.response.to.have.status(400);",
             "});"
           ]}}]
@@ -319,10 +319,11 @@
             "body": { "mode": "raw", "raw": "{\"orderId\": 1, \"amountPaid\": 100}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-021: no auth → 401', () => pm.response.to.have.status(401));"
+            "pm.test('TC-021: no auth â†’ 401', () => pm.response.to.have.status(401));"
           ]}}]
         }
       ]
     }
   ]
 }
+
