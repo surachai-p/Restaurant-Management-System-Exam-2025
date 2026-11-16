@@ -4,7 +4,7 @@
 > รายวิชา: การออกแบบและพัฒนาซอฟต์แวร์ 1  
 > ชื่อ-นามสกุล: อรัญชัย คำเพ็ญ 
 > รหัสนักศึกษา: 68030316  
-> วันที่สอบ: 8/5/2026
+> วันที่สอบ: 16/11/2026
 
 ---
 
@@ -95,9 +95,9 @@
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [ x ] Repository ถูก Clone และรัน Backend + Frontend ได้
+- [ x  ] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [ x  ] `/api/health` ตอบกลับ `{"status":"ok"}`
 - [ ] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
