@@ -56,5 +56,5 @@ services:
       backend:
         condition: service_healthy
 
-volumes:
+# volumes:
   # postgres_data:
