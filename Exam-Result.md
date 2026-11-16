@@ -581,28 +581,28 @@ cd frontend && npm install && npm run dev
 **✏️ กรอกค่าจริงที่ตั้งบนเครื่องของตนเอง**
 
 | Service | Port ที่รันจริง | ค่า CORS_ORIGIN ที่ตั้ง | ค่า VITE_API_URL ที่ตั้ง |
-|---------|---------------|------------------------|------------------------|
-| Backend API | | | — |
-| Frontend | | — | |
+|---------|--------------|------------------------|-------------------------|
+| Backend API | `3001` | `http://localhost:5173` | — |
+| Frontend | `5173` | — | `http://localhost:3001/api` |
 
 #### ผล Smoke Test — On-Premises
 
 **✏️ ทดสอบหลังรัน Backend + Frontend สำเร็จ แล้วทำเครื่องหมายผล**
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
-|-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:[port]/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | ☐ |
+|-------|-----|-------------------|-------------|
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | [x] ผ่าน |
+| Frontend Login | `http://localhost:5173` | หน้า Login แสดงผลสำเร็จ | [x] ผ่าน |
 
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
 
-`![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
+![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
 
-`![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
+![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)
 
 ---
 
@@ -613,10 +613,10 @@ cd frontend && npm install && npm run dev
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขเสร็จแล้ว**
 
-- [ ] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
-- [ ] กำหนด Port Mapping: backend → 3001, frontend → 80
-- [ ] เพิ่ม Health Check สำหรับ backend service
-- [ ] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
+- [x] เพิ่ม Environment Variables ครบถ้วน (`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGIN`, `VITE_API_URL`)
+- [x] กำหนด Port Mapping: backend → 3001, frontend → 80
+- [x] เพิ่ม Health Check สำหรับ backend service
+- [x] กำหนด `depends_on` ให้ frontend รอ backend พร้อมก่อน
 
 #### Environment Variables ที่ตั้งค่าจริงใน `docker-compose.yml` (Rubric 2.2 ข้อ 2)
 
@@ -624,40 +624,40 @@ cd frontend && npm install && npm run dev
 
 | Variable | Service | ค่าที่ตั้งจริง |
 |----------|---------|--------------|
-| `DATABASE_URL` | backend | |
+| `DATABASE_URL` | backend | `${DATABASE_URL}` (เชื่อมต่อ Neon PostgreSQL) |
 | `JWT_SECRET` | backend | (ตั้งค่าแล้ว — ไม่ระบุค่าจริงเพื่อความปลอดภัย) |
-| `CORS_ORIGIN` | backend | |
-| `NODE_ENV` | backend | |
-| `VITE_API_URL` | frontend | |
+| `CORS_ORIGIN` | backend | `${CORS_ORIGIN:-http://localhost:5173}` |
+| `NODE_ENV` | backend | `production` |
+| `VITE_API_URL` | frontend | `/api` |
 
 #### Multi-stage Build (Rubric 2.5 ข้อ 2)
 
 **✏️ ตรวจสอบ Dockerfile ของแต่ละ service แล้วระบุผล**
 
 | Service | มี Multi-stage Build | Stage ที่ใช้ (เช่น builder → runner) |
-|---------|--------------------|------------------------------------|
-| Backend | ☐ มี / ☐ ไม่มี | |
-| Frontend | ☐ มี / ☐ ไม่มี | |
+|---------|---------------------|--------------------------------------|
+| Backend | [x] มี / [ ] ไม่มี | `deps` → `builder` → `runner` (`node:22-slim`) |
+| Frontend | [x] มี / [ ] ไม่มี | `builder` (`node:22-alpine`) → `nginx:alpine` |
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
-`![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)`
+![Multi-stage Dockerfile](./tests/reports/dockerfile-multistage.png)
 
 #### Volume Mapping (Rubric 2.5 ข้อ 4)
 
 **✏️ ระบุ Volume ที่กำหนดใน docker-compose.yml (ถ้าไม่มีให้ระบุ "ไม่มี Volume mapping")**
 
 | Volume Name / Path | Host Path | Container Path | วัตถุประสงค์ |
-|-------------------|-----------|----------------|-------------|
-| | | | |
+|--------------------|-----------|----------------|-------------|
+| ไม่มี Volume mapping | — | — | เชื่อมต่อฐานข้อมูลภายนอก (Neon PostgreSQL) และใช้งานไฟล์ Static Build ภายใน Container จึงไม่มีการ Mount Volume |
 
 #### Network Configuration (Rubric 2.5 ข้อ 5)
 
 **✏️ ระบุ Network ที่กำหนดใน docker-compose.yml**
 
 | Network Name | Driver | Services ที่อยู่ใน Network นี้ |
-|-------------|--------|-------------------------------|
-| | | |
+|--------------|--------|-------------------------------|
+| `restaurant-management-system-exam-2025_default` | `bridge` | `backend` (`rms-backend`), `frontend` (`rms-frontend`) |
 
 #### คำสั่งรัน Staging
 
@@ -670,15 +670,15 @@ docker compose up --build
 **✏️ ทดสอบหลัง `docker compose up` สำเร็จ**
 
 | ทดสอบ | URL | ผลลัพธ์ที่คาดหวัง | ผ่าน/ไม่ผ่าน |
-|-------|-----|-----------------|-------------|
-| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | ☐ |
-| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | ☐ |
+|-------|-----|-------------------|-------------|
+| Backend Health Check | `http://localhost:3001/api/health` | `{"status":"ok"}` | [x] ผ่าน |
+| Frontend | `http://localhost:80` | หน้า Login แสดงผลสำเร็จ | [x] ผ่าน |
 
 #### หลักฐาน Staging
 
 **รูปที่ 11 — `docker compose ps` แสดงทุก Container สถานะ `running`**
 
-`![Docker Compose PS](./tests/reports/staging-docker-ps.png)`
+![Docker Compose PS](./tests/reports/staging-docker-ps.png)
 
 ---
 
@@ -692,7 +692,7 @@ docker compose up --build
 
 **✏️ Connection String ที่ใช้จริง (เบลอ password ก่อนบันทึก):**
 
-`postgresql://[user]:***@[host].neon.tech/[db]?sslmode=require`
+`postgresql://neondb_owner:***@ep-hidden-morning-a11p6qla-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
 
 ---
 
