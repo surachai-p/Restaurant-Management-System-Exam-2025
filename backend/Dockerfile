@@ -30,5 +30,5 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
 EXPOSE 3001
-# Release steps before serving: apply migrations (idempotent), seed only if empty.
-CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx prisma/seed.ts && node dist/app.js"]
+# Sync the existing schema before serving; seed only if empty.
+CMD ["sh", "-c", "npx prisma db push && npx tsx prisma/seed.ts && node dist/app.js"]

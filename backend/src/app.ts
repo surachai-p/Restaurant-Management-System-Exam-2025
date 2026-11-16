@@ -12,7 +12,8 @@ import reportRoutes  from './routes/reports'
 
 const app = express()
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*' }))
+const corsOrigin = process.env.CORS_ORIGIN?.replace(/\/+$/, '') || '*'
+app.use(cors({ origin: corsOrigin }))
 app.use(express.json())
 
 app.use('/api/auth',     authRoutes)
