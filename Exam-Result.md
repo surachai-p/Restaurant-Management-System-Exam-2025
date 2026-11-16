@@ -240,17 +240,16 @@
 **✏️ แทนที่ข้อความด้านล่างด้วยภาพจริง โดยใช้ syntax: `![คำอธิบาย](./tests/reports/ชื่อไฟล์.png)`**
 
 **รูปที่ 1 — Postman Collection และ Environment Variables (แสดง `base_url`, `token`, `admin_token` ครบ)**
-<img width="1919" height="1074" alt="image" src="https://github.com/user-attachments/assets/5d3e72d9-019a-467b-ad8b-ea18c6793cf8" />
-<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/7907f960-db6f-468f-8bec-4a4ed3d1443c" />
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/a52196c0-c714-4bf9-b238-e9f472f781cb" />
-<img width="1919" height="1077" alt="image" src="https://github.com/user-attachments/assets/c7205782-3b43-4094-915d-cea2de09fae4" />
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/8f6ffabd-6b8e-4365-b420-16eff492b4bf" />
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/5e588a50-efa9-43c0-be7d-99daca9d4180" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c16ed735-b3c3-456c-afdb-886cd05c8085" />
 
 `![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)`
 
 **รูปที่ 2 — ผล Postman Collection Run (แสดง Pass/Fail ทุก Request)**
-<img width="1917" height="1073" alt="image" src="https://github.com/user-attachments/assets/269df939-c1c6-4c41-9606-3b77bba760ba" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/d2cad768-81cd-4ce8-88b4-ae61e40b205f" />
+
+
+**ผลการทดสอบ:** 21 Requests, 26 Assertions, Failed 0, Pass Rate 100%
+
 
 `![Postman Run Result](./tests/reports/postman-run-result.png)`
 
@@ -293,10 +292,8 @@ Pass Rate: 100%
 **รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
 `![Newman Run Result](./tests/reports/newman-cli-result.png)`
+<img width="1917" height="1077" alt="image" src="https://github.com/user-attachments/assets/17c0c0e1-c5fa-4285-b559-83268c3c689e" />
 
-> ภาพด้านล่างเป็นหลักฐานจากการรันก่อนหน้า (5 Requests / 8 Assertions) ไม่ใช่ผลล่าสุด 21 Requests / 26 Assertions; ให้ใช้ภาพ `newman-cli-result.png` และ HTML Report ล่าสุดประกอบผลด้านบน
-
-<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/2399c637-dec6-48fb-8270-b27237ea8468" />
 
 ---
 
@@ -360,9 +357,8 @@ npm audit --omit=dev
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-> ภาพเดิมด้านล่างเป็น Audit รอบเก่า ควรแทนด้วยภาพจากผลตรวจ 7 รายการที่บันทึกไว้
+<img width="1915" height="1079" alt="image" src="https://github.com/user-attachments/assets/5817f21e-1ae2-4a91-92df-fabda8ff3dad" />
 
-<img width="1627" height="1079" alt="image" src="https://github.com/user-attachments/assets/e7369011-78b7-45ed-8f98-df3e402cdf48" />
 
 ---
 
@@ -372,23 +368,23 @@ npm audit --omit=dev
 cd frontend && npm audit --audit-level=moderate
 ```
 
-**ผลการตรวจครั้งล่าสุดที่บันทึกไว้ (ก่อนการ Deploy ล่าสุด):**
-
-| Severity | จำนวน |
-|----------|-------|
-| Critical | 0 |
-| High | 8 |
-| Medium | 6 |
-| Low | 1 |
-| **รวม** | **15** |
-
-**ผลการตรวจรวมยังไม่ผ่าน** และยังมี High/Medium Vulnerabilities ที่ต้องตรวจและแก้ไขต่อ ไม่ควรเขียนว่า Security Scan ผ่านทั้งหมด
+**ผลการตรวจสอบ:** พบ 7 vulnerabilities
+- Critical: 0
+- High: 4
+- Moderate: 3
+- Low: 0
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-> ภาพเดิมด้านล่างเป็น Audit รอบเก่า ควรแทนด้วยภาพผลตรวจ 15 รายการจากรอบล่าสุด
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/5c572fcc-9cf2-4bef-937b-56acae297925" />
 
-<img width="1196" height="345" alt="image" src="https://github.com/user-attachments/assets/d99e412f-a813-43d8-b846-b0018c0dc456" />
+**ผลการตรวจสอบ:** พบ 15 vulnerabilities
+- Critical: 0
+- High: 8
+- Moderate: 6
+- Low: 1
+
+**สถานะ:** ยังพบช่องโหว่ใน Dependencies ต้องติดตามแก้ไข
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
@@ -396,10 +392,11 @@ cd frontend && npm audit --audit-level=moderate
 
 **รูปที่ 7 — GitHub Actions แสดงขั้นตอน npm audit (Security Findings ยังมีอยู่)**
 
-> Workflow รวม Success แต่ขั้นตอน audit ของ Backend และ Frontend รายงาน `failure` ภายใน Summary เพราะพบช่องโหว่ มี `continue-on-error: true` เพื่อให้ทดสอบอื่นต่อได้ ไม่ใช่ Security Pass
+<img width="1910" height="1064" alt="image" src="https://github.com/user-attachments/assets/4efa09a0-6b85-46a8-ae5b-e8b1c5353aa4" />
 
-<img width="1919" height="1072" alt="image" src="https://github.com/user-attachments/assets/0f78fccb-ec27-4d1d-8cbe-6cd487cb9a8c" />
+**ผล:** Backend Audit: Failure, Frontend Audit: Failure
 
+**หมายเหตุ:** GitHub Actions Pipeline สำเร็จ แต่ Security Audit พบช่องโหว่ที่ต้องติดตามแก้ไข
 
 ---
 
@@ -612,13 +609,15 @@ cd frontend && npm ci && npm run dev
 #### หลักฐาน On-Premises
 
 **รูปที่ 8 — Backend Health Check (`/api/health` ตอบ `{"status":"ok"}`)**
-<img width="1909" height="1028" alt="image" src="https://github.com/user-attachments/assets/cfdeba26-62f4-4b7a-8a3b-607eecec02ad" />
+<img width="1916" height="1073" alt="image" src="https://github.com/user-attachments/assets/36bcae4c-cbb2-464c-959f-17148a6de6aa" />
+
+**ผลการทดสอบ:** ผ่าน — Backend ตอบ `{"status":"ok"}` ที่ `localhost:3001/api/health`
 
 `![On-Premises Backend Health](./tests/reports/onprem-backend-health.png)`
 
 **รูปที่ 9 — Frontend Login สำเร็จ**
-<img width="1918" height="913" alt="image" src="https://github.com/user-attachments/assets/17e8711e-b990-493b-b644-e2d6155aaec5" />
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/48eeb2e3-d676-4ec5-b13e-dff9eb9f510a" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/abe2ce51-edd7-4ffc-90a0-10c37596ec00" />
+
 
 `![On-Premises Frontend Login](./tests/reports/onprem-frontend-login.png)`
 
@@ -659,8 +658,14 @@ cd frontend && npm ci && npm run dev
 
 **รูปที่ 10 — Dockerfile แสดง Multi-stage build**
 
-<img width="1603" height="740" alt="image" src="https://github.com/user-attachments/assets/0cf5614a-13ec-4c67-98a2-8daefcb986ff" />
-<img width="1617" height="739" alt="image" src="https://github.com/user-attachments/assets/9b2f747a-879a-4748-b9aa-8288a480a026" />
+Backend:
+
+<img width="1914" height="1079" alt="image" src="https://github.com/user-attachments/assets/eb3d33bc-2096-436d-8baf-b353fc81be7b" />
+
+Frontend:
+
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/17fbbec9-a0f8-4128-8904-6bf56e3e7ae7" />
+
 
 #### Volume Mapping (Rubric 2.5 ข้อ 4)
 
@@ -697,8 +702,9 @@ docker compose up --build
 
 **รูปที่ 11 — `docker compose ps` แสดงทุก Container สถานะ `running`**
 
-<img width="1607" height="1079" alt="image" src="https://github.com/user-attachments/assets/63300890-66f6-4ac5-8769-e410ed786582" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/94d9c846-5039-4d65-99f6-fd838cee7e1f" />
 
+**ผลการทดสอบ:** ผ่าน — Backend, PostgreSQL และ Frontend ทำงานครบทั้ง 3 Containers โดย Backend และ Database มีสถานะ healthy
 ---
 
 ### Neon.tech Database Setup
@@ -771,12 +777,19 @@ Build Command:  npm run build
 **Production Smoke Test ยืนยันแล้ว:** 2 / 4 รายการ (Health Check + Login) — ส่วน Order และ Payment ผ่าน Local/CI แต่ยังต้องเก็บหลักฐานบน Production
 
 **รูปที่ 12 — Smoke Test Feature 1: Health Check**
+<img width="1917" height="1077" alt="image" src="https://github.com/user-attachments/assets/6747fc5b-8b33-4c78-a98a-53521dd12593" />
+
+**ผลการทดสอบ:** PASS — Render Backend ตอบ `status: ok` และ `version: 2.0.0`
 
 > ยืนยันผ่าน Production แล้ว; ให้ใช้ภาพจาก `https://rms-backend-6yo1.onrender.com/api/health`
 
 `![Smoke Test Health](./tests/reports/smoke-1-health.png)`
 
 **รูปที่ 13 — Smoke Test Feature 2: Login**
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/29f3c6b1-377d-4ae3-a005-ef3b171a5ffe" />
+
+
+**ผลการทดสอบ:** PASS — Admin Login สำเร็จบน Vercel และแสดง Dashboard ได้
 
 > ยืนยัน Login และ Dashboard บน Vercel แล้ว; ให้ใช้ภาพ Production แทนภาพ Local
 
@@ -784,13 +797,18 @@ Build Command:  npm run build
 
 **รูปที่ 14 — Smoke Test Feature 3: Open Order**
 
-> ยังไม่มีหลักฐาน Production ในข้อมูลที่ได้รับ; ต้องทดสอบบนเว็บไซต์ออนไลน์และจับภาพจริง
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/0729818e-b7bd-4ec0-a0b2-fbc45a391224" />
+
+**ผลการทดสอบ:** PASS — เปิดออเดอร์โต๊ะ 1 เพิ่ม Fried Rice จำนวน 1 รายการ และยืนยันออเดอร์สำเร็จ รวม 75 บาท
+
 
 `![Smoke Test Order](./tests/reports/smoke-3-order.png)`
 
 **รูปที่ 15 — Smoke Test Feature 4: Payment**
 
-> ยังไม่มีหลักฐาน Production ในข้อมูลที่ได้รับ; ต้องทดสอบบนเว็บไซต์ออนไลน์และจับภาพจริง
+<img width="1912" height="1079" alt="image" src="https://github.com/user-attachments/assets/672bb505-d880-47c3-8f00-1fcb7f266de3" />
+
+**ผลการทดสอบ:** PASS — ชำระเงินออเดอร์ยอด 75 บาท ด้วยเงินสด 100 บาท ระบบคำนวณเงินทอนถูกต้อง 25 บาท
 
 `![Smoke Test Payment](./tests/reports/smoke-4-payment.png)`
 
@@ -821,11 +839,19 @@ Build Command:  npm run build
 | Tests Failed | 0 |
 | **Pass Rate** | **100%** |
 
-**รูปที่ 16 — GitHub Actions Pipeline สำเร็จ (แสดง Newman Pass Rate ใน log)**
+**รูปที่ 16 — GitHub Actions CI/CD Pipeline**
 
-`![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)`
+✅ GitHub Actions Run #23 สำเร็จ
 
-[GitHub Actions Run #23 — Success, Newman 26/26 Assertions](https://github.com/SorrawichSomton/Restaurant-Management-System-Exam-2025/actions/runs/43875874613)
+- Backend Unit Tests: 20/20 Passed
+- Newman Requests: 21/21 Passed
+- Newman Assertions: 26/26 Passed
+- Failed Assertions: 0
+- Newman Pass Rate: 100%
+
+**หลักฐาน:** [เปิดดู GitHub Actions](https://github.com/SorrawichSomton/Restaurant-Management-System-Exam-2025/actions)
+
+**ผลการทดสอบ:** GitHub Actions Run #23 สำเร็จ, Newman 21/21 Requests, 26/26 Assertions, Failed 0, Pass Rate 100%
 
 > **หมายเหตุสำคัญ:** CI/CD Success ไม่ได้หมายความว่า Security Audit ผ่าน Backend/Frontend Full Audit ยังพบช่องโหว่ และ Audit step ถูกกำหนด `continue-on-error: true`
 
