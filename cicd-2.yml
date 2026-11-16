@@ -11,31 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
 
-    - name: Install Backend Dependencies
-      run: |
-        cd backend
-        npm ci
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
 
-    - name: Run Backend Unit Tests
-      run: |
-        cd backend
-        npm test
+      - name: Run Backend Unit Tests
+        run: |
+          cd backend
+          npm test
 
-    - name: Run Security Scan (npm audit)
-      run: |
-        cd backend && npm audit --audit-level=high
-        cd ../frontend && npm audit --audit-level=high
+      - name: Run Security Scan (npm audit)
+        run: |
+          cd backend && npm audit --audit-level=high
+          cd ../frontend && npm audit --audit-level=high
 
-    - name: Run Newman API Tests
-      run: |
-        npm install -g newman newman-reporter-htmlextra
-        newman run tests/postman/RMS-TestSuite.json -e tests/postman/env.json --reporters cli,htmlextra
+      - name: Run Newman API Tests
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+          newman run tests/postman/RMS-TestSuite.json -e tests/postman/env.json --reporters cli
