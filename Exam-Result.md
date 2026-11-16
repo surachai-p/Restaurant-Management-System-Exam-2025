@@ -401,11 +401,11 @@ cd frontend && npm audit --audit-level=moderate
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 
-**✏️ ยืนยันว่าได้เพิ่ม `npm audit --audit-level=high` ใน `.github/workflows/cicd.yml` แล้ว:** ☐ ใช่
+**✏️ ยืนยันว่าได้เพิ่ม `npm audit --audit-level=high` ใน `.github/workflows/cicd.yml` แล้ว:** [x] ใช่
 
 **รูปที่ 7 — GitHub Actions แสดง npm audit step รันสำเร็จ**
 
-`![CI Security Scan](./tests/reports/ci-security-scan.png)`
+![CI Security Scan](./tests/reports/ci-security-scan.png)
 
 ---
 
@@ -415,33 +415,33 @@ cd frontend && npm audit --audit-level=moderate
 
 ---
 
-### BUG-001: [✏️ ชื่อ Bug สั้น ๆ อธิบายปัญหา]
+### BUG-001: ระบบยอมรับการชำระเงินที่ยอดเงินน้อยกว่ายอดรวมจริง (Underpayment Allowed)
 
 | รายการ | ค่า |
 |--------|-----|
-| **Severity** | (เลือก: Critical / High / Medium / Low) |
-| **Priority** | (เลือก: P1 / P2 / P3) |
-| **Feature** | |
-| **Status** | (เลือก: Open / Fixed) |
+| Severity | Critical |
+| Priority | P1 |
+| Feature | Payment (`/api/payments`) |
+| Status | Open |
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. เข้าสู่ระบบด้วยบัญชีผู้ใช้ที่มีสิทธิ์ชำระเงิน (Cashier หรือ Admin) เพื่อรับ Authorization Token
+2. สร้างออเดอร์ที่มีรายการอาหารและมียอดรวมที่ต้องชำระมากกว่า 1 บาท
+3. ส่งคำขอ POST /api/payments พร้อมระบุ orderId ของออเดอร์ดังกล่าว และส่งค่า "amountPaid": 1 (น้อยกว่ายอดรวมจริง)
 
 #### Expected Result
-> ✏️ 
+> ✏️ ระบบต้องปฏิเสธการชำระเงินและส่งสถานะ 400 Bad Request กลับคืนมา พร้อมแจ้งเตือนว่ายอดเงินที่ชำระไม่เพียงพอ
 
 #### Actual Result
-> ✏️ 
+> ✏️ ระบบยอมรับการทำรายการชำระเงินด้วยยอด amountPaid: 1 สำเร็จ (HTTP 200/201) โดยไม่ตรวจสอบว่ายอดชำระครบตามราคาออเดอร์หรือไม่
 
 #### Evidence
 
 `![BUG-001](./tests/reports/bug-001.png)`
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ส่งผลให้ร้านอาหารสูญเสียรายได้โดยตรง เนื่องจากลูกค้าหรือพนักงานสามารถปิดบิลออเดอร์ที่มีมูลค่าสูงด้วยการจ่ายเงินเพียง 1 บาท ทำให้ยอดเงินในบัญชีไม่ตรงกับยอดขายจริง
 
 ---
 
@@ -456,22 +456,108 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Steps to Reproduce
 **✏️ ระบุขั้นตอนที่ทำให้เกิด Bug ซ้ำได้ชัดเจน**
-1. 
-2. 
-3. 
+1. เข้าสู่ระบบด้วยบัญชีผู้ใช้ที่มีสิทธิ์ชำระเงิน (Cashier หรือ Admin) เพื่อรับ Authorization Token
+2. สร้างออเดอร์ที่มีรายการอาหารและมียอดรวมที่ต้องชำระมากกว่า 1 บาท
+3. ส่งคำขอ POST /api/payments พร้อมระบุ orderId ของออเดอร์ดังกล่าว และส่งค่า "amountPaid": 1 (น้อยกว่ายอดรวมจริง)
 
 #### Expected Result
-> ✏️ 
+> ✏️ ระบบต้องปฏิเสธการชำระเงินและส่งสถานะ 400 Bad Request กลับคืนมา พร้อมแจ้งเตือนว่ายอดเงินที่ชำระไม่เพียงพอ
 
 #### Actual Result
-> ✏️ 
+> ✏️ ระบบยอมรับการทำรายการชำระเงินด้วยยอด amountPaid: 1 สำเร็จ (HTTP 200/201) โดยไม่ตรวจสอบว่ายอดชำระครบตามราคาออเดอร์หรือไม่
 
 #### Evidence
 
-`![BUG-002](./tests/reports/bug-002.png)`
+![BUG-001](./tests/reports/bug-001.png)
 
 #### Business Impact
-> ✏️ ระบุผลกระทบต่อการดำเนินธุรกิจของร้านอาหาร
+> ✏️ ส่งผลให้ร้านอาหารสูญเสียรายได้โดยตรง เนื่องจากลูกค้าหรือพนักงานสามารถปิดบิลออเดอร์ที่มีมูลค่าสูงด้วยการจ่ายเงินเพียง 1 บาท ทำให้ยอดเงินในบัญชีไม่ตรงกับยอดขายจริง
+
+---
+
+### BUG-002: ระบบอนุญาตให้เปิดออเดอร์ซ้ำซ้อนบนโต๊ะที่กำลังใช้งานอยู่ (Double Booking Same Table)
+
+| รายการ | ค่า |
+|--------|-----|
+| Severity | High |
+| Priority | P1 |
+| Feature | Order & Table Management (`/api/orders`) |
+| Status | Open |
+
+#### Steps to Reproduce
+1. เข้าสู่ระบบด้วยบัญชีพนักงานเสิร์ฟ (Waiter) หรือ Admin
+2. ส่งคำขอ `POST /api/orders` โดยระบุ `"tableId": 2` เพื่อเปิดออเดอร์สำหรับโต๊ะหมายเลข 2 (โต๊ะเปลี่ยนสถานะเป็น Occupied)
+3. ส่งคำขอ `POST /api/orders` ซ้ำอีกครั้งโดยระบุ `"tableId": 2` ในขณะที่ออเดอร์แรกยังไม่ถูกปิดบิล
+
+#### Expected Result
+> ระบบต้องป้องกันการเปิดออเดอร์ซ้ำบนโต๊ะที่ไม่ว่าง และส่งสถานะ `409 Conflict` กลับคืนมา
+
+#### Actual Result
+> ระบบสร้างออเดอร์ใหม่ซ้อนทับลงบนโต๊ะหมายเลข 2 ได้สำเร็จ ทำให้มีออเดอร์ที่กำลังใช้งานอยู่ (Active) มากกว่า 1 รายการในโต๊ะเดียวกัน
+
+#### Evidence
+
+![BUG-002](./tests/reports/bug-002.png)
+
+#### Business Impact
+> ทำให้พนักงานสับสนในการเสิร์ฟอาหารและคิดเงินผิดพลาด เกิดความขัดแย้งในการจัดสรรที่นั่งลูกค้า และอาจทำให้การออกบิลชำระเงินตกหล่น
+
+---
+
+### BUG-003: ช่องโหว่ SQL Injection ในฟังก์ชันค้นหาเมนูอาหาร (SQL Injection in Menu Search)
+
+| รายการ | ค่า |
+|--------|-----|
+| Severity | Critical |
+| Priority | P1 |
+| Feature | Menu Search (`/api/menu?search=`) |
+| Status | Open |
+
+#### Steps to Reproduce
+1. เข้าสู่ระบบเพื่อรับ `Authorization` Token
+2. ส่งคำขอ `GET /api/menu?search=' OR '1'='1` (URL Encoded: `%27+OR+%271%27%3D%271`) ไปยัง Backend API
+3. ตรวจสอบข้อมูล JSON Array ที่ตอบกลับมาจากระบบ
+
+#### Expected Result
+> ระบบต้องกรองข้อมูลอย่างปลอดภัย (Parameterized Query) โดยไม่พบรายการที่ตรงกับคำค้นหา (ส่งคืนค่า Array ว่าง `[]` ความยาว 0) หรือปฏิเสธคำขอด้วยสถานะ `400 Bad Request`
+
+#### Actual Result
+> Payload `' OR '1'='1` ทำงานในระดับฐานข้อมูล ส่งผลให้ระบบดึงข้อมูลเมนูอาหารทั้งหมดในฐานข้อมูลออกมาแสดง (Leaked all 10 records)
+
+#### Evidence
+
+![BUG-003](./tests/reports/bug-003.png)
+
+#### Business Impact
+> เป็นช่องโหว่ความปลอดภัยระดับวิกฤต (OWASP Top 10) ผู้ไม่หวังดีสามารถใช้ช่องทางนี้ดึงข้อมูลสำคัญอื่นๆ ในฐานข้อมูล แก้ไข หรือลบข้อมูลของร้านอาหารทิ้งได้
+
+---
+
+### BUG-004: พนักงานเสิร์ฟสามารถแก้ไขราคาเมนูอาหารได้โดยไม่มีสิทธิ์ (Broken Access Control - Role Escalation)
+
+| รายการ | ค่า |
+|--------|-----|
+| Severity | High |
+| Priority | P1 |
+| Feature | Menu Management & RBAC (`/api/menu/:id`) |
+| Status | Open |
+
+#### Steps to Reproduce
+1. เข้าสู่ระบบด้วยบัญชีผู้ใช้งานระดับพนักงานเสิร์ฟ (`waiter1`) ซึ่งมีสิทธิ์ Role เป็น `WAITER`
+2. ส่งคำขอ `PUT /api/menu/{{menu_item_id}}` โดยแนบ Token ของ Waiter และส่ง Body `{"price": 1}` เพื่อเปลี่ยนราคาอาหาร
+
+#### Expected Result
+> ระบบต้องตรวจสอบสิทธิ์ (Role-Based Access Control) และปฏิเสธคำขอด้วยสถานะ `403 Forbidden` เนื่องจากเฉพาะ Admin เท่านั้นที่แก้ไขราคาอาหารได้
+
+#### Actual Result
+> ระบบอนุญาตให้บัญชีระดับ `WAITER` อัปเดตราคาเมนูอาหารเหลือ 1 บาทได้สำเร็จ
+
+#### Evidence
+
+![BUG-004](./tests/reports/bug-004.png)
+
+#### Business Impact
+> เกิดความเสี่ยงด้านการทุจริตภายในร้าน พนักงานเสิร์ฟสามารถแอบปรับลดราคาเมนูอาหารให้ต่ำกว่าความเป็นจริงเพื่อเอื้อประโยชน์ให้ลูกค้าหรือยักยอกส่วนต่างเงินสดได้
 
 ---
 
