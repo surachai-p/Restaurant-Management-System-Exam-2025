@@ -41,9 +41,11 @@ jobs:
       CORS_ORIGIN: http://localhost:5173
 
     steps:
+      # STEP 1: Checkout
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # STEP 2: Node.js
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -53,30 +55,37 @@ jobs:
             backend/package-lock.json
             frontend/package-lock.json
 
+      # STEP 3: Backend dependencies
       - name: Install backend dependencies
         working-directory: backend
         run: npm ci
 
+      # STEP 4: Prisma
       - name: Generate Prisma Client
         working-directory: backend
         run: npx prisma generate
 
+      # STEP 5: Build backend
       - name: Build backend
         working-directory: backend
         run: npm run build
 
+      # STEP 6: Vitest
       - name: Run backend unit tests
         working-directory: backend
         run: npm test
 
+      # STEP 7: Frontend dependencies
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
+      # STEP 8: Build frontend
       - name: Build frontend
         working-directory: frontend
         run: npm run build
 
+      # STEP 9: Backend Security Audit
       - name: Backend security audit
         id: backend_audit
         continue-on-error: true
@@ -85,6 +94,7 @@ jobs:
           mkdir -p ../tests/reports
           npm audit --audit-level=high --json > ../tests/reports/backend-audit-ci.json
 
+      # STEP 10: Frontend Security Audit
       - name: Frontend security audit
         id: frontend_audit
         continue-on-error: true
@@ -93,6 +103,7 @@ jobs:
           mkdir -p ../tests/reports
           npm audit --audit-level=high --json > ../tests/reports/frontend-audit-ci.json
 
+      # STEP 11: Security Audit Summary
       - name: Security audit summary
         if: always()
         run: |
@@ -102,36 +113,56 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Audit failures must be reviewed; they are not security passes." >> "$GITHUB_STEP_SUMMARY"
 
+      # STEP 12: Prepare Database
       - name: Prepare PostgreSQL database
         working-directory: backend
         run: |
           npx prisma db push
           npx tsx prisma/seed.ts
 
+      # STEP 13: Install Newman
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
-      - name: Start backend API
-        working-directory: backend
+      # STEP 14: Start Backend and Run Newman
+      - name: Start Backend and Run Newman E2E Tests
+        env:
+          NODE_ENV: development
         run: |
-          nohup npm run dev > /tmp/rms-backend.log 2>&1 < /dev/null &
+          mkdir -p tests/reports
 
-      - name: Wait for backend health check
-        run: |
+          cd backend
+          node dist/app.js > /tmp/rms-backend.log 2>&1 &
+          SERVER_PID=$!
+          cd ..
+
+          echo "Waiting for RMS Backend..."
+
+          READY=0
+
           for i in $(seq 1 30); do
             if curl --fail --silent http://localhost:3001/api/health > /dev/null; then
               echo "Backend is ready"
-              exit 0
+              READY=1
+              break
             fi
+
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              echo "Backend process exited unexpectedly"
+              break
+            fi
+
             sleep 2
           done
-          echo "Backend failed to start"
-          cat /tmp/rms-backend.log
-          exit 1
 
-      - name: Run Newman E2E Tests
-        run: |
-          mkdir -p tests/reports
+          if [ "$READY" -ne 1 ]; then
+            echo "Backend failed to start"
+            cat /tmp/rms-backend.log
+            exit 1
+          fi
+
+          echo "Running 21 Newman Test Cases..."
+
           newman run tests/postman/RMS-TestSuite-final.json \
             --environment tests/postman/env-debug.json \
             --env-var "base_url=http://localhost:3001/api" \
@@ -139,6 +170,7 @@ jobs:
             --reporter-json-export tests/reports/newman-result.json \
             --reporter-htmlextra-export tests/reports/newman-report.html
 
+      # STEP 15: Upload Reports
       - name: Upload testing reports
         if: always()
         uses: actions/upload-artifact@v4
