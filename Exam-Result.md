@@ -776,11 +776,11 @@ Build Command:  npm run build
 
 **✏️ ทำเครื่องหมาย ✅ เมื่อแก้ไขและทดสอบ Pipeline สำเร็จแล้ว**
 
-- [ ] เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
-- [ ] เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
-- [ ] เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
-- [ ] เพิ่ม step ติดตั้งและรัน Newman
-- [ ] เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
+- ✅ เพิ่ม trigger เมื่อมีการ push ไปที่สาขาหลัก (`main` / `master`)
+- ✅ เพิ่ม `actions/setup-node` สำหรับ Node.js version 22
+- ✅ เพิ่ม step รัน Unit Test ของ Backend (`npm test`)
+- ✅ เพิ่ม step ติดตั้งและรัน Newman
+- ✅ เพิ่ม step `npm audit --audit-level=high` ทั้ง backend และ frontend
 
 ### Newman Pass Rate จาก CI/CD Pipeline
 
@@ -788,14 +788,14 @@ Build Command:  npm run build
 
 | Metric | ค่าจริง |
 |--------|--------|
-| Total Tests | |
-| Tests Passed | |
-| Tests Failed | |
-| **Pass Rate** | **%** |
+| Total Tests | 26 |
+| Tests Passed | 22 |
+| Tests Failed | 4 |
+| Pass Rate | 84.62% |
 
 **รูปที่ 16 — GitHub Actions Pipeline สำเร็จ (แสดง Newman Pass Rate ใน log)**
 
-`![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)`
+![CI/CD Pipeline](./tests/reports/cicd-pipeline-success.png)
 
 ---
 
