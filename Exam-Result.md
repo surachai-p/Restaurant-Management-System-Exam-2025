@@ -83,11 +83,11 @@
 
 | ประเภทการทดสอบ | เครื่องมือ | รายละเอียด |
 |----------------|-----------|------------|
-| Unit Testing | Vitest | |
-| API Testing (E2E) | Postman / Newman | |
-| Security Testing | npm audit | |
-| Smoke Testing | Manual | |
-| Staging Test | Docker Compose | |
+| Unit Testing | Vitest | ทดสอบฟังก์ชันการทำงานย่อยและ Business Logic ของระบบ Backend เช่น การยืนยันตัวตนและการคำนวณยอดชำระเงิน/เงินทอน |
+| API Testing (E2E) | Postman / Newman | ทดสอบ REST API ครบทุก Endpoint ทั้งกรณี Positive, Negative, Security และ Edge Case พร้อมรันอัตโนมัติผ่าน CLI และ CI/CD Pipeline |
+| Security Testing | npm audit | ตรวจสอบช่องโหว่ด้านความปลอดภัย (CVE) ของแพ็กเกจ Dependencies ทั้งฝั่ง Backend และ Frontend |
+| Smoke Testing | Manual | ทดสอบการทำงานของฟีเจอร์หลัก (Health Check, Login, Open Order, Payment) หลังติดตั้งระบบบน On-Premises, Staging และ Production |
+| Staging Test | Docker Compose | ทดสอบการทำงานร่วมกันของ Container (Frontend + Backend) บนสภาพแวดล้อมจำลองก่อน Deploy ขึ้น Production |
 
 ---
 
@@ -97,13 +97,13 @@
 
 | รายการ | เวอร์ชัน / ค่า |
 |--------|---------------|
-| OS | |
-| Node.js | |
-| npm | |
-| Docker | |
+| OS | Linux (GitHub Codespaces Ubuntu) / Windows 11 (Client) |
+| Node.js | v24.22.2 |
+| npm | 11.19.1 |
+| Docker | Docker version 29.9.2-2 |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser | |
-| Newman | |
+| Browser | Google Chrome |
+| Newman | 6.2.3 |
 
 ---
 
@@ -120,9 +120,9 @@
 
 | เงื่อนไข | ค่าที่กำหนด |
 |---------|------------|
-| Newman Pass Rate ขั้นต่ำ | ≥ ___% |
-| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ ___ รายการ |
-| Smoke Test บน Production ผ่าน | ___ / 4 Feature |
+| Newman Pass Rate ขั้นต่ำ | ≥ 100% |
+| Bug ระดับ Critical ที่ยังเปิดอยู่ | ≤ 0 รายการ |
+| Smoke Test บน Production ผ่าน | 4 / 4 Feature |
 
 ---
 
@@ -133,9 +133,9 @@
 
 | # | Feature ที่มีความเสี่ยง | ผลกระทบหากเกิดความผิดพลาด | ระดับความเสี่ยง |
 |---|------------------------|--------------------------|----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Payment (การชำระเงินและคำนวณเงินทอน) | หากระบบคำนวณยอดรวมหรือเงินทอนผิดพลาด จะทำให้ร้านสูญเสียรายได้โดยตรง ยอดบัญชีไม่ตรง และกระทบความน่าเชื่อถือต่อลูกค้า | Critical |
+| 2 | Order (การรับออเดอร์และจัดการโต๊ะ) | หากออเดอร์ตกหล่น บันทึกซ้ำ หรือสถานะโต๊ะไม่อัปเดต จะทำให้ครัวทำอาหารผิดพลาด บริการล่าช้า และลูกค้ายกเลิกออเดอร์ | High |
+| 3 | Auth (การจัดการสิทธิ์การเข้าถึงระบบ) | หากพนักงานทั่วไปเข้าถึงสิทธิ์ของ Admin ได้ อาจเกิดการแก้ไขราคาเมนู ลบข้อมูลยอดขาย หรือทุจริตภายในร้าน | High |
 
 ---
 
@@ -151,15 +151,15 @@
 |-------|------|---------|----------|-------|----------------|---------------|-----------|
 | TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
 | TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | GET /api/orders (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (change = 0) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + change = 0 | | ☐ |
-| TC-005 | Positive | | | | | | ☐ |
-| TC-006 | Positive | | | | | | ☐ |
-| TC-007 | Negative | | | | | | ☐ |
-| TC-008 | Negative | | | | | | ☐ |
-| TC-009 | Security | | | | | | ☐ |
-| TC-010 | Security | | | | | | ☐ |
-| TC-011 | Edge | | | | | | ☐ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | `GET /api/orders` (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
+| TC-004 | Edge | Payment | ชำระเงินพอดียอด (`change = 0`) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + `change = 0` | | ☐ |
+| TC-005 | Positive | Menu | ดึงรายการเมนูอาหารทั้งหมด | `GET /api/menu` (with valid Token) | HTTP 200 + รายการเมนูอาหาร | | ☐ |
+| TC-006 | Positive | Order | สร้างออเดอร์ใหม่และเพิ่มรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: [{menuId: 1, quantity: 2}]}` | HTTP 201 + บันทึกออเดอร์สำเร็จ | | ☐ |
+| TC-007 | Negative | Order | สร้างออเดอร์โดยไม่ระบุรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: []}` | HTTP 400 Bad Request | | ☐ |
+| TC-008 | Negative | Payment | ชำระเงินน้อยกว่ายอดรวมของบิล | `POST /api/payments` `{orderId: 1, amount: 1}` | HTTP 400 Bad Request (ยอดเงินไม่เพียงพอ) | | ☐ |
+| TC-009 | Security | Auth | พนักงานทั่วไป (Waiter) พยายามเข้าถึง API ของ Admin | `POST /api/menu` (ใช้ Token ของ Waiter) | HTTP 403 Forbidden | | ☐ |
+| TC-010 | Security | Auth | เรียก API ด้วย JWT Token ที่ปลอมแปลงหรือไม่ถูกต้อง | `GET /api/reports/daily` (`Authorization: Bearer invalid_token`) | HTTP 401 Unauthorized | | ☐ |
+| TC-011 | Edge | Payment | ชำระเงินเกินยอดรวมของบิลเพื่อตรวจสอบการทอนเงิน | `POST /api/payments` `{orderId: 1, amount: exactTotal + 100}` | HTTP 200 + `change = 100` | | ☐ |
 
 **✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
 
@@ -178,8 +178,8 @@
 
 | รายการ | ค่าจริง |
 |--------|--------|
-| Collection Name | `RMS-[รหัสนักศึกษา]-TestSuite` |
-| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.json` |
+| Collection Name | `RMS-68030223-TestSuite` |
+| ไฟล์ที่ Export ไปไว้ใน Repository | `tests/postman/RMS-68030223-TestSuite.json` |
 | ไฟล์ Environment | `tests/postman/env.json` |
 
 > 📌 Repository มี Newman Collection 21 test cases ใน `tests/postman/` อยู่แล้ว  
@@ -190,10 +190,10 @@
 **✏️ ค่าในคอลัมน์ "ค่าที่ตั้งจริง" ให้กรอกหลังจาก Login สำเร็จและได้ Token มาแล้ว**
 
 | Variable | ค่าที่ตั้งจริง | ใช้สำหรับ |
-|----------|--------------|-----------|
-| `{{base_url}}` | | Base URL ของ Backend API |
-| `{{token}}` | (JWT จาก Login ด้วย Cashier/Waiter) | Request ที่ต้องใช้ Token |
-| `{{admin_token}}` | (JWT จาก Login ด้วย Admin) | Request ที่ต้องการสิทธิ์ Admin |
+| :--- | :--- | :--- |
+| `{{base_url}}` | `https://musical-space-fishstick-pj6p94v7gr45c7rw6-3001.app.github.dev/api` | Base URL ของ Backend API |
+| `{{token}}` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsIm5hbWUiOiJBZG1pbiBVc2VyIiwiaWF0IjoxNzk0ODQ0MjkzLCJleHAiOjE3OTQ4NzMwOTN9.vud4EIj-kVMP2QCET2DFs4v03AT5_evk5Pw4Ho5-dEE` | Request ที่ต้องใช้ Token |
+| `{{admin_token}}` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsIm5hbWUiOiJBZG1pbiBVc2VyIiwiaWF0IjoxNzk0ODQ0MjkzLCJleHAiOjE3OTQ4NzMwOTN9.vud4EIj-kVMP2QCET2DFs4v03AT5_evk5Pw4Ho5-dEE` | Request ที่ต้องการสิทธิ์ Admin |
 
 #### pm.test Scripts ใน Collection
 > ⚠️ ทุก Request ใน Collection ต้องมี `pm.test(...)` ตรวจสอบ Response  
@@ -208,19 +208,37 @@
 > });
 > ```
 
-**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** ☐ ใช่
+**✏️ ยืนยันว่าทุก Request มี pm.test แล้ว:** [x] ใช่
 
 #### สรุปผลการรัน Postman (กรอกหลังรัน Collection Run)
 
 **✏️ กรอกผลจริงจาก Postman Collection Runner**
 
 | Request Name | Method | Endpoint | Actual Result | Pass/Fail |
-|-------------|--------|----------|--------------|-----------|
-| | | | | ☐ |
-| | | | | ☐ |
-| | | | | ☐ |
+| :--- | :--- | :--- | :--- | :--- |
+| TC-001 GET /api/health (Positive) | GET | `/health` | 200 OK (`status: "ok"`, `version: "2.0.0"`) | [x] Pass |
+| TC-002 Login Admin (Positive) | POST | `/auth/login` | 200 OK (ได้รับ JWT token ของ Admin) | [x] Pass |
+| TC-003 Login Cashier | POST | `/auth/login` | 200 OK (ได้รับ JWT token ของ Cashier) | [x] Pass |
+| TC-004 Login Waiter | POST | `/auth/login` | 200 OK (ได้รับ JWT token ของ Waiter) | [x] Pass |
+| TC-005 Login Wrong Password (Negative) | POST | `/auth/login` | 401 Unauthorized | [x] Pass |
+| TC-006 Login Missing Credentials (Negative) | POST | `/auth/login` | 400 Bad Request | [x] Pass |
+| TC-007 No Token → 401 (Security) | GET | `/menu` | 401 Unauthorized | [x] Pass |
+| TC-008 GET /menu (Positive) | GET | `/menu` | 200 OK (คืนค่า Array รายการเมนู) | [x] Pass |
+| TC-009 Search Menu (Positive) | GET | `/menu?search=Pad+Thai` | 200 OK (พบข้อมูลเมนู Pad Thai) | [x] Pass |
+| TC-010 SQL Injection in Search (Security - BUG-003) | GET | `/menu?search=' OR '1'='1` | **200 OK (หลุดข้อมูลเมนูทั้งหมด 10 รายการ)** | [ ] Fail |
+| TC-011 Waiter Updates Menu Price (Security - BUG-004) | PUT | `/menu/4` | **200 OK (Waiter แก้ไขราคาเมนูได้ ทั้งที่ควรได้ 403)** | [ ] Fail |
+| TC-012 Admin Adds Menu Item (Positive) | POST | `/menu` | 201 Created | [x] Pass |
+| TC-013 Waiter Cannot Add Menu Item (Negative - Role Check) | POST | `/menu` | 403 Forbidden | [x] Pass |
+| TC-014 Create Order (Positive) | POST | `/orders` | 201 Created (สร้างออเดอร์สำเร็จ) | [x] Pass |
+| TC-015 Double Booking Same Table (BUG-002) | POST | `/orders` | **201 Created (เปิดบิลโต๊ะ 2 ซ้ำได้ ทั้งที่ควรได้ 409)** | [ ] Fail |
+| TC-016 Add Item to Order | POST | `/orders/{{order_id}}/items` | 201 Created | [x] Pass |
+| TC-017 Confirm Order | PUT | `/orders/{{order_id}}/confirm` | 200 OK | [x] Pass |
+| TC-018 Create Order Without TableId (Negative) | POST | `/orders` | 400 Bad Request | [x] Pass |
+| TC-019 Exact Payment (Positive) | POST | `/payments` | 201 Created (ชำระเงินสำเร็จ เงินทอนไม่ติดลบ) | [x] Pass |
+| TC-020 Underpayment (BUG-001) | POST | `/payments` | **404 Not Found (ไม่ตรวจยอดเงินจ่ายขาดก่อน ควรได้ 400)** | [ ] Fail |
+| TC-021 Payment Without Auth (Security) | POST | `/payments` | 401 Unauthorized | [x] Pass |
 
-**✏️ สรุป:** ผ่าน ___ / ___ Request
+✏️ สรุป: ผ่าน **17 / 21** Request (หรือ **22 / 26** Test Assertions — พบ Bug 4 )
 
 #### หลักฐานภาพหน้าจอ Postman
 
@@ -228,11 +246,11 @@
 
 **รูปที่ 1 — Postman Collection และ Environment Variables (แสดง `base_url`, `token`, `admin_token` ครบ)**
 
-`![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)`
+![Postman Collection + Env Vars](./tests/reports/postman-collection-env.png)
 
 **รูปที่ 2 — ผล Postman Collection Run (แสดง Pass/Fail ทุก Request)**
 
-`![Postman Run Result](./tests/reports/postman-run-result.png)`
+![Postman Run Result](./tests/reports/postman-run-result.png)
 
 ---
 
@@ -256,21 +274,39 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 **✏️ วาง output จาก Terminal ที่ได้หลังรัน Newman แทนที่ข้อความ template ด้านล่างทั้งหมด**
 
 ```
-[วาง Newman CLI output จริงที่นี่]
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                21 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                21 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 0 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                26 │                 4 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 2.3s                                        │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 8.48kB (approx)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 86ms [min: 2ms, max: 978ms, s.d.: 203ms] │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **✏️ กรอกตัวเลขจริงจาก Newman output:**
 
 | Metric | ค่าจริง |
-|--------|--------|
-| Total Requests | |
-| Tests Passed | |
-| Tests Failed | |
-| Pass Rate | % |
+| :--- | :--- |
+| Total Requests | 21 |
+| Tests Passed | 22 |
+| Tests Failed | 4 |
+| Pass Rate | 84.62% |
 
 **รูปที่ 3 — ผล Newman CLI (แสดง Pass/Fail summary)**
 
-`![Newman Run Result](./tests/reports/newman-cli-result.png)`
+![Newman Run Result](./tests/reports/newman-cli-result.png)
 
 ---
 
