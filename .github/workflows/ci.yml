@@ -74,7 +74,7 @@ jobs:
       run: |
         cd backend
         npx prisma db push --accept-data-loss
-        npx prisma db seed || true
+        npm run seed || npx tsx prisma/seed.ts || npx prisma db seed || true
         npm run dev > ../backend.log 2>&1 &
         SERVER_PID=$!
         cd ..

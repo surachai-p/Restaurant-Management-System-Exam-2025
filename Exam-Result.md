@@ -316,13 +316,13 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 **✏️ ทำเครื่องหมาย ✅ เมื่อทำเสร็จแล้ว และแนบหลักฐานรูปภาพ**
 
 | รายการ | สถานะ |
-|--------|-------|
-| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | ☐ |
-| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | ☐ |
-| GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | ☐ |
-| Newman Pass Rate บันทึกอยู่ใน Pipeline log | ☐ |
+| :--- | :--- |
+| Newman Collection JSON อยู่ที่ `tests/postman/` ใน Repository | [x] |
+| `.github/workflows/cicd.yml` มี step ติดตั้งและรัน Newman | [x] |
+| GitHub Actions Pipeline รันสำเร็จ (สีเขียว) | [x] |
+| Newman Pass Rate บันทึกอยู่ใน Pipeline log | [x] |
 
-**✏️ Newman Pass Rate จาก CI/CD:** ___ / ___ (___%)
+✏️ Newman Pass Rate จาก CI/CD: **22 / 26 (84.62%)**
 
 **รูปที่ 4 — GitHub Actions Pipeline สำเร็จ (แสดง Newman step และ Pass Rate)**
 
