@@ -326,7 +326,7 @@ newman run tests/postman/RMS-[รหัสนักศึกษา]-TestSuite.js
 
 **รูปที่ 4 — GitHub Actions Pipeline สำเร็จ (แสดง Newman step และ Pass Rate)**
 
-`![CI Pipeline Newman](./tests/reports/ci-pipeline-newman.png)`
+![CI Pipeline Newman](./tests/reports/ci-pipeline-newman.png)
 
 ---
 
@@ -344,21 +344,27 @@ cd backend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 1 |
+| High | 6 |
+| Medium | 4 |
+| Low | 1 |
+| **รวม** | **12** |
 
 **✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
 
-| Package | CVE ID | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
-|---------|--------|----------|--------------------|--------------------|--------------| 
-| | | | | | |
+| Package | CVE ID / GHSA | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `proxy-addr` | GHSA-jqcg-44mw-7w3h | Critical | 1.1.0 - 2.0.7 | > 2.0.7 | Fix available (`npm audit fix`) |
+| `body-parser` | GHSA-v422-hmwv-36x6, GHSA-27r3-jxmh-p828 | High | <= 1.20.8 | > 1.20.8 | Fix available (`npm audit fix`) |
+| `form-data` | GHSA-hmw2-7cc7-3qxx | High | 4.0.0 - 4.0.5 | > 4.0.5 | Fix available (`npm audit fix`) |
+| `nanoid` | GHSA-28wg-ghj8-5hjv, GHSA-2v37-7h3g-55p8 | High | <= 3.3.17 | > 3.3.17 | Fix available (`npm audit fix`) |
+| `postcss` | GHSA-fxqj-rqcc-2cmp, GHSA-r28c-9q8g-f849 | High | <= 8.5.22 | > 8.5.22 | Fix available (`npm audit fix`) |
+| `source-map-js` | GHSA-68fv-2mgg-jv7q | High | 1.0.0 - 1.2.1 | > 1.2.1 | Fix available (`npm audit fix`) |
+| `vite` | GHSA-9jrq-w75r-8gcw, GHSA-rq7h-c2jc-7f22 | High | 8.0.0 - 8.1.5 | > 8.1.5 | Fix available (`npm audit fix`) |
 
 **รูปที่ 5 — ผล npm audit Backend**
 
-`![Backend npm audit](./tests/reports/npm-audit-backend.png)`
+![Backend npm audit](./tests/reports/npm-audit-backend.png)
 
 ---
 
@@ -372,15 +378,26 @@ cd frontend && npm audit --audit-level=moderate
 
 | Severity | จำนวน |
 |----------|-------|
-| Critical | |
-| High | |
-| Medium | |
-| Low | |
-| **รวม** | |
+| Critical | 0 |
+| High | 8 |
+| Medium | 6 |
+| Low | 1 |
+| **รวม** | **15** |
+
+**✏️ กรอกรายละเอียด Dependency ที่มีช่องโหว่ระดับ High ขึ้นไป (ถ้าไม่มีให้ระบุ "ไม่พบช่องโหว่")**
+| Package | CVE ID / GHSA | Severity | เวอร์ชันที่มีปัญหา | เวอร์ชันที่ปลอดภัย | สถานะการแก้ไข |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `axios` | GHSA-3w6x-2g7m-8v23, GHSA-q8qp-cvcw-x6jj | High | 1.0.0 - 1.19.0 | > 1.19.0 | Fix available (`npm audit fix`) |
+| `browserslist` | GHSA-c83g-rgw3-j3cx, GHSA-73wf-gq98-2v4g | High | <= 4.28.6 | > 4.28.6 | Fix available (`npm audit fix`) |
+| `follow-redirects` | GHSA-q3jh-wrc6-jgq8, GHSA-8r9p-f939-6h3c | High | 1.16.0 - 1.16.1 | > 1.16.1 | Fix available (`npm audit fix`) |
+| `form-data` | GHSA-hmw2-7cc7-3qxx | High | 4.0.0 - 4.0.5 | > 4.0.5 | Fix available (`npm audit fix`) |
+| `nanoid` | GHSA-28wg-ghj8-5hjv, GHSA-xwg4-73v4-xw9w | High | <= 3.3.17 | > 3.3.17 | Fix available (`npm audit fix`) |
+| `postcss` | GHSA-6g55-p6wh-862q, GHSA-r28c-9q8g-f849 | High | <= 8.5.22 | > 8.5.22 | Fix available (`npm audit fix`) |
+| `source-map-js` | GHSA-68fv-2mgg-jv7q | High | 1.0.0 - 1.2.1 | > 1.2.1 | Fix available (`npm audit fix`) |
 
 **รูปที่ 6 — ผล npm audit Frontend**
 
-`![Frontend npm audit](./tests/reports/npm-audit-frontend.png)`
+![Frontend npm audit](./tests/reports/npm-audit-frontend.png)
 
 ### Security Scan ใน CI Pipeline (Rubric 1.7 ข้อ 4)
 

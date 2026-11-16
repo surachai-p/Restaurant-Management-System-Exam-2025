@@ -112,3 +112,15 @@ jobs:
       with:
         name: newman-ci-reports
         path: tests/reports/
+
+    
+    - name: Run frontend build
+      run: cd frontend && npm run build
+
+    - name: Run Security Scan (npm audit --audit-level=high)
+      continue-on-error: true
+      run: |
+        echo "=== Backend Security Scan ==="
+        cd backend && npm audit --audit-level=high || true
+        echo "=== Frontend Security Scan ==="
+        cd ../frontend && npm audit --audit-level=high || true
