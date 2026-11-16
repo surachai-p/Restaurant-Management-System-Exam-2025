@@ -42,10 +42,10 @@
 
 | Service | URL (กรอก URL จริง) | สถานะ |
 |---------|---------------------|-------|
-| Frontend (Vercel) | | ☐ |
-| Backend (Render) | | ☐ |
-| API Health Check (`/api/health`) | | ☐ |
-| Database (Neon.tech connection string) | | ☐ |
+| Frontend (Vercel) | `https://restaurant-management-system-exam-2-omega-azure.vercel.app` | ✅ |
+| Backend (Render) | `https://rms-backend-cu95.onrender.com` | ✅ |
+| API Health Check ( `/api/health` ) | `https://rms-backend-cu95.onrender.com/api/health` | ✅ |
+| Database (Neon.tech connection string) | `postgresql://neondb_owner:***@ep-hidden-morning-a11p6qla-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` | ✅ |
 
 ---
 
@@ -110,10 +110,10 @@
 ### 1.4 เงื่อนไขการผ่าน/ไม่ผ่านการทดสอบ (Entry / Exit Criteria)
 
 #### Entry Criteria — ✏️ ทำเครื่องหมาย ✅ เมื่อทำสำเร็จแล้ว
-- [ ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- ✅ Repository ถูก Clone และรัน Backend + Frontend ได้
+- ✅ Database เชื่อมต่อ Neon.tech สำเร็จ
+- ✅ `/api/health` ตอบกลับ `{"status":"ok"}`
+- ✅ Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 **✏️ ระบุเงื่อนไขที่ถือว่าผ่านการทดสอบและพร้อม Deploy**
@@ -148,20 +148,20 @@
 **✏️ กรอกข้อมูลทุกคอลัมน์ให้ครบ รวมถึง Actual Result และ Pass/Fail หลังทดสอบจริง**
 
 | TC-ID | Type | Feature | Scenario | Input | Expected Result | Actual Result | Pass/Fail |
-|-------|------|---------|----------|-------|----------------|---------------|-----------|
-| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | | ☐ |
-| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | | ☐ |
-| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | `GET /api/orders` (no Authorization header) | HTTP 401 Unauthorized | | ☐ |
-| TC-004 | Edge | Payment | ชำระเงินพอดียอด (`change = 0`) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + `change = 0` | | ☐ |
-| TC-005 | Positive | Menu | ดึงรายการเมนูอาหารทั้งหมด | `GET /api/menu` (with valid Token) | HTTP 200 + รายการเมนูอาหาร | | ☐ |
-| TC-006 | Positive | Order | สร้างออเดอร์ใหม่และเพิ่มรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: [{menuId: 1, quantity: 2}]}` | HTTP 201 + บันทึกออเดอร์สำเร็จ | | ☐ |
-| TC-007 | Negative | Order | สร้างออเดอร์โดยไม่ระบุรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: []}` | HTTP 400 Bad Request | | ☐ |
-| TC-008 | Negative | Payment | ชำระเงินน้อยกว่ายอดรวมของบิล | `POST /api/payments` `{orderId: 1, amount: 1}` | HTTP 400 Bad Request (ยอดเงินไม่เพียงพอ) | | ☐ |
-| TC-009 | Security | Auth | พนักงานทั่วไป (Waiter) พยายามเข้าถึง API ของ Admin | `POST /api/menu` (ใช้ Token ของ Waiter) | HTTP 403 Forbidden | | ☐ |
-| TC-010 | Security | Auth | เรียก API ด้วย JWT Token ที่ปลอมแปลงหรือไม่ถูกต้อง | `GET /api/reports/daily` (`Authorization: Bearer invalid_token`) | HTTP 401 Unauthorized | | ☐ |
-| TC-011 | Edge | Payment | ชำระเงินเกินยอดรวมของบิลเพื่อตรวจสอบการทอนเงิน | `POST /api/payments` `{orderId: 1, amount: exactTotal + 100}` | HTTP 200 + `change = 100` | | ☐ |
+|-------|------|---------|----------|-------|-----------------|---------------|-----------|
+| TC-001 | Positive | Auth | Login ด้วย credential ถูกต้อง | `{username: "admin", password: "Admin@123"}` | HTTP 200 + JWT Token | HTTP 200 + JWT Token | ✅ |
+| TC-002 | Negative | Auth | Login ด้วย password ผิด | `{username: "admin", password: "wrong"}` | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-003 | Security | Auth | เรียก API โดยไม่มี JWT Token | `GET /api/orders` (no Authorization header) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-004 | Edge | Payment | ชำระเงินพอดียอด ( `change = 0` ) | `{orderId: 1, amount: exactTotal}` | HTTP 200 + `change = 0` | HTTP 200 + `change = 0` | ✅ |
+| TC-005 | Positive | Menu | ดึงรายการเมนูอาหารทั้งหมด | `GET /api/menu` (with valid Token) | HTTP 200 + รายการเมนูอาหาร | HTTP 200 + รายการเมนูอาหาร | ✅ |
+| TC-006 | Positive | Order | สร้างออเดอร์ใหม่และเพิ่มรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: [{menuId: 1, quantity: 2}]}` | HTTP 201 + บันทึกออเดอร์สำเร็จ | HTTP 201 + บันทึกออเดอร์สำเร็จ | ✅ |
+| TC-007 | Negative | Order | สร้างออเดอร์โดยไม่ระบุรายการอาหาร | `POST /api/orders` `{tableNumber: 1, items: []}` | HTTP 400 Bad Request | HTTP 400 Bad Request | ✅ |
+| TC-008 | Negative | Payment | ชำระเงินน้อยกว่ายอดรวมของบิล | `POST /api/payments` `{orderId: 1, amount: 1}` | HTTP 400 Bad Request (ยอดเงินไม่เพียงพอ) | HTTP 404 / ไม่ปฏิเสธยอดเงินไม่พอ (BUG-001) | ❌ |
+| TC-009 | Security | Auth | พนักงานทั่วไป (Waiter) พยายามเข้าถึง API ของ Admin | `POST /api/menu` (ใช้ Token ของ Waiter) | HTTP 403 Forbidden | HTTP 200 OK (BUG-004) | ❌ |
+| TC-010 | Security | Auth | เรียก API ด้วย JWT Token ที่ปลอมแปลงหรือไม่ถูกต้อง | `GET /api/reports/daily` (`Authorization: Bearer invalid_token`) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | ✅ |
+| TC-011 | Edge | Payment | ชำระเงินเกินยอดรวมของบิลเพื่อตรวจสอบการทอนเงิน | `POST /api/payments` `{orderId: 1, amount: exactTotal + 100}` | HTTP 200 + `change = 100` | HTTP 200 + `change = 100` | ✅ |
 
-**✏️ สรุปผล:** ผ่าน ___ / ___ กรณี (___%)
+✏️ **สรุปผล: ผ่าน 9 / 11 กรณี (81.82%)**
 
 ---
 
