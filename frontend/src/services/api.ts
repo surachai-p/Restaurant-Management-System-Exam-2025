@@ -3,7 +3,9 @@
 // src/services/api.ts
 import axios from 'axios'
 
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+const BASE = import.meta.env.PROD
+  ? '/api'
+  : (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
 
 const api = axios.create({ baseURL: BASE })
 
