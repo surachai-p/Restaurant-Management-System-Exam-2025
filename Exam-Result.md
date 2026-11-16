@@ -315,10 +315,7 @@ Pass Rate: 100%
 
 **รูปที่ 4 — GitHub Actions Pipeline สำเร็จ (แสดง Newman step และ Pass Rate)**
 
-> ภาพด้านล่างเป็น CI รอบก่อนที่ยังล้มเหลว ไม่ใช่ผล Run #23 ที่สำเร็จ โปรดใช้ภาพ `ci-pipeline-newman.png` ของรอบ #23 เพิ่มเป็นหลักฐาน
-
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/2f7a811e-da4c-4caa-a185-84a4cedfaae7" />
-
+<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/05048b74-b7ac-4df3-babf-ddcf54b84033" />
 
 ---
 
