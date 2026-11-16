@@ -123,4 +123,4 @@ jobs:
         echo "=== Backend Security Scan ==="
         cd backend && npm audit --audit-level=high || true
         echo "=== Frontend Security Scan ==="
-        cd ../frontend && npm audit --audit-level=high || true
+        cd ../frontend && npm audit --audit-level=high || true        cd ../frontend && npm audit --audit-level=high || true
