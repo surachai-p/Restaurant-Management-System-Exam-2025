@@ -1,0 +1,149 @@
+name: RMS CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  test-build-security:
+    name: Test, build, and security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rms_ci
+        run: npm run db:generate
+
+      - name: Run backend unit and API tests
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          JWT_SECRET: rms-ci-only-secret
+        run: npm test
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Audit backend dependencies (High/Critical gate)
+        working-directory: backend
+        run: npm audit --audit-level=high
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type-check and build frontend
+        working-directory: frontend
+        env:
+          VITE_API_URL: /api
+        run: npm run build
+
+      - name: Audit frontend dependencies (High/Critical gate)
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+  docker-build:
+    name: Build multi-stage Docker images
+    runs-on: ubuntu-latest
+    needs: test-build-security
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose
+        run: docker compose config
+
+      - name: Build backend image
+        run: docker build --tag rms-backend-ci ./backend
+
+      - name: Build frontend image
+        run: docker build --tag rms-frontend-ci --build-arg VITE_API_URL=/api ./frontend
+
+  deploy:
+    name: Deploy production services
+    runs-on: ubuntu-latest
+    needs: [test-build-security, docker-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+    steps:
+      - name: Trigger Render deployment
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Trigger Vercel deployment
+        if: env.VERCEL_DEPLOY_HOOK_URL != ''
+        run: curl --fail --silent --show-error --request POST "$VERCEL_DEPLOY_HOOK_URL"
+
+      - name: Record Git-connected deployment
+        if: env.RENDER_DEPLOY_HOOK_URL == '' && env.VERCEL_DEPLOY_HOOK_URL == ''
+        run: echo "Render and Vercel may deploy automatically from the successful main-branch push."
+
+  newman-production:
+    name: Newman production API tests
+    runs-on: ubuntu-latest
+    needs: deploy
+    env:
+      BACKEND_URL: ${{ secrets.BACKEND_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Newman
+        if: env.BACKEND_URL != ''
+        run: npm install --global newman newman-reporter-htmlextra
+
+      - name: Run RMS-68030231 Postman collection
+        if: env.BACKEND_URL != ''
+        run: |
+          mkdir -p tests/reports
+          newman run tests/postman/RMS-68030231-TestSuite.json \
+            --environment tests/postman/env.json \
+            --env-var "base_url=${BACKEND_URL}/api" \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export tests/reports/newman-report.html
+
+      - name: Explain skipped production tests
+        if: env.BACKEND_URL == ''
+        run: echo "Set the BACKEND_URL repository secret after creating the Render service."
+
+      - name: Upload Newman report
+        if: always() && env.BACKEND_URL != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-production-report
+          path: tests/reports/newman-report.html
+          retention-days: 30

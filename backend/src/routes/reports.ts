@@ -6,17 +6,14 @@ import { authenticate, requireRole } from '../middleware/auth'
 const router = Router()
 
 // GET /api/reports/sales?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
-// ⚠️ BUG-005 [Date Filter]: Uses strictly-greater-than (gt) for startDate
-// Orders exactly at midnight of startDate are excluded from results
 router.get('/sales', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { startDate, endDate } = req.query as { startDate?: string; endDate?: string }
 
-    const dateFilter: { gt?: Date; lte?: Date } = {}
+    const dateFilter: { gte?: Date; lte?: Date } = {}
 
     if (startDate) {
-      // ⚠️ BUG-005: Should be 'gte' (>=) not 'gt' (>) — off-by-one error
-      dateFilter.gt = new Date(startDate)   // WRONG: should be gte
+      dateFilter.gte = new Date(startDate)
     }
     if (endDate) {
       const end = new Date(endDate)
