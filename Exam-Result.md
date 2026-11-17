@@ -60,7 +60,7 @@ Out of Scope:
 |---|---|---|
 | Unit | Vitest | กฎคำนวณเงินทอนและ validation |
 | API/Integration | Supertest | Health, input validation, JWT และ regression ของบั๊ก 5 จุด |
-| E2E API | Newman | รัน collection 24 requests กับ Docker staging และ Production จริง |
+| E2E API | Newman | รัน 24 test requests + 1 cleanup request กับ Docker staging และ Production จริง |
 | Security | npm audit + Newman | Dependency scan, no-token, role check, injection input |
 | Smoke | Playwright Core + Edge | Login → Order → Payment และเก็บภาพหลักฐาน |
 | Staging | Docker Compose | PostgreSQL 16 + Backend + Frontend multi-container |
@@ -136,7 +136,7 @@ Exit criteria:
 | Collection | `RMS-68030231-TestSuite` |
 | Collection file | `tests/postman/RMS-68030231-TestSuite.json` |
 | Environment | `tests/postman/env.json` |
-| Requests | 24/24 ผ่าน |
+| Requests | 25/25 ผ่าน (รวม cleanup 1 request) |
 | Assertions | 29/29 ผ่าน |
 | Pass Rate | 100% |
 
@@ -318,7 +318,7 @@ Production smoke test (Vercel + Render + Neon):
 
 ![Smoke Payment](./tests/reports/smoke-4-payment.png)
 
-ผล Production smoke test: **4/4 ผ่าน** และ Newman Production ผ่าน **24/24 requests, 29/29 assertions (100%)** เมื่อวันที่ 17 พฤศจิกายน 2569
+ผล Production smoke test: **4/4 ผ่าน** และ Newman Production ผ่าน **25/25 requests, 29/29 assertions (100%)** เมื่อวันที่ 17 พฤศจิกายน 2569
 
 ## CI/CD Pipeline + Newman Pass Rate
 
@@ -334,7 +334,7 @@ Workflow: `.github/workflows/cicd.yml`
 
 | Metric | Production verified value |
 |---|---:|
-| Requests | 24 |
+| Requests | 25 |
 | Assertions | 29 |
 | Passed | 29 |
 | Failed | 0 |

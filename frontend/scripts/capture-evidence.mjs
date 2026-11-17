@@ -97,7 +97,7 @@ try {
 
   const collectionOverview = [
     readFileSync(`${repositoryDirectory}/tests/postman/env.json`, 'utf8'),
-    '\nCollection: RMS-68030231-TestSuite\n24 requests; every request contains pm.test assertions.',
+    '\nCollection: RMS-68030231-TestSuite\n24 named test requests plus 1 cleanup request.',
   ].join('\n')
   await screenshotText('Postman collection and environment', collectionOverview, 'postman-collection-env.png')
   await screenshotText('Postman collection run', newmanSummary, 'postman-run-result.png')

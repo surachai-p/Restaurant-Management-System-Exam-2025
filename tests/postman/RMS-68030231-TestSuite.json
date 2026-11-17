@@ -304,7 +304,7 @@
               { "key": "Authorization", "value": "Bearer {{waiter_token}}" },
               { "key": "Content-Type", "value": "application/json" }
             ],
-            "body": { "mode": "raw", "raw": "{\"tableId\": 3}" }
+            "body": { "mode": "raw", "raw": "{\"tableId\": 4}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-020: create second order → 201', () => pm.response.to.have.status(201));",
@@ -348,6 +348,13 @@
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-023 [BUG-001]: Underpayment should → 400', () => {",
             "  pm.response.to.have.status(400);",
+            "});",
+            "pm.sendRequest({",
+            "  url: `${pm.environment.get('base_url')}/orders/${pm.collectionVariables.get('underpayment_order_id')}/cancel`,",
+            "  method: 'PUT',",
+            "  header: { Authorization: `Bearer ${pm.environment.get('cashier_token')}` }",
+            "}, (error) => {",
+            "  if (error) console.error('Unable to clean up underpayment test order', error);",
             "});"
           ]}}]
         },

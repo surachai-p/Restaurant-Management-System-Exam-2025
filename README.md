@@ -95,7 +95,7 @@ Tests: 25 passed (25)
 
 ### Newman Pass Rate
 ```
-Requests: 24/24  |  Assertions: 29/29  |  Failed: 0  |  Pass Rate: 100%
+Requests: 25/25  |  Assertions: 29/29  |  Failed: 0  |  Pass Rate: 100%
 ```
 
 ### Test Case Table
@@ -220,7 +220,7 @@ npm install && npm run dev
 ✓ TC-010: SQL Injection input does not leak records
 ✓ TC-015: Double booking → 409
 ✓ TC-023: Underpayment → 400
-24/24 requests, 29/29 assertions, 100% pass
+25/25 requests, 29/29 assertions, 100% pass
 ```
 
 ---
