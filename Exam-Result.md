@@ -575,8 +575,7 @@ Build Command:  npm run build
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
 > (วางภาพที่นี่)
-
-<ing src="photos/la66.png">
+okkkkk
 
 <img src="photos/la.png">
 
@@ -584,6 +583,7 @@ Build Command:  npm run build
 
 <img src="photos/3.png">
 
+<img src="photos/la66.png">
 ---
 
 *Template สร้างจากข้อสอบปฏิบัติการทดสอบและติดตั้งระบบซอฟต์แวร์เชิงธุรกิจ — PRIME-BSD Model*
