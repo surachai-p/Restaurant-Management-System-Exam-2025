@@ -96,9 +96,9 @@
 
 #### Entry Criteria (เงื่อนไขเริ่มทดสอบ)
 - [ x ] Repository ถูก Clone และรัน Backend + Frontend ได้
-- [ x  ] Database เชื่อมต่อ Neon.tech สำเร็จ
-- [ x  ] `/api/health` ตอบกลับ `{"status":"ok"}`
-- [ ] Postman Collection พร้อมสำหรับ Newman
+- [ x ] Database เชื่อมต่อ Neon.tech สำเร็จ
+- [ x ] `/api/health` ตอบกลับ `{"status":"ok"}`
+- [ x ] Postman Collection พร้อมสำหรับ Newman
 
 #### Exit Criteria (เงื่อนไขผ่านการทดสอบ)
 - Newman Pass Rate ≥ **80%** ถือว่าพร้อมติดตั้ง
@@ -180,6 +180,7 @@ Run Date:   2026-10-31 (staging via docker compose)
 **Newman Report (JSON):** `./tests/reports/newman-report.json`
 
 > 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่ (ต้อง capture จากเครื่องผู้สอบเองก่อน submission)
+<img src=".photos/newmanking.png" alt="newman run">
 
 ---
 
