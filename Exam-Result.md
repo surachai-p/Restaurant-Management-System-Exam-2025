@@ -23,9 +23,17 @@
 
 ## Production URLs
 - **GitHub Repository:** [suspicious link removed]
-- **Production Frontend (Vercel):** [suspicious link removed]
+- **Production Frontend (Vercel):** [https://restaurant-management-system-exam-2-ruby.vercel.app]
 - **Production Backend Health Check (Render):** [suspicious link removed]
+## Environment Variables Table
 
+| Component | Key | Value / Description |
+| --------- | --- | ------------------- |
+| **Backend (Render)** | `DATABASE_URL` | `postgresql://neondb_owner:npg_hvzdXR5DFKx7@ep-spring-firefly-bdbuq6wf-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
+| **Backend (Render)** | `JWT_SECRET` | `RMS_Super_Secret_Key_2025` |
+| **Backend (Render)** | `CORS_ORIGIN` | `*` |
+| **Backend (Render)** | `NODE_ENV` | `production` |
+| **Frontend (Vercel)** | `VITE_API_URL` | `https://restaurant-management-system-exam-2025-1-27ph.onrender.com` |
 ---
 
 ## Test Plan
