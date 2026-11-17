@@ -33,7 +33,7 @@
 | **Backend (Render)** | `JWT_SECRET` | `RMS_Super_Secret_Key_2025` |
 | **Backend (Render)** | `CORS_ORIGIN` | `*` |
 | **Backend (Render)** | `NODE_ENV` | `production` |
-| **Frontend (Vercel)** | `VITE_API_URL` | `https://restaurant-management-system-exam-2025-1-27ph.onrender.com` |
+| **Frontend (Vercel)** | `VITE_API_URL` | https://restaurant-management-system-exam-2025-1-27ph.onrender.com |
 ---
 
 ## Test Plan
