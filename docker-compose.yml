@@ -8,17 +8,16 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - PORT=3001
+      - DATABASE_URL=postgresql://neondb_owner:npg_hvzdXR5DFKx7@ep-spring-firefly-bdbuq6wf-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require
       - JWT_SECRET=RMS_Super_Secret_Key_2025
       - CORS_ORIGIN=http://localhost:80
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: always
+      retries: 5
 
   frontend:
     build:
@@ -31,4 +30,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    restart: always
