@@ -8,53 +8,13 @@
   },
   "item": [
     {
-      "name": "Login",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{ \"username\": \"admin\", \"password\": \"Admin@123\" }",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base\\_url}}/api/auth/login",
-          "host": [
-            "{{base"
-          ],
-          "path": [
-            "_url}}",
-            "api",
-            "auth",
-            "login"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "https://restaurant-management-system-exam-2025-1-27ph.onrender.com/api/auth/login",
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n     \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
+          "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -68,6 +28,34 @@
             "restaurant-management-system-exam-2025-1-27ph",
             "onrender",
             "com"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
           ],
           "path": [
             "api",
