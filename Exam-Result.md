@@ -38,7 +38,7 @@
 | Frontend (Vercel)  | https://restaurant-management-system-exam-2-jet.vercel.app/ | ⬜  |
 | Backend (Render)   | https://booking-backend-2xgx.onrender.com/ | ⬜     |
 | API Health Check   | https://booking-backend-2xgx.onrender.com/api/health | ⬜ |
-| Database (Neon)    | postgresql://neondb_owner:npg_IHk1xf7QXMLY@ep-wild-rain-azsch491-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require | ⬜     |
+| Database (Neon)    |`postgresql://neondb_owner:npg_IHk1xf7QXMLY@ep-wild-rain-azsch491-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` | ⬜     |
 
 ---
 
