@@ -27,14 +27,12 @@
 
 ## Production URLs
 
-> จะกรอก URL จริงหลังสร้างบริการ Cloud สำเร็จ ห้ามใช้ placeholder เป็นหลักฐานส่งงาน
-
 | Service | URL | สถานะ |
 |---|---|---|
-| Frontend (Vercel) | รอ Deploy | ⏳ |
-| Backend (Render) | รอ Deploy | ⏳ |
-| API Health Check | รอ Deploy | ⏳ |
-| Database | Neon PostgreSQL 16 — ไม่บันทึก connection string จริงใน Git | ⏳ |
+| Frontend (Vercel) | https://pootanapat-rms-68030231.vercel.app | ✅ Live |
+| Backend (Render) | https://pootanapat-rms-api.onrender.com | ✅ Live |
+| API Health Check | https://pootanapat-rms-api.onrender.com/api/health | ✅ HTTP 200 |
+| Database | Neon PostgreSQL 16 — connection string เก็บเป็น Render secret | ✅ Connected |
 
 ## Test Plan
 
@@ -62,7 +60,7 @@ Out of Scope:
 |---|---|---|
 | Unit | Vitest | กฎคำนวณเงินทอนและ validation |
 | API/Integration | Supertest | Health, input validation, JWT และ regression ของบั๊ก 5 จุด |
-| E2E API | Newman | รัน collection 24 requests กับ Docker staging จริง |
+| E2E API | Newman | รัน collection 24 requests กับ Docker staging และ Production จริง |
 | Security | npm audit + Newman | Dependency scan, no-token, role check, injection input |
 | Smoke | Playwright Core + Edge | Login → Order → Payment และเก็บภาพหลักฐาน |
 | Staging | Docker Compose | PostgreSQL 16 + Backend + Frontend multi-container |
@@ -89,7 +87,7 @@ Entry criteria:
 - [x] Docker PostgreSQL 16 เชื่อมต่อและ seed สำเร็จ
 - [x] `/api/health` ตอบ HTTP 200 และ `status=ok`
 - [x] Postman Collection พร้อมและรันด้วย Newman ได้
-- [ ] Neon production database เชื่อมต่อสำเร็จ — รอสร้าง Cloud resource
+- [x] Neon PostgreSQL 16 เชื่อมกับ Render Production และ seed สำเร็จ
 
 Exit criteria:
 
@@ -98,7 +96,7 @@ Exit criteria:
 | Newman Pass Rate | ≥ 80% | 100% |
 | Critical Bug ที่ยังเปิด | 0 | 0 |
 | Unit/API tests | ผ่านทั้งหมด | 25/25 |
-| Production smoke test | 4/4 | รอ Cloud deployment |
+| Production smoke test | 4/4 | 4/4 ผ่าน |
 
 ### 1.5 Business Risk
 
@@ -110,7 +108,7 @@ Exit criteria:
 
 ## Test Cases & Results
 
-ผลด้านล่างมาจาก Newman และ regression tests ที่รันจริงกับ Docker staging
+ผลด้านล่างมาจาก Newman และ regression tests ที่รันจริงกับทั้ง Docker staging และ Production API
 
 | TC-ID | Type | Feature | Scenario / Input | Expected | Actual | Result |
 |---|---|---|---|---|---|---|
@@ -159,7 +157,7 @@ Environment มี `base_url`, `token`, `admin_token`, `cashier_token`, `waiter_
 - [x] Workflow มี Backend tests, Backend/Frontend builds และ npm audit High/Critical gate
 - [x] Workflow ตรวจ Docker Compose และ build multi-stage images
 - [x] Workflow มี Newman production job และรองรับ `BACKEND_URL` secret
-- [ ] GitHub Actions remote run สำเร็จ — รอ push commit ล่าสุด
+- [x] GitHub Actions remote run สำเร็จทั้ง `RMS CI/CD` และ `CI` ที่ commit `06b482a`
 
 Local automated test result: **25/25 tests ผ่าน**
 
@@ -270,12 +268,6 @@ npm run dev
 | Backend | 3001 | `CORS_ORIGIN=http://localhost:5173` |
 | Frontend | 5173 | `VITE_API_URL=/api` |
 
-Local smoke evidence:
-
-![On-Premises Health](./tests/reports/onprem-backend-health.png)
-
-![On-Premises Login](./tests/reports/onprem-frontend-login.png)
-
 ### Docker Compose Staging
 
 ```bash
@@ -303,13 +295,13 @@ docker compose ps
 | `JWT_SECRET` | Render Backend | Generate ใน Render; ไม่ commit |
 | `CORS_ORIGIN` | Render Backend | Vercel production URL |
 | `NODE_ENV` | Render Backend | `production` |
-| `VITE_API_URL` | Vercel Frontend | `https://<render-service>.onrender.com/api` |
+| `VITE_API_URL` | Vercel Frontend | `https://pootanapat-rms-api.onrender.com/api` |
 
-Repository มี `render.yml` และ `frontend/vercel.json` พร้อม deploy แต่ยังต้องสร้าง Neon/Render/Vercel resources ในบัญชีผู้ใช้
+Cloud deployment ใช้ Neon PostgreSQL 16, Render Docker Web Service และ Vercel Production โดยเก็บ credential ไว้ใน Environment Variables เท่านั้น ไม่ commit ลง Git
 
 ## Smoke Test Results
 
-Local Docker staging:
+Production smoke test (Vercel + Render + Neon):
 
 | # | Feature | Expected | Actual | Result |
 |---|---|---|---|---|
@@ -326,7 +318,7 @@ Local Docker staging:
 
 ![Smoke Payment](./tests/reports/smoke-4-payment.png)
 
-Production smoke test: **รอ Deploy Cloud แล้วจะรัน script เดิมโดยกำหนด `FRONTEND_URL` และ `BACKEND_URL`**
+ผล Production smoke test: **4/4 ผ่าน** และ Newman Production ผ่าน **24/24 requests, 29/29 assertions (100%)** เมื่อวันที่ 17 พฤศจิกายน 2569
 
 ## CI/CD Pipeline + Newman Pass Rate
 
@@ -340,7 +332,7 @@ Workflow: `.github/workflows/cicd.yml`
 4. Deploy hooks สำหรับ Render/Vercel เมื่อกำหนด secrets
 5. Newman production collection → upload HTML report
 
-| Metric | Local verified value |
+| Metric | Production verified value |
 |---|---:|
 | Requests | 24 |
 | Assertions | 29 |
@@ -348,4 +340,4 @@ Workflow: `.github/workflows/cicd.yml`
 | Failed | 0 |
 | Pass Rate | 100% |
 
-GitHub Actions remote result และ production URLs จะกรอกหลัง push/deploy สำเร็จ
+Production URLs, Docker staging, automated tests และ Newman Production ได้รับการตรวจครบก่อนส่งงาน

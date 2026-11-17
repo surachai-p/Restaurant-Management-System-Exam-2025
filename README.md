@@ -2,7 +2,7 @@
 
 > **ข้อสอบปฏิบัติ** — รายวิชาการออกแบบและพัฒนาซอฟต์แวร์ 1 | KMITL
 
-[![CI](https://github.com/YOUR_USERNAME/restaurant-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/restaurant-management-system/actions)
+[![CI](https://github.com/Pootanapat/Restaurant-Management-System-Exam-2025/actions/workflows/ci.yml/badge.svg)](https://github.com/Pootanapat/Restaurant-Management-System-Exam-2025/actions)
 
 ---
 
@@ -10,9 +10,11 @@
 
 ระบบจัดการร้านอาหาร (RMS) สำหรับจัดการเมนู รับออเดอร์ ชำระเงิน และดูรายงานยอดขาย
 
-**นักศึกษา:** _กรอกชื่อ-สกุล_
-**รหัสนักศึกษา:** _กรอกรหัส_
-**วันที่สอบ:** _วันที่_
+**นักศึกษา:** ภูธนพัตน์ ตากิ่มนอก
+
+**รหัสนักศึกษา:** 68030231
+
+**วันที่สอบ:** 17 พฤศจิกายน 2569
 
 ---
 
@@ -33,25 +35,23 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Frontend    | https://pootanapat-rms-68030231.vercel.app |
+| Backend API | https://pootanapat-rms-api.onrender.com |
+| Health Check| https://pootanapat-rms-api.onrender.com/api/health |
 
 ---
 
 ## 📋 Test Plan
 
-<!-- ส่วนที่ 1: นักศึกษากรอก -->
-
 ### Test Scope
 **In Scope:**
-- [ ] Authentication (Login/Logout, JWT)
-- [ ] Menu Management (CRUD + Role-based access)
-- [ ] Order Management (Open/Add Items/Confirm/Cancel)
-- [ ] Payment Processing (Cash/Card/QR)
-- [ ] Sales Reports
+- [x] Authentication (Login/Logout, JWT)
+- [x] Menu Management (CRUD + Role-based access)
+- [x] Order Management (Open/Add Items/Confirm/Cancel)
+- [x] Payment Processing (Cash/Card/QR)
+- [x] Sales Reports
 
-**Out of Scope:** _ระบุสิ่งที่ไม่ทดสอบ_
+**Out of Scope:** Payment gateway จริงและ load/stress test เนื่องจากระบบใช้ข้อมูลจำลองและโจทย์ไม่ได้กำหนด workload target
 
 ### Test Approach
 
@@ -67,8 +67,8 @@
 |-----------|--------------|
 | Node.js   | 22 LTS |
 | PostgreSQL | 16 (Neon.tech) |
-| Browser   | _กรอก_ |
-| OS        | _กรอก_ |
+| Browser   | Microsoft Edge (Playwright headless) |
+| OS        | Windows NT 10.0.26200.0 |
 
 ### Entry/Exit Criteria
 
@@ -79,66 +79,62 @@
 
 | ความเสี่ยง | ผลกระทบ | Priority |
 |-----------|---------|---------|
-| _กรอก_ | _กรอก_ | P1 |
-| _กรอก_ | _กรอก_ | P2 |
+| รับเงินไม่ครบแต่ปิดออเดอร์ | รายได้และยอดเงินสดคลาดเคลื่อน | P1 |
+| เปิดหลายออเดอร์บนโต๊ะเดียว | เสิร์ฟและคิดเงินผิดโต๊ะ | P1 |
 
 ---
 
 ## 🧪 Test Cases & Results
 
-<!-- ส่วนที่ 2 -->
-
 ### Vitest Results
 ```
 Run: npm test
-✓ Payment returns positive change when overpaid
-✗ [BUG-001] Should NOT allow negative change  ← reveals bug!
-...
+Test Files: 3 passed (3)
+Tests: 25 passed (25)
 ```
 
 ### Newman Pass Rate
 ```
-Total: 21  |  Passed: __  |  Failed: __  |  Pass Rate: __%
+Requests: 24/24  |  Assertions: 29/29  |  Failed: 0  |  Pass Rate: 100%
 ```
 
 ### Test Case Table
 
 | TC-ID | Feature | Scenario | Expected | Actual | Pass/Fail |
 |-------|---------|----------|----------|--------|-----------|
-| TC-002 | Auth | Admin login | 200 + JWT | | |
-| TC-005 | Auth | Wrong password | 401 | | |
-| TC-007 | Security | No token | 401 | | |
-| TC-010 | Security | SQL Injection | Empty/400 | | |
-| TC-011 | Security | Waiter update price | 403 | | |
-| TC-015 | Order | Double booking | 409 | | |
-| TC-020 | Payment | Underpayment | 400 | | |
+| TC-002 | Auth | Admin login | 200 + JWT | 200 + JWT | PASS |
+| TC-005 | Auth | Wrong password | 401 | 401 | PASS |
+| TC-007 | Security | No token | 401 | 401 | PASS |
+| TC-010 | Security | SQL Injection | ไม่คืนข้อมูลทั้งหมด | 200 + empty array | PASS |
+| TC-011 | Security | Waiter update price | 403 | 403 | PASS |
+| TC-015 | Order | Double booking | 409 | 409 | PASS |
+| TC-023 | Payment | Underpayment | 400 | 400 | PASS |
 
 ---
 
 ## 🐛 Bug Reports
 
-<!-- ส่วนที่ 3 -->
-
-## BUG-001: [ชื่อ Bug]
+## BUG-001: ระบบรับชำระเงินไม่ครบและสร้างเงินทอนติดลบ
 
 **Severity:** Critical
 **Feature:** Payment
 **Endpoint:** `POST /api/payments`
 
 ### Steps to Reproduce
-1. ...
+1. สร้างและยืนยันออเดอร์ที่มียอดมากกว่า 1 บาท
+2. เรียก `POST /api/payments` ด้วย `amountPaid=1`
+3. ระบบเดิมสร้าง Payment และคืนเงินทอนติดลบ
 
 ### Expected / Actual Result
-...
+- Expected: HTTP 400 และไม่สร้าง Payment
+- Actual หลังแก้: HTTP 400 พร้อมปฏิเสธ underpayment
 
 ### Business Impact
-...
+ร้านอาจปิดออเดอร์ทั้งที่รับเงินไม่ครบ ทำให้รายได้และรายงานยอดขายผิด
 
 ---
 
 ## 🚀 Deployment Guide
-
-<!-- ส่วนที่ 5 -->
 
 ### Prerequisites
 ```
@@ -148,8 +144,8 @@ Docker Desktop (for local)
 
 ### Local Setup (Docker Compose)
 ```bash
-git clone https://github.com/YOUR_USERNAME/restaurant-management-system.git
-cd restaurant-management-system
+git clone https://github.com/Pootanapat/Restaurant-Management-System-Exam-2025.git
+cd Restaurant-Management-System-Exam-2025
 docker compose up --build
 # Frontend: http://localhost
 # Backend:  http://localhost:3001/api/health
@@ -172,23 +168,22 @@ npm install && npm run dev
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `DATABASE_URL` | Render PostgreSQL URL | `postgresql://user:pass@...render.com/db` |
+| `DATABASE_URL` | Neon PostgreSQL URL | เก็บเป็น Render secret |
 | `JWT_SECRET` | Random secret string | *(ไม่ระบุ)* |
-| `CORS_ORIGIN` | Frontend URL | `https://your-app.vercel.app` |
+| `CORS_ORIGIN` | Frontend URL | `https://pootanapat-rms-68030231.vercel.app` |
 
-### Render PostgreSQL Database Setup
-1. ไปที่ https://dashboard.render.com → Databases → New PostgreSQL
-2. เลือก Free plan หรือ Paid ตามต้องการ
-3. Copy External Database URL → ใส่เป็น `DATABASE_URL`
-4. รัน `npx prisma db push` เพื่อสร้าง Schema (local หรือใน Render build)
+### Neon PostgreSQL Database Setup
+1. สร้าง Neon PostgreSQL 16 project
+2. Copy direct connection string → ใส่เป็น `DATABASE_URL` ใน Render
+3. Docker start command รัน `prisma db push` และ seed ก่อนเริ่ม API
 
 ### Vercel Deployment (Frontend)
 1. Import repo → Root Directory: `frontend`
 2. Framework: Vite
-3. Env: `VITE_API_URL=https://your-backend.onrender.com/api`
+3. Env: `VITE_API_URL=https://pootanapat-rms-api.onrender.com/api`
 
 ### Render Deployment (Backend + Database)
-1. สร้าง PostgreSQL database บน Render (ตามขั้นตอนด้านบน)
+1. สร้าง Neon PostgreSQL database (ตามขั้นตอนด้านบน)
 2. New Web Service → Connect GitHub repo → เลือก branch
 3. Root Directory: (ว่าง) หรือ `backend` ถ้าใช้ Dockerfile แยก
 4. Environment: Docker
@@ -208,11 +203,11 @@ npm install && npm run dev
 
 | Test | URL | Result |
 |------|-----|--------|
-| Health | GET /api/health | ✅/❌ |
-| Login | POST /api/auth/login | ✅/❌ |
-| Add Menu | POST /api/menu | ✅/❌ |
-| Open Order | POST /api/orders | ✅/❌ |
-| Payment | POST /api/payments | ✅/❌ |
+| Health | GET /api/health | ✅ PASS |
+| Login | POST /api/auth/login | ✅ PASS |
+| Add Menu | POST /api/menu | ✅ PASS |
+| Open Order | POST /api/orders | ✅ PASS |
+| Payment | POST /api/payments | ✅ PASS |
 
 ---
 
@@ -222,8 +217,10 @@ npm install && npm run dev
 ```
 ✓ TC-002: Admin login
 ✓ TC-005: Wrong password → 401
-✗ TC-010: SQL Injection (BUG-003 detected)
-...
+✓ TC-010: SQL Injection input does not leak records
+✓ TC-015: Double booking → 409
+✓ TC-023: Underpayment → 400
+24/24 requests, 29/29 assertions, 100% pass
 ```
 
 ---

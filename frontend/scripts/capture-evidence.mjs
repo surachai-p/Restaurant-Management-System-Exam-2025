@@ -114,7 +114,7 @@ try {
   await screenshotText('BUG-001 regression evidence', evidenceFor('Underpayment Rejected'), 'bug-001.png')
   await screenshotText('BUG-002 regression evidence', evidenceFor('Double Booking'), 'bug-002.png')
 
-  console.log('Captured local health, login, order, and payment evidence.')
+  console.log('Captured health, login, order, and payment evidence for the configured environment.')
 } finally {
   await browser.close()
 }
