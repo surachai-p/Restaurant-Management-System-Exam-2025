@@ -180,7 +180,7 @@ Run Date:   2026-10-31 (staging via docker compose)
 **Newman Report (JSON):** `./tests/reports/newman-report.json`
 
 > 📸 วางภาพหน้าจอผลการรัน Newman ที่นี่ (ต้อง capture จากเครื่องผู้สอบเองก่อน submission)
-<img src=".photos/newmanking.png" alt="newman run">
+<img src="photos/newmanking.png" alt="newman run">
 
 ---
 
