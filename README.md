@@ -2,8 +2,6 @@
 
 > **ข้อสอบปฏิบัติ** — รายวิชาการออกแบบและพัฒนาซอฟต์แวร์ 1 | KMITL
 
-[![CI](https://github.com/AgnesTachyon-feet/restaurant-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/AgnesTachyon-feet/restaurant-management-system/actions)
-
 ---
 
 ## 🏠 Project Overview
@@ -22,7 +20,7 @@
 |----------|------------|
 | Frontend | React 18 + Vite + **TypeScript** + **Tailwind CSS** |
 | Backend  | Node.js 22 LTS + Express + **TypeScript** |
-| Database | PostgreSQL 16 (Neon.tech **หรือ** Render PostgreSQL — ยังไม่ได้ตัดสิน, see Exam-Result.md §5.1 conflict note) |
+| Database | PostgreSQL (Neon.tech) |
 | ORM      | **Prisma** |
 | Testing  | **Vitest** + Supertest + Newman |
 | Deploy   | Vercel (FE) + Render (BE + DB) |
