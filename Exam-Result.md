@@ -575,6 +575,10 @@ Build Command:  npm run build
 > 📸 **ภาพหน้าจอ GitHub Actions Pipeline สำเร็จ**
 >
 > (วางภาพที่นี่)
+<ing src="photos/la3.png">
+<img src="photos/la.png">
+<img src="photos/la2.png">
+<img src="photos/3.png">
 
 ---
 

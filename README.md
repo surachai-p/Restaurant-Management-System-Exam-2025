@@ -33,9 +33,9 @@
 
 | Service     | URL |
 |-------------|-----|
-| Frontend    | https://YOUR-FRONTEND.vercel.app |
-| Backend API | https://YOUR-BACKEND.onrender.com |
-| Health Check| https://YOUR-BACKEND.onrender.com/api/health |
+| Frontend    | https://restaurant-management-system-exam-2-jet.vercel.app/ |
+| Backend API | https://booking-backend-2xgx.onrender.com/ |
+| Health Check| https://booking-backend-2xgx.onrender.com/api/health |
 
 ---
 
