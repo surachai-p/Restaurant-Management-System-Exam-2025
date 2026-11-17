@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "RMS-TestSuite-v2",
-    "_postman_id": "rms-v2-exam-2024",
+    "name": "RMS-68030231-TestSuite",
+    "_postman_id": "rms-68030231-test-suite",
     "description": "Restaurant Management System v2 — TypeScript + Prisma API Test Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -12,7 +12,8 @@
     { "key": "waiter_token", "value": "" },
     { "key": "cashier_token","value": "" },
     { "key": "order_id",     "value": "" },
-    { "key": "menu_item_id", "value": "1" }
+    { "key": "menu_item_id", "value": "1" },
+    { "key": "underpayment_order_id", "value": "" }
   ],
   "item": [
     {
@@ -44,8 +45,8 @@
             "pm.test('TC-002: returns JWT token', () => {",
             "  const b = pm.response.json();",
             "  pm.expect(b.token).to.be.a('string').and.not.empty;",
-            "  pm.collectionVariables.set('admin_token', b.token);",
-            "  pm.collectionVariables.set('token', b.token);",
+            "  pm.environment.set('admin_token', b.token);",
+            "  pm.environment.set('token', b.token);",
             "});"
           ]}}]
         },
@@ -58,7 +59,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-003: cashier login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
+            "pm.environment.set('cashier_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -70,7 +71,7 @@
           },
           "event": [{ "listen": "test", "script": { "exec": [
             "pm.test('TC-004: waiter login 200', () => pm.response.to.have.status(200));",
-            "pm.collectionVariables.set('waiter_token', pm.response.json().token);"
+            "pm.environment.set('waiter_token', pm.response.json().token);"
           ]}}]
         },
         {
@@ -124,7 +125,7 @@
           "name": "TC-009 Search Menu (Positive)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=Pad+Thai", "query": [{ "key": "search", "value": "Pad Thai" }] },
+            "url": "{{base_url}}/menu?search=Pad%20Thai",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -138,7 +139,7 @@
           "name": "TC-010 SQL Injection in Search (Security - BUG-003)",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{base_url}}/menu?search=%27+OR+%271%27%3D%271", "query": [{ "key": "search", "value": "' OR '1'='1" }] },
+            "url": "{{base_url}}/menu?search=%27%20OR%20%271%27%3D%271",
             "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }]
           },
           "event": [{ "listen": "test", "script": { "exec": [
@@ -296,30 +297,76 @@
           ]}}]
         },
         {
-          "name": "TC-020 Underpayment (BUG-001)",
+          "name": "TC-020 Create Order for Underpayment Test",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/orders",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{waiter_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"tableId\": 4}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-020: create second order → 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('underpayment_order_id', pm.response.json().id);"
+          ]}}]
+        },
+        {
+          "name": "TC-021 Add Item to Underpayment Order",
+          "request": {
+            "method": "POST", "url": "{{base_url}}/orders/{{underpayment_order_id}}/items",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{waiter_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"menuItemId\": {{menu_item_id}}, \"quantity\": 1}" }
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-021: add item → 201', () => pm.response.to.have.status(201));"
+          ]}}]
+        },
+        {
+          "name": "TC-022 Confirm Underpayment Order",
+          "request": {
+            "method": "PUT", "url": "{{base_url}}/orders/{{underpayment_order_id}}/confirm",
+            "header": [{ "key": "Authorization", "value": "Bearer {{waiter_token}}" }]
+          },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('TC-022: confirm order → 200', () => pm.response.to.have.status(200));"
+          ]}}]
+        },
+        {
+          "name": "TC-023 Underpayment Rejected (BUG-001)",
           "request": {
             "method": "POST", "url": "{{base_url}}/payments",
             "header": [
               { "key": "Authorization", "value": "Bearer {{cashier_token}}" },
               { "key": "Content-Type",   "value": "application/json" }
             ],
-            "body": { "mode": "raw", "raw": "{\"orderId\": 9999, \"amountPaid\": 1, \"method\": \"cash\"}" }
+            "body": { "mode": "raw", "raw": "{\"orderId\": {{underpayment_order_id}}, \"amountPaid\": 1, \"method\": \"cash\"}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-020 [BUG-001]: Underpayment should → 400', () => {",
+            "pm.test('TC-023 [BUG-001]: Underpayment should → 400', () => {",
             "  pm.response.to.have.status(400);",
+            "});",
+            "pm.sendRequest({",
+            "  url: `${pm.environment.get('base_url')}/orders/${pm.collectionVariables.get('underpayment_order_id')}/cancel`,",
+            "  method: 'PUT',",
+            "  header: { Authorization: `Bearer ${pm.environment.get('cashier_token')}` }",
+            "}, (error) => {",
+            "  if (error) console.error('Unable to clean up underpayment test order', error);",
             "});"
           ]}}]
         },
         {
-          "name": "TC-021 Payment Without Auth (Security)",
+          "name": "TC-024 Payment Without Auth (Security)",
           "request": {
             "method": "POST", "url": "{{base_url}}/payments",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\"orderId\": 1, \"amountPaid\": 100}" }
           },
           "event": [{ "listen": "test", "script": { "exec": [
-            "pm.test('TC-021: no auth → 401', () => pm.response.to.have.status(401));"
+            "pm.test('TC-024: no auth → 401', () => pm.response.to.have.status(401));"
           ]}}]
         }
       ]

@@ -2,12 +2,11 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma'
 import { authenticate, requireRole } from '../middleware/auth'
+import { calculateChange, isValidPayment } from '../domain/payment'
 
 const router = Router()
 
 // POST /api/payments
-// ⚠️ BUG-001 [Critical]: No validation that amountPaid >= totalAmount
-// Negative change is stored and returned when customer underpays
 router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res) => {
   try {
     const { orderId, amountPaid, method } = req.body as {
@@ -31,12 +30,10 @@ router.post('/', authenticate, requireRole('admin', 'cashier'), async (req, res)
 
     const totalAmount = Number(order.totalAmount)
     const paid = Number(amountPaid)
-
-    // ⚠️ BUG-001: Missing underpayment validation
-    // Fix: if (paid < totalAmount) { res.status(400).json({ error: 'Insufficient payment amount' }); return }
-
-    // ⚠️ BUG-001: change will be NEGATIVE if paid < totalAmount
-    const change = paid - totalAmount
+    if (!isValidPayment(totalAmount, paid)) {
+      res.status(400).json({ error: 'Insufficient payment amount' }); return
+    }
+    const change = calculateChange(totalAmount, paid)
 
     const [payment] = await prisma.$transaction([
       prisma.payment.create({

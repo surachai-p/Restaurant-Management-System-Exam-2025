@@ -1,22 +1,20 @@
 services:
-  - type: pserv
-    name: rms-backend
-    env: docker
-    buildCommand: docker build -t rms-backend ./backend
+  - type: web
+    name: pootanapat-rms-api
+    runtime: docker
+    plan: free
     dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeployTrigger: checksPass
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false # Set in Render dashboard or via secrets
+        sync: false
       - key: JWT_SECRET
-        sync: false # Set in Render dashboard
+        generateValue: true
       - key: CORS_ORIGIN
-        sync: false # Set to your frontend URL
+        sync: false
     healthCheckPath: /api/health
-    disk:
-      name: prisma-cache
-      mountPath: /app/prisma
-      sizeGB: 1

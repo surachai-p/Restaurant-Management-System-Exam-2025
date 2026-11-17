@@ -24,9 +24,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.14.0"
   },
   "devDependencies": {
+    "@emnapi/core": "^2.0.0-beta.2",
+    "@emnapi/runtime": "^2.0.0-beta.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -34,7 +37,6 @@
     "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.5",
-    "prisma": "^5.14.0",
     "supertest": "^7.0.0",
     "tsx": "^4.15.0",
     "typescript": "^5.4.5",

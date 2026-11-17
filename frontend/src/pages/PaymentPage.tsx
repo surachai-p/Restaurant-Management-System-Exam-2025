@@ -63,20 +63,11 @@ export default function PaymentPage() {
               <span className="text-gray-500">Amount Paid</span>
               <span>฿{Number(result.payment.amountPaid).toFixed(2)}</span>
             </div>
-            <div className={`flex justify-between text-base font-bold pt-2 border-t ${
-              result.change < 0 ? 'text-red-600' : 'text-green-600'
-            }`}>
+            <div className="flex justify-between text-base font-bold pt-2 border-t text-green-600">
               <span>Change</span>
-              <span>฿{Number(result.change).toFixed(2)}{result.change < 0 ? ' ⚠️' : ''}</span>
+              <span>฿{Number(result.change).toFixed(2)}</span>
             </div>
           </div>
-          {result.change < 0 && (
-            <div className="mt-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 text-left">
-              ⚠️ <strong>BUG-001 DETECTED:</strong> System accepted underpayment!
-              Change is negative (฿{Number(result.change).toFixed(2)}).
-              This should have returned HTTP 400.
-            </div>
-          )}
           <button className="btn-primary mt-4" onClick={() => navigate('/orders')}>Back to Orders</button>
         </div>
       ) : (
@@ -121,17 +112,18 @@ export default function PaymentPage() {
             </div>
             <div>
               <label className="label">Amount Paid (THB)</label>
-              <input className="input text-lg" type="number" step="0.01" value={amountPaid}
+              <input className="input text-lg" type="number" step="0.01" min={total} value={amountPaid}
                 placeholder={`Min: ${total.toFixed(2)}`}
                 onChange={e => setAmount(e.target.value)} />
               {amountPaid && (
                 <p className={`text-sm mt-1 font-medium ${preview >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                  Change: ฿{preview.toFixed(2)}{preview < 0 ? ' (⚠️ Underpayment — BUG!)' : ''}
+                  {preview >= 0 ? `Change: ฿${preview.toFixed(2)}` : `Insufficient by ฿${Math.abs(preview).toFixed(2)}`}
                 </p>
               )}
             </div>
             <div className="flex gap-3 pt-2">
-              <button className="btn-success flex-1 justify-center py-3" onClick={handlePay} disabled={!amountPaid}>
+              <button className="btn-success flex-1 justify-center py-3" onClick={handlePay}
+                disabled={!amountPaid || paid < total}>
                 Process Payment
               </button>
               <button className="btn-ghost" onClick={() => navigate(-1)}>Cancel</button>
