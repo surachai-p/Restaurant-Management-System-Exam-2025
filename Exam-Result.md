@@ -273,6 +273,7 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Evidence
 > 📸 `tests/reports/newman-report.json` (TC-020b assertions); run date 2026-10-31.
+<img src="photos/tcbug1.png" alt="bug1">
 
 #### Business Impact
 > ร้านอาจบันทึกรายรับที่ไม่ได้รับเงินจริง / เก็บสถานะ "ชำระเงินแล้ว" ของ order ที่พนักงานยังปล่อยโต๊ะไม่ได้เกิดขึ้นจริง (รายได้บันทึกไม่ตรงความจริง)
