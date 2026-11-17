@@ -300,6 +300,7 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Evidence
 > 📸 `tests/reports/newman-report.json` — TC-015 → 409 Conflict.
+<img src="photos/tcbug2.png" alt="bug2">
 
 #### Business Impact
 > พนักงานสามารถจองโต๊ะเดียวกันซ้อนกัน ลูกค้าชนกัน และการปิดโต๊ะหลังชำระเงินอาจทำให้สถานะโต๊ะไม่ตรงกับความจริง
