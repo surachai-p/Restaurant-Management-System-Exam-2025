@@ -1,0 +1,82 @@
+{
+  "info": {
+    "_postman_id": "91e55f8c-f225-4513-b2d4-b14b9229f07f",
+    "name": "RMS-68030434-TestSuite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52715387",
+    "_collection_link": "https://go.postman.co/collection/52715387-91e55f8c-f225-4513-b2d4-b14b9229f07f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"username\": \"admin\", \"password\": \"Admin@123\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base\\_url}}/api/auth/login",
+          "host": [
+            "{{base"
+          ],
+          "path": [
+            "_url}}",
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "https://restaurant-management-system-exam-2025-1-27ph.onrender.com/api/auth/login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n     \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://restaurant-management-system-exam-2025-1-27ph.onrender.com/api/auth/login",
+          "protocol": "https",
+          "host": [
+            "restaurant-management-system-exam-2025-1-27ph",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
