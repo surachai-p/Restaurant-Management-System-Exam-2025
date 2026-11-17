@@ -576,7 +576,7 @@ Build Command:  npm run build
 >
 > (วางภาพที่นี่)
 
-<ing src="photos/la3.png">
+<ing src="photos/la66.png">
 
 <img src="photos/la.png">
 
