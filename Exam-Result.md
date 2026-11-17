@@ -326,6 +326,7 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Evidence
 > 📸 `tests/reports/newman-report.json` — TC-010 [BUG-003] passing.
+<img src="photos/tcbug3.png" alt="bug3">
 
 #### Business Impact
 > (Before fix) Any authenticated user could read/modify any data in the restaurant DB — data breach risk.
@@ -351,6 +352,7 @@ cd frontend && npm audit --audit-level=moderate
 
 #### Evidence
 > 📸 `tests/reports/newman-report.json` — TC-011 [BUG-004] passing.
+<img src="photos/tcbug4.png" alt="bug4">
 
 #### Business Impact
 > Waiter could hide items or change prices — financial and stock mismanagement risk.
@@ -437,12 +439,10 @@ npm run dev
 #### หลักฐาน (On-Premises)
 
 > 📸 **ภาพหน้าจอ Backend Health Check** (`http://localhost:3001/api/health`)
-> 
-> (วางภาพที่นี่)
+<img src="photos/api-health.png" alt="api health check"> 
 
 > 📸 **ภาพหน้าจอ Frontend Login สำเร็จ** (`http://localhost:5173`)
->
-> (วางภาพที่นี่)
+<img src="photos/lofrontend.png" alt="local front-end">
 
 ---
 
@@ -475,7 +475,7 @@ docker compose up --build
 
 > 📸 **ภาพหน้าจอ `docker compose ps`** (ทุก Container สถานะ running)
 >
-> (วางภาพที่นี่)
+<img src="photos/dockercompose.png" alt="docker compose ps">
 
 ---
 
@@ -517,11 +517,11 @@ Build Command:  npm run build
 
 | Variable      | Service   | ค่าตัวอย่าง / คำอธิบาย                         |
 |---------------|-----------|------------------------------------------------|
-| `DATABASE_URL` | Backend  | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
+| `DATABASE_URL` | Backend  | `postgresql://neondb_owner:npg_IHk1xf7QXMLY@ep-wild-rain-azsch491-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require` |
 | `JWT_SECRET`   | Backend  | random string ที่ปลอดภัย (≥ 32 ตัวอักษร)       |
-| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://[app].vercel.app` |
+| `CORS_ORIGIN`  | Backend  | URL ของ Frontend เช่น `https://restaurant-management-system-exam-2-jet.vercel.app/` |
 | `NODE_ENV`     | Backend  | `production`                                    |
-| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://[api].onrender.com` |
+| `VITE_API_URL` | Frontend | URL ของ Backend เช่น `https://booking-backend-2xgx.onrender.com/` |
 
 ---
 
@@ -539,6 +539,11 @@ Build Command:  npm run build
 **Production Smoke Test ผ่าน: ___ / 4 รายการ**
 
 > 📸 (วางภาพหน้าจอหลักฐานแต่ละ Feature)
+<img src="photos/healthrender.png" alt="api health at render">
+<img src="photos/feat2.png" alt="login with admin role">
+<img src="photos/feat3.png" alt="order & add">
+<img src="photos/feat4.png" alt="pay">
+<img src="photos/feat4-1.png" alt="have print">
 
 ---
 
