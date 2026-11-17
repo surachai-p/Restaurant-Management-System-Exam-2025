@@ -1,0 +1,70 @@
+{
+  "info": {
+    "_postman_id": "91e55f8c-f225-4513-b2d4-b14b9229f07f",
+    "name": "RMS-68030434-TestSuite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52715387",
+    "_collection_link": "https://go.postman.co/collection/52715387-91e55f8c-f225-4513-b2d4-b14b9229f07f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "https://restaurant-management-system-exam-2025-1-27ph.onrender.com/api/auth/login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://restaurant-management-system-exam-2025-1-27ph.onrender.com/api/auth/login",
+          "protocol": "https",
+          "host": [
+            "restaurant-management-system-exam-2025-1-27ph",
+            "onrender",
+            "com"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"Admin@123\" \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
